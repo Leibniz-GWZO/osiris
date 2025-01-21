@@ -16,6 +16,7 @@ class OpenAlexParser():
             "report-component": "others",
             "report": "others",
             "peer-review": "others",
+            "review": "others",
             "book-track": "book",
             "journal-article": "article",
             "article": "article",
