@@ -1,13 +1,10 @@
 <?php
 include_once 'DB.php';
-// include_once 'Settings.php';
 
 class Coins
 {
-
     public $matrix = array();
     private $db = null;
-
 
     function __construct()
     {
@@ -17,8 +14,8 @@ class Coins
         $types = $this->db->adminTypes->find()->toArray();
         foreach ($types as $typeArr) {
             $type = $typeArr['id'];
-            if (is_numeric($typeArr['coins']))
-                $typeArr['coins'] = floatval($typeArr['coins'] ?? 0);
+            // Prüfen, ob "coins" existiert, und Standardwert setzen
+            $typeArr['coins'] = isset($typeArr['coins']) ? floatval($typeArr['coins']) : 0;
             $this->matrix[$type] = $typeArr['coins'];
         }
     }
@@ -30,6 +27,15 @@ class Coins
         ];
 
         $subtype = $doc['subtype'];
+
+        // Prüfung auf Subtype in der Matrix
+        if (!isset($this->matrix[$subtype])) {
+            return [
+                'coins' => 0,
+                'comment' => "Subtype '$subtype' not found in matrix"
+            ];
+        }
+
         $coins = $this->matrix[$subtype];
 
         $authors = DB::doc2Arr($doc['authors']);
@@ -40,6 +46,7 @@ class Coins
         if (empty($author)) return [
             'coins' => 0, 'comment' => 'User not author'
         ];
+
         $author = reset($author);
         $position = ($author['position'] ?? '');
 
@@ -57,26 +64,30 @@ class Coins
                 'coins' => $coins, 'comment' => $comment
             ];
         }
-        if (preg_match('/(\d+)(?:\s*)([\+\-\*\/])(?:\s*)\{(if|sws)\}/', $coins, $matches) !== FALSE) {
+
+        if (preg_match('/(\d+)(?:\s*)([\+\-\*\/])(?:\s*)\{(if|sws)\}/', $coins, $matches) > 0) {
             $val = 0;
             $coins = $matches[1];
             $operator = $matches[2];
             $thingy = strtoupper($matches[3]);
+
             if ($thingy == 'IF') {
                 $val = max($doc['impact'] ?? 0, 1);
-            }
-            if ($thingy == 'SWS') {
+            } elseif ($thingy == 'SWS') {
                 $val = $author['sws'] ?? 0;
             }
+
             if (empty($val)) return [
                 'coins' => 0, 'comment' => 'Undefined value'
             ];
+
             if ($position == 'middle') $coins /= 2;
             $c = ($coins) * intval($val);
             return [
-                'coins' => $c, 'comment' => "$coins &times; $val ($thingy) "
+                'coins' => $c, 'comment' => "$coins &times; $val ($thingy)"
             ];
         }
+
         return [
             'coins' => 0, 'comment' => 'Undefined coins'
         ];
@@ -85,88 +96,80 @@ class Coins
     function getCoins($user, $year = null)
     {
         $total = 0;
+
         foreach ($this->matrix as $subtype => $coins) {
-            // dump($subtype);
             $filter = [
                 'subtype' => $subtype,
                 'authors' => ['$elemMatch' => ['user' => $user, 'aoi' => ['$in' => [true, 1, '1']]]],
                 'epub' => ['$ne' => true]
             ];
-            if ($year !== null){
-                $filter['$or'] =   array(
+
+            if ($year !== null) {
+                $filter['$or'] = [
                     [
-                        "start.year" => array('$lte' => $year),
-                        '$or' => array(
-                            ['end.year' => array('$gte' => $year)],
+                        "start.year" => ['$lte' => $year],
+                        '$or' => [
+                            ['end.year' => ['$gte' => $year]],
                             [
                                 'end' => null,
-                                '$or' => array(
+                                '$or' => [
                                     ['type' => 'misc', 'subtype' => 'misc-annual'],
-                                    ['type' => 'review', 'subtype' =>  'editorial'],
-                                )
+                                    ['type' => 'review', 'subtype' => 'editorial'],
+                                ]
                             ]
-                        )
+                        ]
                     ],
                     ['year' => $year]
-                );
-                }
+                ];
+            }
+
             if (is_numeric($coins)) {
-                // just count the numbers and multiply
-                $N = $this->db->activities->count($filter);
-                if ($N == 0) continue;
+                try {
+                    $N = $this->db->activities->count($filter);
+                    if ($N == 0) continue;
 
-                // add new filter for middle authorship
-                $middle_filter = array_merge_recursive($filter, ['authors' => ['$elemMatch' => ['position' => 'middle']]]);
+                    $middle_filter = $filter;
+                    $middle_filter['authors']['$elemMatch']['position'] = 'middle';
+                    $middle = $this->db->activities->count($middle_filter);
 
-                $middle = $this->db->activities->count($middle_filter);
-                // echo "(($N - $middle) * $coins) + ($middle * $coins / 2)";
-                $total += (($N - $middle) * $coins) + ($middle * $coins / 2);
-                // dump($total);
-            } else if (preg_match('/(\d+)(?:\s*)([\+\-\*\/])(?:\s*)\{(if|sws)\}/', $coins, $matches) !== FALSE) {
-                $coins = $matches[1];
-                $operator = $matches[2];
-                $thingy = $matches[3];
-
-                if ($thingy == 'if') {
-                    $docs = $this->db->activities->aggregate([
-                        ['$match' => $filter],
-                        ['$project' => ['impact' => 1, 'authors' => 1]],
-                        ['$unwind' => '$authors'],
-                        ['$match' => ['authors.user' => $user]],
-                        ['$project' => ['impact' => 1, 'authors.position' => 1]],
-                        [
-                            '$group' => [
-                                '_id' => ['$toLower' => '$authors.position'],
-                                'sum' => ['$sum' => '$impact']
-                            ]
-                        ]
-                    ]);
-                } else {
-                    $docs = $this->db->activities->aggregate([
-                        ['$match' => $filter],
-                        ['$project' => ['authors' => 1]],
-                        ['$unwind' => '$authors'],
-                        ['$match' => ['authors.user' => $user]],
-                        [
-                            '$group' => [
-                                '_id' => ['$toLower' => '$authors.user'],
-                                'sum' => ['$sum' => ['$convert' => [
-                                    'input' => '$authors.sws',
-                                    'to' => 'int',
-                                    'onError' => 0
-                                ]]],
-                                'onError' => ['$sum' => 0]
-                            ]
-                        ]
-                    ]);
+                    $total += (($N - $middle) * $coins) + ($middle * $coins / 2);
+                } catch (Exception $e) {
+                    error_log("Database error: " . $e->getMessage());
+                    continue;
                 }
+            } elseif (preg_match('/(\d+)(?:\s*)([\+\-\*\/])(?:\s*)\{(if|sws)\}/', $coins, $matches) > 0) {
+                $docs = $this->aggregateDocs($filter, $user, strtolower($matches[3]));
+
                 foreach ($docs as $val) {
-                    $c = ($coins) * $val['sum'];
+                    $c = ($matches[1]) * $val['sum'];
                     if ($val['_id'] == 'middle') $c /= 2;
                     $total += $c;
                 }
             }
         }
+
         return round($total);
+    }
+
+    private function aggregateDocs($filter, $user, $field)
+    {
+        $projectField = $field === 'if' ? 'impact' : 'sws';
+
+        return $this->db->activities->aggregate([
+            ['$match' => $filter],
+            ['$project' => [$projectField => 1, 'authors' => 1]],
+            ['$unwind' => '$authors'],
+            ['$match' => ['authors.user' => $user]],
+            [
+                '$group' => [
+                    '_id' => ['$toLower' => '$authors.position'],
+                    'sum' => ['$sum' => ['$convert' => [
+                        'input' => "$authors.$projectField",
+                        'to' => 'int',
+                        'onError' => 0
+                    ]]]
+                ]
+            ]
+        ]);
     }
 }
