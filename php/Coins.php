@@ -18,7 +18,7 @@ class Coins
         foreach ($types as $typeArr) {
             $type = $typeArr['id'];
             if (is_numeric($typeArr['coins']))
-                $typeArr['coins'] = floatval($typeArr['coins']);
+                $typeArr['coins'] = floatval($typeArr['coins'] ?? 0);
             $this->matrix[$type] = $typeArr['coins'];
         }
     }
