@@ -1,6 +1,18 @@
 # Neuigkeiten
 
 
+<span class="badge float-right">under development</span>
+<a class="anchor" href="#version-1.4.1" id="version-1.4.1"></a>
+
+## Version 1.4.1 (Beta)
+
+#### <i class="ph ph-table"></i> Pivot-Tabellen und Diagramme
+- Es wurde ein neues Modul hinzugefügt, mit dem Pivot-Tabellen und Diagramme erstellt werden können
+- Die Daten können nach verschiedenen Kategorien gruppiert und aggregiert werden, um Trends und Muster zu erkennen
+- Die Daten können in verschiedenen Diagrammen dargestellt werden, z.B. Balken-, Linien- und Tortendiagramme
+
+---
+
 <span class="badge float-right">12.02.2025</span>
 <a class="anchor" href="#version-1.4.0" id="version-1.4.0"></a>
 

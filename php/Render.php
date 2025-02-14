@@ -53,7 +53,8 @@ function renderActivities($filter = [])
             if (!empty($if)) {
                 $values['impact'] = $if;
             }
-            $values['quartile'] = $DB->get_metrics($doc);
+            $values['metrics'] = $DB->get_metrics($doc);
+            $values['quartile'] = $values['metrics']['quartile'] ?? null;
         }
         $aoi_authors = array_filter($doc['authors'], function ($a) {
             return $a['aoi'] ?? false;

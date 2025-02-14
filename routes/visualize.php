@@ -67,3 +67,14 @@ Route::get('/dashboard', function () {
     }
     include BASEPATH . "/footer.php";
 });
+
+// pivot table
+Route::get('/pivot', function () {
+    include_once BASEPATH . "/php/init.php";
+    $breadcrumb = [
+        ['name' => lang('Pivot Table', 'Pivot-Tabelle')]
+    ];
+    include BASEPATH . "/header.php";
+    include BASEPATH . "/pages/pivot.php";
+    include BASEPATH . "/footer.php";
+});

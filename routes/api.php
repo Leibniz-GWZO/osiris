@@ -2328,3 +2328,56 @@ Route::get('/api/calendar', function () {
 
     echo return_rest($events, count($events));
 });
+
+
+// pivot-data
+Route::get('/api/pivot-data', function () {
+    error_reporting(E_ERROR | E_PARSE);
+    include_once BASEPATH . "/php/init.php";
+
+    if (!apikey_check($_GET['apikey'] ?? null)) {
+        echo return_permission_denied();
+        die;
+    }
+
+    $projection = [
+        '_id' => 0,
+        'type' => 1,
+        'subtype' => 1,
+        'year' => 1,
+        'month' => 1,
+        'start_date' => 1,
+        'end_date' => 1,
+        'units' => 1,
+        'affiliated_positions' => 1,
+        'cooperative' => 1,
+        'journal' => 1,
+        // 'pubtype' => 1,
+        'category' => 1,
+        'status' => 1,
+        'software_type' => 1,
+        'country' => 1,
+        'openaccess-status' => 1,
+        'quartile' => 1,
+        'impact' => 1,
+        // 'pubmed' => 1,
+        // 'pages' => 1,
+        // 'volume' => 1,
+        'topics' => 1,
+        'created' => 1,
+        'imported' => 1,
+        'id' => ['$toString' => '$_id']
+    ];
+
+    // add custom fields
+
+    foreach ($osiris->adminFields->find() as $field) {
+        $projection[$field['id']] = 1;
+    }
+
+
+    $data = $osiris->activities->find([],
+        ['projection' => $projection]
+    )->toArray();
+    echo return_rest($data, count($data));
+});

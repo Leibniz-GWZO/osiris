@@ -539,6 +539,10 @@ $pageactive = function ($p) use ($page) {
                             <?= lang('Visualizations', 'Visualisierung') ?>
                         </a>
 
+                        <a href="<?= ROOTPATH ?>/pivot" class="with-icon <?= $pageactive('pivot') ?>">
+                            <i class="ph ph-table" aria-hidden="true"></i>
+                            <?= lang('Pivot table', 'Pivot-Tabelle') ?>
+                        </a>
                     </nav>
 
 
