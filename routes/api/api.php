@@ -80,7 +80,6 @@ function return_rest($data, $count = 0, $status = 200)
     }
     return json_encode($result, JSON_NUMERIC_CHECK | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
 }
-
 Route::get('/api/test', function () {
     error_reporting(E_ERROR | E_PARSE);
     include_once BASEPATH . "/php/init.php";

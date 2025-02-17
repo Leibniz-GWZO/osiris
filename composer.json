@@ -10,7 +10,8 @@
         "phpmailer/phpmailer": "^6.8",
         "chillerlan/php-qrcode": "^4.3",
         "amenadiel/jpgraph": "^4.1",
-        "league/oauth2-client": "^2.7"
+        "league/oauth2-client": "^2.7",
+        "swagger-api/swagger-ui": "^5.18"
     },
     "require-dev": {
         "panique/php-sass": "1.0"

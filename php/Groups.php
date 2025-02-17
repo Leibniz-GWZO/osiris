@@ -110,6 +110,7 @@ class Groups
 
     public function getGroup($id)
     {
+        if (!is_string($id)) return [];
         $group = $this->groups[$id] ?? [
             'id' => '',
             'name' => 'Unknown Unit',

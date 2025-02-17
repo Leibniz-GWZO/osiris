@@ -7,12 +7,38 @@
  * Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
  *
  * @package     OSIRIS
- * @since       1.3.0
+ * @since       1.4.1
  * 
  * @copyright	Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
  * @license     MIT
  */
+
+ Route::get('/portfolio/swagger', function () {
+    error_reporting(E_ERROR | E_PARSE);
+    require BASEPATH . '/vendor/autoload.php';
+    ?>
+    <!DOCTYPE html>
+    <html lang="de">
+    <head>
+        <meta charset="UTF-8">
+        <title>OSIRIS API Docs</title>
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css">
+    </head>
+    <body>
+        <div id="swagger-ui"></div>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js"></script>
+        <script>
+            const ROOTPATH = '<?= ROOTPATH ?>';
+            const ui = SwaggerUIBundle({
+                url: ROOTPATH + "/swagger.json",
+                dom_id: "#swagger-ui"
+            });
+        </script>
+    </body>
+    </html>
+    <?php
+});
 
 Route::get('/docs', function () {
 
