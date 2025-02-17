@@ -744,17 +744,23 @@ Route::post('/crud/users/profile-picture/(.*)', function ($user) {
         }
     } else if (isset($_POST['delete'])) {
         // $filename = "$user.jpg";
+        if ($Settings->featureEnabled('db_pictures')) {
         $osiris->userImages->deleteOne(['user' => $user]);
-        // if (file_exists($target_dir . $filename)) {
-        //     // Use unlink() function to delete a file
-        //     if (!unlink($target_dir . $filename)) {
-        //         printMsg("$filename cannot be deleted due to an error.", "error");
-        //     } else {
-        header("Location: " . ROOTPATH . "/profile/$user?msg=deleted");
+        } else {
+            $target_dir = BASEPATH . "/img/users";
+            if (!is_writable($target_dir)) {
+                die("User image directory is unwritable. Please contact admin.");
+            }
+            $target_dir .= "/";
+            $filename = "$user.jpg";
+            // check if file exists
+            if (file_exists($target_dir . $filename)) {
+                unlink($target_dir . $filename);
+            }
+        }
+        $_SESSION['msg'] = lang("Profile picture deleted.", "Profilbild gelöscht.");
+        header("Location: " . ROOTPATH . "/profile/$user");
         die;
-        //     }
-        // }
-        // printMsg("File has been deleted from the database.", "success");
     }
 });
 

@@ -177,7 +177,7 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
                 <?php if (true) { ?>
                     <hr>
-                    <form action="<?= ROOTPATH ?>/crud/users/update-profile/<?= $user ?>" method="post">
+                    <form action="<?= ROOTPATH ?>/crud/users/profile-picture/<?= $user ?>" method="post">
                         <input type="hidden" name="delete" value="true">
                         <button class="btn danger">
                             <i class="ph ph-trash"></i>
