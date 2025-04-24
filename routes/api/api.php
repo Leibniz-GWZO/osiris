@@ -781,15 +781,33 @@ Route::get('/api/journals', function () {
     header("Expires: 0");
     $pipeline = [
         [
+            '$unwind' => '$impact'
+        ],
+        [
+            '$sort' => ['impact.year' => -1]
+        ],
+        [
+            '$group' => [
+                '_id' => '$_id',
+                'journal' => ['$first' => '$journal'],
+                'abbr' => ['$first' => '$abbr'],
+                'publisher' => ['$first' => '$publisher'],
+                'open_access' => ['$first' => '$oa'],
+                'issn' => ['$first' => '$issn'],
+                'country' => ['$first' => '$country'],
+                'latest_impact' => ['$first' => '$impact']
+            ]
+        ],
+        [
             '$project' => [
                 'id' => ['$toString' => '$_id'],
                 'name' => '$journal',
                 'abbr' => '$abbr',
                 'publisher' => 1,
-                'open_access' => '$oa',
+                'open_access' => '$open_access',
                 'issn' => '$issn',
                 'country' => '$country',
-                'if' => ['$arrayElemAt' => ['$impact', -1]]
+                'if' => '$latest_impact',
             ]
         ],
         [
@@ -821,8 +839,6 @@ Route::get('/api/journals', function () {
                 'count' => 1
             ]
         ]
-
-
     ];
 
     $journals = $osiris->journals->aggregate($pipeline)->toArray();
