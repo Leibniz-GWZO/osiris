@@ -15,6 +15,8 @@
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
  * @license     MIT
  */
+
+ $topicsEnabled = $Settings->featureEnabled('topics') && $osiris->topics->count() > 0;
 ?>
 
 <link rel="stylesheet" href="<?= ROOTPATH ?>/css/usertable.css">
@@ -77,7 +79,7 @@
             </div>
 
 
-            <?php if ($Settings->featureEnabled('topics')) { ?>
+            <?php if ($topicsEnabled) { ?>
                 <h6><?= $Settings->topicLabel() ?>
                     <a class="float-right" onclick="filterUsers('#filter-unit .active', null, 5)"><i class="ph ph-x"></i></a>
                 </h6>

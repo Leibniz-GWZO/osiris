@@ -496,6 +496,7 @@ Route::get('/api/users', function () {
         die;
     }
 
+    $topicsEnabled = $Settings->featureEnabled('topics') && $osiris->topics->count() > 0;
     $table = [];
     foreach ($result as $user) {
         $subtitle = "";
@@ -514,7 +515,7 @@ Route::get('/api/users', function () {
                 </a>';
         }
         $topics = '';
-        if ($user['topics'] ?? false) {
+        if ($topicsEnabled && $user['topics'] ?? false) {
             $topics = '<span class="float-right topic-icons">';
             foreach ($user['topics'] as $topic) {
                 $topics .= '<a href="' . ROOTPATH . '/topics/view/' . $topic . '" class="topic-icon topic-' . $topic . '"></a> ';
