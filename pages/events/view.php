@@ -295,8 +295,4 @@ if ($topicsEnabled) {
 </script>
 
 
-<?php
-if (isset($_GET['verbose'])) {
-    dump($conference, true);
-}
-?>
+<?php dump_verbose($conference, true); ?>

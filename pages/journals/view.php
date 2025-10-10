@@ -599,8 +599,4 @@ foreach ($metrics as $metric) {
 <?php } ?>
 
 
-<?php
-if (isset($_GET['verbose'])) {
-    dump($data, true);
-}
-?>
+<?php dump_verbose($data, true); ?>

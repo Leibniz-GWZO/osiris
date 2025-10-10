@@ -750,7 +750,6 @@ $active = function ($field) use ($data_fields) {
     <?php } ?>
 
 
-    <?php if (isset($_GET['verbose'])) {
-        dump($infrastructure, true);
-    } ?>
+    <?php dump_verbose($infrastructure, true); ?>
+
 </div>

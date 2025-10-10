@@ -118,7 +118,7 @@ class Settings
                 $req = $this->osiris->adminGeneral->findOne(['key' => 'startyear']);
                 return intval($req['value'] ?? 2020);
             case 'departments':
-                dump("DEPARTMENTS sollten nicht mehr hierüber abgefragt werden.");
+                error_log('DEPARTMENTS should no longer be retrieved via Settings::get');
                 return '';
             case 'activities':
                 return $this->getActivities();

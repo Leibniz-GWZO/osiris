@@ -633,9 +633,4 @@ $count_wordcloud = 0;
 <?php } ?>
 
 
-<?php
-
-if (isset($_GET['verbose'])) {
-    dump($group, true);
-}
-?>
+<?php dump_verbose($group, true); ?>

@@ -272,7 +272,7 @@ if ($topicsEnabled) {
     <?php endif; ?>
 
 
-    <?php if ($Settings->hasPermission('raw-data') || isset($_GET['verbose'])) { ?>
+    <?php if ($Settings->hasPermission('raw-data') || is_verbose_request()) { ?>
         <a onclick="navigate('raw-data')" id="btn-raw" class="btn">
             <i class="ph ph-code" aria-hidden="true"></i>
             <?= lang('Raw data', 'Rohdaten')  ?>
@@ -970,7 +970,12 @@ if ($topicsEnabled) {
     </p>
     <div class="box overflow-x-auto mt-0">
         <?php
-        dump($project);
+        $rawProject = DB::doc2Arr($project ?? []);
+        $rawJson = json_encode($rawProject, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($rawJson === false) {
+            $rawJson = print_r($rawProject, true);
+        }
+        echo '<pre class="raw-data">' . htmlspecialchars($rawJson) . '</pre>';
         ?>
     </div>
 

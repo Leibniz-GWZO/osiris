@@ -623,6 +623,4 @@ if ($process == 'project') {
 // dump($date);
 ?>
 
-<?php if (isset($_GET['verbose'])) {
-    dump($project);
-} ?>
+<?php dump_verbose($project); ?>

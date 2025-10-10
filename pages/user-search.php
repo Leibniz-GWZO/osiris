@@ -209,7 +209,7 @@ $active_fields = array_values($active_fields);
     }
     $filters = array_map(function ($f) {
         if (!isset($f['type'])) {
-            dump($f);
+            error_log('User search filter missing type: ' . json_encode($f));
         }
         if ($f['type'] == 'boolean') {
             $f['input'] = 'radio';

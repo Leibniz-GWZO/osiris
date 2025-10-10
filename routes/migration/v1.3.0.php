@@ -120,8 +120,6 @@ foreach ($persons as $person) {
         if ($person['dept'] === 'BIDB') $person['dept'] = 'BID';
         $depts[] = $person['dept'];
     }
-    dump($depts);
-    // die;
     $updated = $osiris->persons->updateOne(
         ['_id' => $person['_id']],
         ['$set' => ['depts' => $depts]]

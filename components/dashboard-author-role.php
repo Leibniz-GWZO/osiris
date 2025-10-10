@@ -5,28 +5,6 @@
                 <canvas id="chart-authors" style="max-height: 30rem;"></canvas>
             </div>
 
-            <?php
-                $data = $osiris->activities->aggregate([
-                    ['$match' => ['authors.user' => $user]],
-                    ['$project' => ['authors' => 1]],
-                    ['$unwind' => '$authors'],
-                    ['$match' => ['authors.user' => $user]],
-                    ['$match' => ['authors.aoi' => true]],
-                    [
-                        '$group' => [
-                            '_id' => '$authors.position',
-                            'count' => ['$sum' => 1],
-                            // 'doc' => ['$push' => '$$ROOT']
-                        ]
-                    ],
-                    ['$sort' => ['count' => -1]],
-                    [ '$limit' => 100 ]
-                ]);
-                foreach ($data as $a) {
-                    dump($a, true);
-                }
-            ?>
-            
             <script>
                 var ctx = document.getElementById('chart-authors')
                 var myChart = new Chart(ctx, {

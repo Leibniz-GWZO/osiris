@@ -262,7 +262,7 @@ class IDA
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         $result = curl_exec($curl);
         if ($result === false) {
-            dump(curl_error($curl));
+            error_log('IDA API request failed: ' . curl_error($curl));
             throw new Exception(curl_error($curl), curl_errno($curl));
         }
         curl_close($curl);

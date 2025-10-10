@@ -30,7 +30,7 @@ $filters = array_filter($FIELDS, function ($f) {
 // convert into valid query-builder format
 $filters = array_map(function ($f) {
     if (!isset($f['type'])) {
-        dump($f);
+        error_log('Activity search filter missing type: ' . json_encode($f));
     }
     if ($f['type'] == 'boolean') {
         $f['input'] = 'radio';
