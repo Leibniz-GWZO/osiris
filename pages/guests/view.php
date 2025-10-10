@@ -533,6 +533,4 @@ require_once BASEPATH . "/vendor/autoload.php";
 
 
 
-<?php if (isset($_GET['verbose'])) {
-    dump($form, true);
-} ?>
+<?php dump_verbose($form, true); ?>

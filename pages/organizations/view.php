@@ -253,6 +253,4 @@ $edit_perm = ($organization['created_by'] == $_SESSION['username'] || $Settings-
 
 
 
-<?php if (isset($_GET['verbose'])) {
-    dump($organization, true);
-} ?>
+<?php dump_verbose($organization, true); ?>

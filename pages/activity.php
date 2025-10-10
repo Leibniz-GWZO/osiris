@@ -650,7 +650,7 @@ if (!isset($doc['year']) || empty($doc['year']) || !isset($doc['month']) || empt
         </a>
     <?php endif; ?>
 
-    <?php if ($Settings->hasPermission('raw-data') || isset($_GET['verbose'])) { ?>
+    <?php if ($Settings->hasPermission('raw-data') || is_verbose_request()) { ?>
         <a onclick="navigate('raw')" id="btn-raw" class="btn">
             <i class="ph ph-code" aria-hidden="true"></i>
             <?= lang('Raw data', 'Rohdaten')  ?>
@@ -671,7 +671,12 @@ if (!isset($doc['year']) || empty($doc['year']) || !isset($doc['month']) || empt
 
     <div class="box overflow-x-scroll">
         <?php
-        dump($doc, true);
+        $rawActivity = DB::doc2Arr($doc ?? []);
+        $rawJson = json_encode($rawActivity, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($rawJson === false) {
+            $rawJson = print_r($rawActivity, true);
+        }
+        echo '<pre class="raw-data">' . htmlspecialchars($rawJson) . '</pre>';
         ?>
     </div>
 

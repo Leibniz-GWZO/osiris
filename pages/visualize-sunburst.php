@@ -182,8 +182,4 @@ updateRecursive($flare, $activities);
     chart('#flare', flare);
 </script>
 
-<?php
-if (isset($_GET['verbose'])){
-    dump($flare, true);
-}
-?>
+<?php dump_verbose($flare, true); ?>

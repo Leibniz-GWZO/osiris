@@ -662,6 +662,75 @@ function dump($element, $as_json = true)
     echo "</pre>";
 }
 
+/**
+ * Determine whether verbose debug output should be rendered for the current request.
+ *
+ * Verbose mode is enabled when the request contains a `?verbose` query parameter
+ * or one of the supported environment flags (OSIRIS_VERBOSE, OSIRIS_DEBUG_VERBOSE,
+ * OSIRIS_VERBOSE_DUMP) is set to a truthy value.
+ */
+function is_verbose_request(): bool
+{
+    static $verbose = null;
+    if ($verbose !== null) {
+        return $verbose;
+    }
+
+    $requestVerbose = false;
+    if (array_key_exists('verbose', $_GET ?? [])) {
+        $value = $_GET['verbose'];
+        if ($value === null || $value === '') {
+            $requestVerbose = true;
+        } elseif (is_bool($value)) {
+            $requestVerbose = $value;
+        } elseif (is_string($value)) {
+            $normalized = strtolower($value);
+            $requestVerbose = !in_array($normalized, ['0', 'false', 'off', 'no'], true);
+        } else {
+            $requestVerbose = (bool) $value;
+        }
+    }
+
+    $envVerbose = false;
+    foreach (['OSIRIS_VERBOSE', 'OSIRIS_DEBUG_VERBOSE', 'OSIRIS_VERBOSE_DUMP'] as $envKey) {
+        $envValue = getenv($envKey);
+        if ($envValue === false || $envValue === null) {
+            continue;
+        }
+        $envValue = strtolower(trim((string) $envValue));
+        if ($envValue === '') {
+            continue;
+        }
+        if (in_array($envValue, ['1', 'true', 'on', 'yes'], true)) {
+            $envVerbose = true;
+            break;
+        }
+    }
+
+    $verbose = ($requestVerbose || $envVerbose);
+    return $verbose;
+}
+
+/**
+ * Dump structured data only when verbose mode is active.
+ */
+function dump_verbose($element, $as_json = true): void
+{
+    if (!is_verbose_request()) {
+        return;
+    }
+
+    $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+    if ($method !== 'GET') {
+        $allow = filter_var(getenv('OSIRIS_VERBOSE_ALLOW_NON_GET') ?: 'false', FILTER_VALIDATE_BOOLEAN);
+        if (!$allow) {
+            return;
+        }
+    }
+
+    dump($element, $as_json);
+}
+
 function bool_icon($bool)
 {
     if ($bool) {

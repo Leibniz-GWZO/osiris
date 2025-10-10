@@ -205,7 +205,12 @@ Route::get('/user/ldap-example', function () {
     ];
 
     include BASEPATH . "/header.php";
-    dump($data, true);
+    $rawData = DB::doc2Arr($data ?? []);
+    $rawJson = json_encode($rawData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    if ($rawJson === false) {
+        $rawJson = print_r($rawData, true);
+    }
+    echo '<pre class="raw-data">' . htmlspecialchars($rawJson) . '</pre>';
     include BASEPATH . "/footer.php";
 }, 'login');
 

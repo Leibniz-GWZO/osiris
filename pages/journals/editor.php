@@ -28,10 +28,7 @@
     ?>
 </h1>
 
-<!-- 
-<?php
-dump($data, true);
-?> -->
+<?php dump_verbose($data, true); ?>
 
 <?php
 if ($id === null || empty($data)) {

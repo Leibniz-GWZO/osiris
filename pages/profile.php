@@ -1728,8 +1728,4 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
 
 
-<?php
-if (isset($_GET['verbose'])) {
-    dump($scientist, true);
-}
-?>
+<?php dump_verbose($scientist, true); ?>

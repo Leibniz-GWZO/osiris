@@ -650,7 +650,12 @@ $connected_project = $osiris->projects->findOne(['_id' => DB::to_ObjectID($id)])
     </p>
     <div class="box overflow-x-auto mt-0">
         <?php
-        dump($project);
+        $rawProject = DB::doc2Arr($project ?? []);
+        $rawJson = json_encode($rawProject, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if ($rawJson === false) {
+            $rawJson = print_r($rawProject, true);
+        }
+        echo '<pre class="raw-data">' . htmlspecialchars($rawJson) . '</pre>';
         ?>
     </div>
 
