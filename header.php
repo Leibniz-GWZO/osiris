@@ -121,6 +121,13 @@ $pageactive = function ($p) use ($page) {
     <script src="<?= ROOTPATH ?>/js/osiris.js?<?= filemtime(BASEPATH . '/js/osiris.js') ?>"></script>
     <script src="<?= ROOTPATH ?>/js/script.js?<?= filemtime(BASEPATH . '/js/script.js') ?>"></script>
 
+    <?php
+    $customHeadIncludes = BASEPATH . '/addons/head-scripts.php';
+    if (file_exists($customHeadIncludes)) {
+        include $customHeadIncludes;
+    }
+    ?>
+
     <?php if (isset($additionalHead)) {
         echo $additionalHead;
     } ?>
