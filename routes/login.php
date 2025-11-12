@@ -62,7 +62,16 @@ Route::get('/user/oauth-callback', function () {
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //$response = curl_exec($ch);
+        //curl_close($ch);
         $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErrNo = curl_errno($ch);
+        $curlErr = curl_error($ch);
+        if ($curlErrNo !== 0) {
+            error_log('[OAuth] Token request cURL error #' . $curlErrNo . ': ' . $curlErr);
+        }
+        error_log('[OAuth] Token request HTTP status ' . $httpCode . ' response: ' . $response);
         curl_close($ch);
         $data = json_decode($response, true);
         if (isset($data['access_token'])) {
@@ -337,3 +346,4 @@ Route::get('/user/oauth', function () {
         }
     }
 });
+
