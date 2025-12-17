@@ -274,6 +274,18 @@ class Modules
             "width" => 6,
             "tags" => ['general']
         ],
+        "guest" => [
+            "fields" => ["category" => 'guest scientist'],
+            "name" => "Guest Category",
+            "name_de" => "Gäste-Kategorie",
+            "label" => "Category of the guest",
+            "label_de" => "Art des Gastes",
+            "description" => "A field for the category of a guest, can be one of the following: guest scientist, lecture internship, student internship, other.",
+            "description_de" => "Ein Feld für die Kategorie eines Gastes, kann eine der folgenden sein: Gastwissenschaftler:in, Pflichtpraktikum im Rahmen des Studium, Schülerpraktikum, Sonstiges.",
+            "width" => 6,
+            "tags" => ['people'],
+            "show" => false
+        ],
         "guest-category" => [
             "fields" => ["category" => 'guest scientist'],
             "name" => "Guest Category",
@@ -2192,7 +2204,7 @@ class Modules
                     <script>
                         function filterEvents() {
                             var input, filter, div, a, i, txtValue;
-                            input = document.getElementById("myInput");
+                            input = document.getElementById("event-select-search");
                             filter = input.value.toUpperCase();
                             div = document.querySelector("#event-select-dropdown .events-content");
                             a = div.getElementsByTagName("a");
@@ -3103,11 +3115,10 @@ class Modules
                     </label>
                     <a id="organization" class="module" href="#organization-modal-<?= $rand_id ?>">
                         <i class="ph ph-edit float-right"></i>
-                        <input hidden readonly name="values[organization]" value="<?= $org_id ?>" <?= $labelClass ?> readonly id="org-<?= $rand_id ?>-organization" <?= $labelClass ?> />
+                        <input hidden readonly name="values[organization]" value="<?= $org_id ?>" <?= $labelClass ?> readonly id="org-<?= $rand_id ?>-organization"/>
                         <span class="text-danger mr-10 float-right" data-toggle="tooltip" data-title="<?= lang('Remove connected organization', 'Verknüpfte Organisation entfernen') ?>">
                             <i class="ph ph-trash" onclick="$('#org-<?= $rand_id ?>-organization').val(''); $('#org-<?= $rand_id ?>-value').html('<?= lang('No organization connected', 'Keine Organisation verknüpft') ?>'); return false;"></i>
                         </span>
-                        <input hidden readonly name="values[organization]" value="<?= $org_id ?>" <?= $labelClass ?> readonly id="org-<?= $rand_id ?>-organization" />
 
                         <div id="org-<?= $rand_id ?>-value">
                             <?php if (empty($org_id) || !DB::is_ObjectID($org_id)) { ?>
