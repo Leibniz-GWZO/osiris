@@ -786,6 +786,9 @@ Route::post('/crud/activities/update/([A-Za-z0-9]*)', function ($id) {
         unset($values['authors']);
         unset($values['editors']);
     }
+    
+    $values['updated'] = date('Y-m-d');
+    $values['updated_by'] = ($_SESSION['username']);
 
     // add information on units
     if (isset($values['authors']) || isset($values['editors']) || isset($values['supervisors'])) {
@@ -1095,6 +1098,9 @@ Route::post('/crud/activities/update-(authors|editors|supervisors)/([A-Za-z0-9]*
     // prepare values for update
     $type = strtolower($type);
     $values = [$type => $authors];
+
+    $values['updated'] = date('Y-m-d');
+    $values['updated_by'] = ($_SESSION['username']);
 
     // update History
     $values = $DB->updateHistory($values, $id);

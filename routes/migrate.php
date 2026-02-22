@@ -95,7 +95,7 @@ Route::get('/migrate/files', function () {
 });
 
 Route::get('/migrate/test', function () {
-    error_reporting(E_ERROR | E_PARSE);
+    // error_reporting(E_ERROR | E_PARSE);
     set_time_limit(6000);
     include_once BASEPATH . "/php/init.php";
 

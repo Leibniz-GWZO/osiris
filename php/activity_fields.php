@@ -1011,6 +1011,17 @@ class ActivityFields extends Fields
                 'input' => 'date'
             ],
             [
+                'id' => 'updated',
+                'module_of' => $typeModules['updated'] ?? [],
+                'usage' => [
+                    'filter',
+                    'columns'
+                ],
+                'label' => lang('Updated at', 'Aktualisiert am'),
+                'type' => 'datetime',
+                'input' => 'date'
+            ],
+            [
                 'id' => 'updated_by',
                 'module_of' => $typeModules['updated_by'] ?? [],
                 'usage' => [
