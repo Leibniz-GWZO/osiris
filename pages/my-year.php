@@ -244,7 +244,7 @@ if (!$Settings->featureEnabled('coins')) {
                         </a>
                     </div>
 
-                    <div class="alert w-400 position-absolute" id="detailed" style="display: none">
+                    <div class="card w-400 position-absolute z-20" id="detailed" style="display: none">
                         <div class="input-group">
 
                             <div class="input-group-prepend">
@@ -264,7 +264,7 @@ if (!$Settings->featureEnabled('coins')) {
                                 <option value="4" <?= $QUARTER == '4' ? 'selected' : '' ?>>Q4</option>
                             </select>
                             <div class="input-group-append">
-                                <button class="btn secondary"><i class="ph ph-check"></i></button>
+                                <button class="btn primary"><i class="ph ph-check"></i></button>
                             </div>
                         </div>
                         <a href="?year=<?= CURRENTYEAR ?>&quarter=<?= CURRENTQUARTER ?>"><?= lang('Current quarter', 'Aktuelles Quartal') ?></a>
