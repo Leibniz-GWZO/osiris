@@ -13651,8 +13651,9 @@ img.profile-img.small {
 }
 
 .author.author-aoi {
-  color: var(--secondary-color);
-  border-color: var(--secondary-color);
+  color: var(--blue-color);
+  border-color: var(--blue-color);
+  background-color: var(--blue-color-20);
 }
 
 .author.author-aoi::before {
