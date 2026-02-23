@@ -846,15 +846,15 @@ foreach ($fields as $field) {
             </a>
         <?php endif; ?>
 
-        <?php if ($Settings->featureEnabled('concepts')) { ?>
+        <?php if ($Settings->featureEnabled('spectrum')) { ?>
             <?php
-            $count_concepts = count($doc['concepts'] ?? []);
-            if ($count_concepts) :
+            $count_spectrum = count($doc['spectrum'] ?? []);
+            if ($count_spectrum) :
             ?>
-                <a onclick="navigate('concepts')" id="btn-concepts" class="btn">
+                <a onclick="navigate('spectrum')" id="btn-spectrum" class="btn">
                     <i class="ph ph-lightbulb" aria-hidden="true"></i>
-                    <?= lang('Concepts', 'Konzepte') ?>
-                    <span class="index"><?= $count_concepts ?></span>
+                    <?= lang('Research Spectrum', 'Forschungs-Spektrum') ?>
+                    <span class="index"><?= $count_spectrum ?></span>
                 </a>
             <?php endif; ?>
         <?php } ?>

@@ -427,7 +427,7 @@ Route::get('/api/all-activities', function () {
 
 
 
-Route::get('/api/concept-activities', function () {
+Route::get('/api/spectrum-activities', function () {
     error_reporting(E_ERROR | E_PARSE);
     include_once BASEPATH . "/php/init.php";
 
@@ -438,18 +438,18 @@ Route::get('/api/concept-activities', function () {
 
     include_once BASEPATH . "/php/Document.php";
 
-    $name = $_GET['concept'];
+    $name = $_GET['spectrum'];
 
-    $concepts = $osiris->activities->aggregate(
+    $spectrum = $osiris->activities->aggregate(
         [
-            ['$match' => ['concepts.display_name' => $name]],
-            ['$project' => ['rendered' => 1, 'concepts' => 1]],
-            ['$unwind' => '$concepts'],
-            ['$match' => ['concepts.display_name' => $name]],
-            ['$sort' => ['concepts.score' => -1]],
+            ['$match' => ['spectrum.display_name' => $name]],
+            ['$project' => ['rendered' => 1, 'spectrum' => 1]],
+            ['$unwind' => '$spectrum'],
+            ['$match' => ['spectrum.display_name' => $name]],
+            ['$sort' => ['spectrum.score' => -1]],
             ['$project' => [
                 '_id' => 0,
-                'score' => '$concepts.score',
+                'score' => '$spectrum.score',
                 'icon' => '$rendered.icon',
                 'activity' => '$rendered.web',
                 'type' => '$rendered.type',
@@ -458,7 +458,7 @@ Route::get('/api/concept-activities', function () {
         ]
     )->toArray();
 
-    echo return_rest($concepts);
+    echo return_rest($spectrum);
 });
 
 
@@ -1462,4 +1462,116 @@ Route::get('/api/organizations', function () {
     }
     $result = $osiris->organizations->find($filter, $options)->toArray();
     echo return_rest($result, count($result));
+});
+
+
+Route::get('/api/openalex/enrich', function () {
+    include_once BASEPATH . "/php/init.php";
+    header('Content-Type: application/json; charset=utf-8');
+
+    if (empty($_GET['doi'])) {
+        http_response_code(400);
+        echo json_encode(['ok' => false, 'error' => 'Missing doi']);
+        return;
+    }
+
+    // Normalize DOI (lowercase, strip "doi:" prefix, trim)
+    $doi = trim($_GET['doi']);
+    $doiNorm = strtolower($doi);
+    $doiNorm = preg_replace('~^doi:\s*~i', '', $doiNorm);
+
+    // Find activities by DOI (case-insensitive)
+    // Using regex avoids missing mixed-case DOIs in DB.
+    $regex = new MongoDB\BSON\Regex('^' . preg_quote($doiNorm, '/') . '$', 'i');
+
+    $cursor = $osiris->activities->find([
+        'doi' => $regex
+    ], ['projection' => ['_id' => 1]]);
+
+    $activityIds = [];
+    foreach ($cursor as $doc) {
+        $activityIds[] = (string)$doc['_id'];
+    }
+
+    if (empty($activityIds)) {
+        // Still respond quickly; no activity found for this DOI
+        http_response_code(200);
+        echo json_encode(['ok' => true, 'skipped' => true, 'reason' => 'No matching activity for DOI']);
+        return;
+    }
+
+    // Respond immediately, then continue "in background"
+    http_response_code(202);
+    echo json_encode(['ok' => true, 'queued' => true, 'activities' => count($activityIds)]);
+    if (function_exists('fastcgi_finish_request')) fastcgi_finish_request();
+
+    ignore_user_abort(true);
+    @set_time_limit(20);
+
+    // Fetch OpenAlex work by DOI
+    $url = "https://api.openalex.org/works/doi:" . rawurlencode($doiNorm) . "?select=id,cited_by_count,updated_date,topics";
+
+    try {
+        $resp = CallAPI("GET", $url);
+        $json = json_decode($resp, true);
+    } catch (Throwable $e) {
+        $json = null;
+    }
+
+    // helper function to get only the ID from an OpenAlex entity URL
+    function extractOpenAlexId($url) {
+        $parts = explode('/', rtrim($url, '/'));
+        return end($parts);
+    }
+
+    // Prepare openalex block
+    if (empty($json) || empty($json['id'])) {
+        $openalex = [
+            'status' => 'not_found',
+            'doi' => $doiNorm,
+            'fetched_at' => date('c'),
+            'source' => 'openalex'
+        ];
+    } else {
+        $topics = [];
+        if (isset($json['topics']) && is_array($json['topics'])) {
+            foreach ($json['topics'] as $topic) {
+                if (empty($topic['id'])) continue;
+                $t = [
+                    'id' => extractOpenAlexId($topic['id']),
+                    'name' => $topic['display_name'] ?? null,
+                    'score' => $topic['score'] ?? null,
+                    "subfield_id" => extractOpenAlexId($topic['subfield']['id'] ?? ''),
+                    "subfield" => $topic['subfield']['display_name'] ?? null,
+                    "field_id" => extractOpenAlexId($topic['field']['id'] ?? ''),
+                    "field" => $topic['field']['display_name'] ?? null,
+                    "domain_id" => extractOpenAlexId($topic['domain']['id'] ?? ''),
+                    "domain" => $topic['domain']['display_name'] ?? null
+                ];
+                $path = [];
+                if (!empty($t['domain'])) $path[] = $t['domain'];
+                if (!empty($t['field'])) $path[] = $t['field'];
+                if (!empty($t['subfield'])) $path[] = $t['subfield'];
+                $t['path'] = implode(' → ', $path);
+                $topics[] = $t;
+            }
+        }
+        $openalex = [
+            'id' => $json['id'],
+            'doi' => $doiNorm,
+            'cited_by_count' => $json['cited_by_count'] ?? null,
+            'topics' => $topics,
+            'updated_date' => $json['updated_date'] ?? null,
+            'fetched_at' => date('c'),
+            'source' => 'openalex'
+        ];
+    }
+// echo json_encode($openalex);
+    // Update all matching activities
+    foreach ($activityIds as $id) {
+        $osiris->activities->updateOne(
+            ['_id' => DB::to_ObjectID($id)],
+            ['$set' => ['openalex' => $openalex]]
+        );
+    }
 });

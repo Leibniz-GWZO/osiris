@@ -161,12 +161,12 @@ class SidebarNav
                         'hasSearch' => false
                     ],
                     [
-                        'id' => 'concepts',
-                        'label' => lang('Concepts', 'Konzepte'),
+                        'id' => 'spectrum',
+                        'label' => lang('Spectrum', 'Spektrum'),
                         'icon' => 'lightbulb',
-                        'url' => '/concepts',
-                        'active' => ['^/concepts($|/)'],
-                        'feature' => 'concepts',
+                        'url' => '/spectrum',
+                        'active' => ['^/spectrum($|/)'],
+                        'feature' => 'spectrum',
                         'default' => false,
                         'permission' => null,
                         'favoritable' => true,

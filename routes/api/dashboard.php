@@ -1209,7 +1209,7 @@ Route::get('/api/dashboard/department-graph', function () {
     ], count($nodes));
 });
 
-Route::get('/api/dashboard/concept-search', function () {
+Route::get('/api/dashboard/spectrum-search', function () {
     error_reporting(E_ERROR | E_PARSE);
     include(BASEPATH . '/php/init.php');
 
@@ -1218,26 +1218,26 @@ Route::get('/api/dashboard/concept-search', function () {
         die;
     }
 
-    if (!isset($_GET['concept'])) return return_rest([], 0);
-    $name = $_GET['concept'];
+    if (!isset($_GET['spectrum'])) return return_rest([], 0);
+    $name = $_GET['spectrum'];
     $active_users = $osiris->persons->distinct('username', ['is_active' => ['$ne' => false]]);
-    $concepts = $osiris->activities->aggregate(
+    $spectrum = $osiris->activities->aggregate(
         [
-            ['$match' => ['concepts.display_name' => $name]],
-            ['$project' => ['authors' => 1, 'concepts' => 1]],
-            ['$unwind' => '$concepts'],
-            ['$match' => ['concepts.display_name' => $name]],
+            ['$match' => ['spectrum.display_name' => $name]],
+            ['$project' => ['authors' => 1, 'spectrum' => 1]],
+            ['$unwind' => '$spectrum'],
+            ['$match' => ['spectrum.display_name' => $name]],
             ['$unwind' => '$authors'],
             ['$match' => ['authors.user' => ['$in' => $active_users]]],
             [
                 '$group' => [
                     '_id' => '$authors.user',
                     'total' => ['$sum' => 1],
-                    'totalScore' => ['$sum' => '$concepts.score'],
+                    'totalScore' => ['$sum' => '$spectrum.score'],
                     'author' => ['$first' => '$authors']
                 ]
             ],
-            // ['$project' => ['score' => ['$divide' =>], 'concepts' => 1]],
+            // ['$project' => ['score' => ['$divide' =>], 'spectrum' => 1]],
             ['$match' => ['totalScore' => ['$gte' => 1]]],
             ['$sort' => ['author.last' => 1]],
         ]
@@ -1256,7 +1256,7 @@ Route::get('/api/dashboard/concept-search', function () {
         'text' => [],
         'hovertemplate' => '%{x}<br>%{y}<br> Total Score: %{text}'
     ];
-    foreach ($concepts as $i => $c) {
+    foreach ($spectrum as $i => $c) {
         // $author = Document::abbreviateAuthor($c['author']['last'], $c['author']['first'], true, ' ');
         $author = $DB->getNameFromId($c['_id'], true, true);
         // $data[] = [

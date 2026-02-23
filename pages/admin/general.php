@@ -1661,19 +1661,19 @@ $affiliation = $Settings->get('affiliation_details');
                     </div>
                     <hr>
                     <div class="content">
-                        <h4 id="concepts">
-                            <?= lang('Concepts', 'Konzepte') ?>
+                        <h4 id="spectrum">
+                            <?= lang('Research Spectrum', 'Forschungs-Spektrum') ?>
                         </h4>
 
-                        <?= badgeDeprecated() ?>
+                        <?= badgeBeta() ?>
 
                         <p class="description">
-                            <?= lang('Concepts originate from OpenAlex and are a way to semantically describe research topics. However, they have been recently deprecated in favor of Topics in OpenAlex. We plan to further develop the Topics feature in OSIRIS in the future. Read more about Concepts in OpenAlex <a href="https://docs.openalex.org/api-entities/topics" target="_blank" rel="noopener noreferrer" class="colorless text-decoration-underline">here</a>.', 'Konzepte stammen aus OpenAlex und sind eine Möglichkeit, Forschungsthemen semantisch zu beschreiben. Sie wurden jedoch kürzlich zugunsten von Themen in OpenAlex veraltet. Wir planen, die Themen-Funktion in OSIRIS in Zukunft weiterzuentwickeln. Mehr über Konzepte in OpenAlex erfährst du <a href="https://docs.openalex.org/api-entities/topics" target="_blank" rel="noopener noreferrer" class="colorless text-decoration-underline">hier</a>.') ?>
+                            <?= lang('The research spectrum is based on OpenAlex Topics and provides a visual representation of the research topics covered by individuals, groups or the entire institute.', 'Das Forschungs-Spektrum basiert auf OpenAlex Topics und bietet eine visuelle Darstellung der Forschungsthemen, die von Einzelpersonen, Gruppen oder dem gesamten Institut abgedeckt werden.') ?>
                         </p>
 
                         <div class="form-group">
                             <?php
-                            renderCheckbox('concepts');
+                            renderCheckbox('spectrum');
                             ?>
                         </div>
                     </div>
@@ -1784,7 +1784,7 @@ $affiliation = $Settings->get('affiliation_details');
                         <a href="#imports-external-features"><?= lang('Imports & External Features', 'Importe & Externe Funktionen') ?></a>
                         <a href="#imports" class="submenu"><?= lang('Imports', 'Importe') ?></a>
                         <a href="#altmetrics" class="submenu"><?= lang('Altmetrics', 'Altmetriken') ?></a>
-                        <a href="#concepts" class="submenu"><?= lang('Concepts', 'Konzepte') ?></a>
+                        <a href="#spectrum" class="submenu"><?= lang('Research Spectrum', 'Forschungs-Spektrum') ?></a>
 
                         <a href="#guest-management-features"><?= lang('People and Guests', 'Personen und Gäste') ?></a>
                         <a href="#new-colleagues" class="submenu"><?= lang('New Colleagues', 'Neue Kolleg:innen') ?></a>

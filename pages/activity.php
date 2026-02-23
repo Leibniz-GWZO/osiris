@@ -73,6 +73,23 @@ if (!empty($user_units)) {
 
 $documents = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)])->toArray();
 
+$openalex = null;
+$spectrum = [];
+if ($Settings->featureEnabled('spectrum') && isset($doc['openalex'])) {
+    $openalex = $doc['openalex'] ?? null;
+    if (empty($openalex) && isset($doc['doi'])) {
+?>
+        <script>
+            $(document).ready(function() {
+                $.post('/api/openalex/enrich', {
+                    doi: '<?= $doc['doi'] ?>'
+                });
+            });
+        </script>
+<?php
+    }
+    $spectrum = $openalex['topics'] ?? [];
+}
 ?>
 
 <style>
@@ -761,13 +778,26 @@ $documents = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)
             </div>
         <?php } ?>
 
+        <?php if (!empty($openalex) && isset($openalex['cited_by_count'])) {
+            $fetched_at = isset($openalex['fetched_at']) ? date('d.m.Y', strtotime($openalex['fetched_at'])) : '-';
+        ?>
+            <div class="mr-10 badge bg-white">
+                <small><?= lang('Citations', 'Zitationen') ?>: </small>
+                <br />
+                <span class="badge" data-toggle="tooltip" data-title="<?= lang('Last updated', 'Zuletzt aktualisiert') ?>: <?= $fetched_at ?>"><?= $openalex['cited_by_count'] ?></span>
+            </div>
+        <?php } ?>
+
+
         <?php if (!empty($projects)) { ?>
             <div class="mr-10 badge bg-white">
                 <small><?= lang('Projects', 'Projekte') ?>: </small>
                 <br />
-                <?php foreach ($projects as $p) { ?>
-                    <a class="badge" href="<?= ROOTPATH ?>/projects/view/<?= $p['_id'] ?>"><?= $p['acronym'] ?? $p['name'] ?? '' ?></a>
-                <?php } ?>
+                <a href="#projects" class="badge primary outline">
+                    <i class="ph ph-tree-structure"></i>
+                    <?= count($projects) ?>
+                    <?= lang('Projects', 'Projekte') ?>
+                </a>
             </div>
         <?php } ?>
 
@@ -957,15 +987,15 @@ $documents = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)
             </a>
         <?php endif; ?>
 
-        <?php if ($Settings->featureEnabled('concepts')) { ?>
+        <?php if ($Settings->featureEnabled('spectrum')) { ?>
             <?php
-            $count_concepts = count($doc['concepts'] ?? []);
-            if ($count_concepts) :
+            $count_spectrum = count($spectrum);
+            if ($count_spectrum) :
             ?>
-                <a onclick="navigate('concepts')" id="btn-concepts" class="btn">
+                <a onclick="navigate('spectrum')" id="btn-spectrum" class="btn">
                     <i class="ph ph-lightbulb" aria-hidden="true"></i>
-                    <?= lang('Concepts', 'Konzepte') ?>
-                    <span class="index"><?= $count_concepts ?></span>
+                    <?= lang('Research Spectrum', 'Forschungs-Spektrum') ?>
+                    <span class="index"><?= $count_spectrum ?></span>
                 </a>
             <?php endif; ?>
         <?php } ?>
@@ -2184,28 +2214,42 @@ $documents = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)
         </div>
     </div>
 
-    <?php if ($Settings->featureEnabled('concepts')) { ?>
-        <section id="concepts" style="display:none">
-            <?php if (isset($doc['concepts'])) :
-            ?>
-
-                <h3 class=""><?= lang('Concepts', 'Konzepte') ?></h3>
+    <?php if ($Settings->featureEnabled('spectrum')) { ?>
+        <section id="spectrum" style="display:none">
+            <?php
+            if (!empty($spectrum)) : ?>
+                <h2><?= lang('Topics', 'Themen') ?></h2>
                 <div class="box">
                     <div class="content">
-                        <?php foreach ($doc['concepts'] as $concept) {
-                            $score =  round($concept['score'] * 100);
-                            // if ($concept['score'] < .3) continue;
-                        ?><span class="concept" target="_blank" data-score='<?= $score ?>' data-name='<?= $concept['display_name'] ?>' data-wikidata='<?= $concept['wikidata'] ?>'>
-                                <div role="progressbar" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100" style="--value: <?= $score ?>"></div>
-                                <?= $concept['display_name'] ?>
-                            </span><?php } ?>
+                        <?php
+                        // Sort by score desc (defensive)
+                        usort($spectrum, function ($a, $b) {
+                            return ($b['score'] ?? 0) <=> ($a['score'] ?? 0);
+                        });
+
+                        $max = 10; // keep it scannable
+                        $i = 0;
+                        foreach ($spectrum as $spectrum) {
+                            if ($i++ >= $max) break;
+                            echo renderSpectrum(
+                                $spectrum['id'] ?? null,
+                                $spectrum['name'] ?? 'spectrum',
+                                round(($spectrum['score'] ?? 0) * 100),
+                                $spectrum['path'] ?? $spectrum['name'] ?? 'spectrum',
+                                $spectrum['domain_id'] ?? 'unknown'
+                            );
+                        } ?>
                     </div>
                 </div>
             <?php else : ?>
                 <p>
-                    <?= lang('No concepts are assigned to this activity.', 'Zu dieser Aktivität sind keine Konzepte zugewiesen.') ?>
+                    <?= lang('No topics are assigned to this activity.', 'Zu dieser Aktivität sind keine Themen zugewiesen.') ?>
                 </p>
             <?php endif; ?>
+            <p class="text-muted">
+                <i class="ph ph-info text-blue"></i>
+                <?= lang('These topics are automatically assigned by OpenAlex based on citation and co-occurrence analysis of the publication. They are intended for analytical purposes and may change over time.', 'Diese Themen werden automatisch von OpenAlex auf Basis von Zitations- und Ko-Vorkommensanalysen der Publikation vergeben. Sie dienen analytischen Zwecken und können sich im Zeitverlauf ändern.') ?>
+            </p>
         </section>
     <?php } ?>
 

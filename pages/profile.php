@@ -699,41 +699,56 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
         <?php } ?>
     <?php } ?>
 
-    <?php if ($Settings->featureEnabled('concepts')) { ?>
+    <?php if ($Settings->featureEnabled('spectrum')) { ?>
         <?php
-        $concepts = [];
-        $concepts = $osiris->activities->aggregate(
-            [
-                ['$match' => ['rendered.users' => $user, 'concepts' => ['$exists' => true]]],
-                ['$project' => ['concepts' => 1]],
-                [
-                    '$group' => [
-                        '_id' => null,
-                        'total' => ['$sum' => 1],
-                        'concepts' => ['$push' => '$concepts']
-                    ]
-                ],
-                ['$unwind' => '$concepts'],
-                ['$unwind' => '$concepts'],
-                ['$group' => [
-                    '_id' => '$concepts.display_name',
-                    'count' => ['$sum' => 1],
-                    'score' => ['$sum' => ['$divide' => [
-                        ['$multiply' => ['$concepts.score', ['$sum' => 1]]],
-                        '$total'
-                    ]]],
-                    'concept' => ['$first' => '$concepts']
-                ]],
-                ['$match' => ['score' => ['$gte' => 0.05]]],
-                ['$sort' => ['score' => -1]]
-            ]
-        )->toArray();
-        $count_concepts = count($concepts);
-        if ($count_concepts > 0) { ?>
-            <a onclick="navigate('concepts')" id="btn-concepts" class="btn">
+        $spectrum = [];
+        $spectrum = $osiris->activities->aggregate([
+            ['$match' => [
+                'rendered.users' => $user,
+                'type' => 'publication',
+                'openalex.topics' => ['$exists' => true, '$ne' => []]
+            ]],
+
+            // total number of matched activities
+            ['$group' => [
+                '_id' => null,
+                'total' => ['$sum' => 1],
+                'docs' => ['$push' => '$$ROOT']
+            ]],
+            ['$unwind' => '$docs'],
+            ['$unwind' => '$docs.openalex.topics'],
+
+            // group by topic id
+            ['$group' => [
+                '_id' => '$docs.openalex.topics.id',
+                'count' => ['$sum' => 1],
+                'sumScore' => ['$sum' => '$docs.openalex.topics.score'],
+                'topic' => ['$first' => '$docs.openalex.topics'],
+                'total' => ['$first' => '$total']
+            ]],
+
+            // compute averages + share
+            ['$addFields' => [
+                'avg_score' => ['$divide' => ['$sumScore', '$count']],
+                'share' => ['$divide' => ['$count', '$total']],
+                // optional combined weight (tweakable)
+                'weight' => ['$multiply' => [
+                    ['$divide' => ['$count', '$total']],
+                    ['$divide' => ['$sumScore', '$count']]
+                ]]
+            ]],
+
+            // filter noise
+            ['$match' => ['share' => ['$gte' => 0.05]]],
+
+            ['$sort' => ['weight' => -1]],
+            ['$limit' => 25]
+        ])->toArray();
+        $count_spectrum = count($spectrum);
+        if ($count_spectrum > 0) { ?>
+            <a onclick="navigate('spectrum')" id="btn-spectrum" class="btn">
                 <i class="ph ph-lightbulb" aria-hidden="true"></i>
-                <?= lang('Concepts', 'Konzepte')  ?>
-                <span class="index"><?= $count_concepts ?></span>
+                <?= lang('Research Spectrum', 'Forschungs-Spektrum')  ?>
             </a>
         <?php } ?>
     <?php } ?>
@@ -1828,25 +1843,53 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 <?php } ?>
 
 
-<?php if ($Settings->featureEnabled('concepts')) { ?>
-    <section id="concepts" style="display:none">
-        <?php if (!empty($concepts)) :
+<?php if ($Settings->featureEnabled('spectrum')) { ?>
+    <section id="spectrum" style="display:none">
+        <?php if (!empty($spectrum)) :
+            // relative normalization of spectrum weights for visualization
+            $max_weight = max(array_column($spectrum, 'weight'));
+            $spectrum_by_field = [];
+            foreach ($spectrum as $aggr) {
+                $field = $aggr['topic']['field'] ?? 'unknown';
+                if (!isset($spectrum_by_field[$field])) {
+                    $spectrum_by_field[$field] = [];
+                }
+                $spectrum_by_field[$field][] = $aggr;
+            }
         ?>
-
-            <h3 class=""><?= lang('Concepts', 'Konzepte') ?></h3>
-            <div class="box" id="concepts">
+            <h3 class=""><?= lang('Research Spectrum', 'Forschungs-Spektrum') ?></h3>
+            <div class="box" id="spectrum">
                 <div class="content">
-                    <?php foreach ($concepts as $concept) {
-                        $score =  round($concept['score'] * 100);
-                    ?><span class="concept" target="_blank" data-score='<?= $score ?>' data-name='<?= $concept['_id'] ?>' data-count='<?= $concept['count'] ?>' data-wikidata='<?= $concept['concept']['wikidata'] ?>'>
-                            <div role="progressbar" aria-valuenow="67" aria-valuemin="0" aria-valuemax="100" style="--value: <?= $score ?>"></div>
-                            <?= $concept['_id'] ?>
-                        </span><?php } ?>
+                    <?php foreach ($spectrum_by_field as $field => $aggrs) { 
+                        $domain_id = $aggrs[0]['topic']['domain_id'] ?? 'unknown';
+                        ?>
+                        <h4 class="spectrum-title spectrum-<?= strtolower($domain_id) ?>"><?= lang($field) ?></h4>
+                        <?php foreach ($aggrs as $aggr) {
+                            $spectrum = $aggr['topic'];
+                            $score =  round($aggr['weight'] * 100 / $max_weight);
+                            echo renderSpectrum(
+                                $spectrum['id'] ?? null,
+                                $spectrum['name'] ?? 'spectrum',
+                                $score,
+                                $spectrum['path'] ?? $spectrum['name'] ?? 'spectrum',
+                                $spectrum['domain_id'] ?? 'unknown',
+                                $aggr['count']
+                            );
+                        } ?>
+                    <?php } ?>
                 </div>
             </div>
+            <?php
+            $spectrum_pubs = $osiris->activities->count(['openalex.topics.id' => ['$exists' => true], 'rendered.users' => $user, 'type' => 'publication']);
+            if ($spectrum_pubs <= 5) {
+                echo '<p class="text-muted font-size-12">' . lang('spectrum are based on the analysis of publication titles and abstracts from ' . $spectrum_pubs . ' publications in OSIRIS. Since there are only a few publications in OSIRIS with assigned spectrum, the results may be incomplete.', 'Forschungs-Spektrum basieren auf der Analyse von Titeln und Abstracts von ' . $spectrum_pubs . ' Publikationen in OSIRIS. Da es nur wenige Publikationen in OSIRIS mit zugewiesenen Forschungs-Spektrumn gibt, können die Ergebnisse unvollständig sein.') . '</p>';
+            } else {
+                echo '<p class="text-muted font-size-12">' . lang('spectrum are based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Forschungs-Spektrum basieren auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
+            }
+            ?>
         <?php else : ?>
             <p>
-                <?= lang('No concepts are assigned to this person.', 'Zu dieser Person sind keine Konzepte zugewiesen.') ?>
+                <?= lang('No spectrum are assigned to this person.', 'Zu dieser Person sind keine Forschungs-Spektrum zugewiesen.') ?>
             </p>
         <?php endif; ?>
     </section>

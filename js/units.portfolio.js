@@ -2,7 +2,7 @@ var activitiesTable = false,
     publicationTable = false,
     projectsExists = false,
     coauthorsExists = false,
-    conceptsExists = false,
+    spectrumExists = false,
     collaboratorsExists = false,
     collabExists = false,
     personsExists = false,
@@ -233,10 +233,10 @@ function navigate(key) {
         //     collaboratorsExists = true;
         //     break;
 
-        case 'concepts':
-            if (conceptsExists) break;
-            conceptsExists = true;
-            conceptTooltip()
+        case 'spectrum':
+            if (spectrumExists) break;
+            spectrumExists = true;
+            spectrumTooltip()
             break;
 
         case 'wordcloud':

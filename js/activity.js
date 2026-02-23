@@ -1,3 +1,4 @@
+spectrumTooltipExists = false;
 
 function navigate(key) {
     $('section').hide()
@@ -11,15 +12,17 @@ function navigate(key) {
             coauthors()
             break;
 
-        case 'concepts':
-            conceptTooltip()
+        case 'spectrum':
+            if (spectrumTooltipExists) return;
+            spectrumTooltip()
+            spectrumTooltipExists = true
             break;
         default:
             break;
     }
 
     // save as hash
-    window.location.hash = 'section-'+key
+    window.location.hash = 'section-' + key
 }
 
 $(document).ready(function () {
@@ -113,7 +116,7 @@ function coauthors() {
                 });
             });
 
-            if (data.multi){
+            if (data.multi) {
                 legend.append('p')
                     .text(lang('* Multiple affiliations', '* Mehrere Zugehörigkeiten'))
                     .style('font-size', 'small')
@@ -124,39 +127,3 @@ function coauthors() {
         }
     });
 }
-
-
-conceptTooltipExists = false;
-function conceptTooltip() {
-    if (conceptTooltipExists) return;
-    conceptTooltipExists = true
-    $('.concept').each(function () {
-        console.log(this);
-        var el = $(this)
-        var data = {
-            score: el.attr('data-score'),
-            name: el.attr('data-name'),
-            wikidata: el.attr('data-wikidata'),
-        }
-        el.popover({
-            placement: 'auto bottom',
-            container: '#concepts',
-            mouseOffset: 10,
-            // closeOnClickOutside: true,
-            // followMouse: true,
-            trigger: 'click',
-            html: true,
-            content: function () {
-                var label = lang('Activities', 'Aktivitäten')
-                if (data.count == 1) label = lang('Activity', 'Aktivität');
-                return `<b>${data.name}</b><br>
-                    Score: ${data.score} %</br>
-                    <hr>
-                    <a href="${ROOTPATH}/concepts/${data.name}"><i class="ph ph-arrow-right"></i> Concept page</a><br>
-                    <a href="${data.wikidata}" target="_blank" rel="noopener noreferrer"><i class="ph ph-arrow-up-right"></i> Wikidata</a>
-                    `;
-            }
-        });
-    });
-}
-

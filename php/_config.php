@@ -349,38 +349,40 @@ function currentGET(array $exclude = [], array $include = [])
     }
     return $get;
 }
-
 function CallAPI($method, $url, $data = [])
 {
     $curl = curl_init();
 
+    $headers = ['Accept: application/json'];
+    // Optional: identify your app (helpful for API operators)
+    $userAgent = 'OSIRIS/1.0 (+https://osiris-app.de)';
+
     switch ($method) {
         case "POST":
             curl_setopt($curl, CURLOPT_POST, 1);
-
-            if ($data)
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+            if ($data) curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
             break;
         case "JSON":
             curl_setopt($curl, CURLOPT_POST, 1);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+            $headers[] = 'Content-Type: application/json';
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
             break;
         case "PUT":
             curl_setopt($curl, CURLOPT_PUT, 1);
             break;
         default:
-            if ($data)
-                $url = sprintf("%s?%s", $url, http_build_query($data));
+            if ($data) $url = sprintf("%s?%s", $url, http_build_query($data));
     }
 
-    // Optional Authentication:
-    // curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-    // curl_setopt($curl, CURLOPT_USERPWD, "username:password");
-
     curl_setopt($curl, CURLOPT_URL, $url);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+    curl_setopt($curl, CURLOPT_USERAGENT, $userAgent);
     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+    // Timeouts (important for "async-ish" background calls)
+    curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 8);
+
     $result = curl_exec($curl);
     if ($result === false) {
         throw new Exception(curl_error($curl), curl_errno($curl));
@@ -960,4 +962,38 @@ function abortwith($code, $item = '', $link = '', $linkMsg = '')
     }
     include BASEPATH . "/footer.php";
     die();
+}
+
+
+function spectrumHelper($spectrum)
+{
+    $score = round(($spectrum['score'] ?? 0) * 100);
+    $name  = $spectrum['name'] ?? 'spectrum';
+    $id    = $spectrum['id'] ?? null;
+    $title = $spectrum['path'] ?? $name;
+    $href = $id ? $id : '#';
+
+    return '<span class="spectrum" target="_blank"
+        href="' . e($href) . '"
+        data-id="' . e($id) . '"
+        data-score="' . $score . '"
+        data-name="' . e($name) . '"
+        title="' . e($title) . '">
+        <div role="progressbar" aria-valuenow="' . $score . '" aria-valuemin="0" aria-valuemax="100" style="--value: ' . $score . '"></div>
+        ' . e($name) . '
+    </span>';
+}
+
+function renderSpectrum($id, $name, $score, $title = '', $domain = '', $count=0)
+{
+    return '<span class="spectrum spectrum-' . $domain . '"
+        data-id="' . e($id) . '"
+        data-score="' . $score . '"
+        data-name="' . e($name) . '"
+        data-domain="' . e($domain) . '"
+        data-count="' . ($count) . '"
+        title="' . e($title) . '">
+        <div role="progressbar" aria-valuenow="' . $score . '" aria-valuemin="0" aria-valuemax="100" style="--value: ' . $score . '"></div>
+        ' . e($name) . '
+    </span>';
 }

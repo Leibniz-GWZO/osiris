@@ -2,7 +2,7 @@ var activitiesTable = false,
     publicationTable = false,
     projectsExists = false,
     coauthorsExists = false,
-    conceptsExists = false,
+    spectrumExists = false,
     wordcloudExists = false;
 
 function navigate(key) {
@@ -48,10 +48,10 @@ function navigate(key) {
             coauthorNetwork('#chord', { user: CURRENT_USER })
             break;
 
-        case 'concepts':
-            if (conceptsExists) break;
-            conceptsExists = true;
-            conceptTooltip()
+        case 'spectrum':
+            if (spectrumExists) break;
+            spectrumExists = true;
+            spectrumTooltip()
             break;
 
         case 'wordcloud':

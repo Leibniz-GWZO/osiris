@@ -276,12 +276,12 @@ class CommandPalette
                 "priority" => 30
             ],
             [
-                "url" => "/concepts",
+                "url" => "/spectrum",
                 "type" => "Navigation",
                 "icon" => "lightbulb",
-                "label" => lang("Concepts", "Konzepte"),
-                "feature" => "concepts",
-                "keywords" => ["concepts", "konzepte"],
+                "label" => lang("Research Spectrum", "Forschungs-Spektrum"),
+                "feature" => "spectrum",
+                "keywords" => ["research spectrum", "forschungs-spektrum", "spectrum", "spektrum", "topics", "openalex topics", "openalex themen"],
                 "priority" => 0
             ],
             [
