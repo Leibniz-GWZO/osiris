@@ -38,6 +38,7 @@ if (!isset($scientist['is_active'])) {
     // update in database because it leads to problems in the frontend otherwise
     $osiris->persons->updateOne(['username' => $user], ['$set' => ['is_active' => true]]);
 }
+$full_spectrum = $_GET['fullspectrum'] ?? false;
 ?>
 
 
@@ -689,18 +690,20 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
     <?php if ($Settings->featureEnabled('spectrum')) { ?>
         <?php
-        $count_spectrum = $osiris->activities->count([
+        $spectrum_filter = [
             'rendered.users' => $user,
             'type' => 'publication',
             'openalex.topics' => ['$exists' => true, '$ne' => []]
-        ]);
+        ];
+        $count_spectrum = $osiris->activities->count($spectrum_filter);
+
         if ($count_spectrum > 0) { ?>
             <a onclick="navigate('spectrum')" id="btn-spectrum" class="btn">
                 <i class="ph ph-lightbulb" aria-hidden="true"></i>
                 <?= lang('Research Spectrum', 'Forschungs-Spektrum')  ?>
             </a>
-        <?php } ?>
-    <?php } ?>
+    <?php }
+    } ?>
 
 
     <?php if ($Settings->featureEnabled('wordcloud')) { ?>
@@ -1806,14 +1809,31 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
 <?php if ($Settings->featureEnabled('spectrum')) { ?>
     <section id="spectrum" style="display:none">
+        <h2>
+            <i class="ph ph-chart-donut" aria-hidden="true"></i>
+            <?= lang('Research spectrum of', 'Forschungsspektrum von') ?> <?= $scientist['displayname'] ?>
+        </h2>
         <?php
+        $show_link = true;
+        if (!$full_spectrum) {
+            if ($count_spectrum < 10) {
+                // if there are less than 10 publications with topics, show the full spectrum without filtering by year to ensure meaningful results
+                $full_spectrum = true;
+                $show_link = false;
+            } else {
+                // limit spectrum by default to the last 5 years to show current research focus
+                // but only if there are more than 10 publications in the last 5 years to ensure meaningful results
+                $spectrum_filter['year'] = ['$gte' => CURRENTYEAR - 4];
+                if ($osiris->activities->count($spectrum_filter) < 10) {
+                    unset($spectrum_filter['year']);
+                    $full_spectrum = true;
+                    $show_link = false;
+                }
+            }
+        }
 
         $spectrum = $osiris->activities->aggregate([
-            ['$match' => [
-                'rendered.users' => $user,
-                'type' => 'publication',
-                'openalex.topics' => ['$exists' => true, '$ne' => []]
-            ]],
+            ['$match' => $spectrum_filter],
 
             // total number of matched activities
             ['$group' => [
@@ -1845,17 +1865,29 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
             ]],
 
             // filter noise
-            ['$match' => ['share' => ['$gte' => 0.05]]],
-
+            ['$match' => ['share' => ['$gte' => 0.05], 'count' => ['$gte' => 2]]],
             ['$sort' => ['weight' => -1]],
             ['$limit' => 25]
         ])->toArray();
         if (!empty($spectrum)) :
+        ?>
+        <?php if ($show_link) { ?>
+            <p class="text-muted mb-0">
+                <?php if (!$full_spectrum && $count_spectrum > 10) { ?>
+                    <?= lang('Based on publications within the past 5 years.', 'Basierend auf Publikationen aus den vergangenen 5 Jahren.') ?>
+                    <a href="?fullspectrum=1#section-spectrum"><?= lang('View full spectrum', 'Vollständiges Spektrum anzeigen') ?></a>
+                <?php } elseif ($full_spectrum) { ?>
+                    <?= lang('Based on all publications in OSIRIS.', 'Basierend auf allen Publikationen in OSIRIS.') ?>
+                    <a href="?#section-spectrum"><?= lang('View recent spectrum', 'Aktuelles Spektrum anzeigen') ?></a>
+                <?php } ?>
+            </p>
+        <?php } ?>
+        <?php
             include_once BASEPATH . "/php/Spectrum.php";
             Spectrum::render($spectrum, $count_spectrum);
         else : ?>
             <p>
-                <?= lang('No Research Spectrum is assigned to this person.', 'Zu dieser Person ist kein Forschungs-Spektrum zugewiesen.') ?>
+                <?= lang('We do not have enough data to display a research spectrum for this scientist yet. This could be because there are not enough publications in OSIRIS, or because the publications are not well covered by OpenAlex data.', 'Wir haben noch nicht genügend Daten, um ein Forschungsspektrum für diese Person anzuzeigen. Das könnte daran liegen, dass es noch nicht genügend Publikationen in OSIRIS gibt oder dass die Publikationen nicht gut von OpenAlex abgedeckt sind.') ?>
             </p>
         <?php endif; ?>
     </section>

@@ -168,7 +168,8 @@ unset($s);
             </a>
 
             <?php if (lang('en', 'de') == 'de') { ?>
-                <h2 class="title">Forschungs-Spektrum – Methodik & Hintergrund</h2>
+                <h2>Forschungs-Spektrum – Methodik & Hintergrund</h2>
+                <hr>
                 <h3>Was zeigt das Forschungs-Spektrum?</h3>
                 <p>Das Forschungs-Spektrum ist eine datenbasierte thematische Analyse wissenschaftlicher Publikationen.</p>
                 <p>Es zeigt, welche thematischen Schwerpunkte im aktuellen Datensatz vertreten sind und wie stark diese relativ zueinander ausgeprägt sind.</p>
@@ -236,7 +237,8 @@ unset($s);
                 <p>Das Forschungs-Spektrum ist ein analytisches Instrument zur thematischen Einordnung von Publikationen.</p>
                 <p>Es dient der strukturellen Übersicht und strategischen Analyse – nicht der Bewertung von Personen oder Organisationseinheiten.</p>
             <?php } else { ?>
-                <h2 class="title">Research Spectrum – Methodology & Background</h2>
+                <h2>Research Spectrum – Methodology & Background</h2>
+                <hr>
                 <p>The Research Spectrum is a data-driven thematic analysis of scholarly publications.</p>
                 <p>It shows which thematic focuses are represented in the current dataset and how strong they are relative to each other.</p>
                 <p>The analysis is based on publication data from <strong>OpenAlex</strong>.</p>
