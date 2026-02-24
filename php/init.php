@@ -63,7 +63,7 @@ if (!defined('OSIRIS_VERSION')) {
 global $USER;
 $USER = $DB->initUser();
 // check if user is not empty, if not, log out
-if ($_SESSION['loggedin'] && (empty($USER) || !isset($USER['username']))) {
+if (isset($_SESSION['loggedin']) && $_SESSION['loggedin'] && (empty($USER) || !isset($USER['username']))) {
     $_SESSION['username'] = null;
     $_SESSION['loggedin'] = false;
     $_SESSION['msg'] = lang('Your session has expired. Please log in again.', 'Deine Sitzung ist abgelaufen. Bitte logge dich erneut ein.');
