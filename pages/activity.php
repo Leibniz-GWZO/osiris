@@ -469,7 +469,6 @@ if ($Settings->featureEnabled('spectrum') && isset($doc['openalex'])) {
         const TYPE = '<?= $doc['type'] ?>';
     </script>
 
-    <script src="<?= ROOTPATH ?>/js/popover.js"></script>
     <script src="<?= ROOTPATH ?>/js/d3.v4.min.js"></script>
 
     <script src="<?= ROOTPATH ?>/js/chart.min.js"></script>
@@ -2217,39 +2216,14 @@ if ($Settings->featureEnabled('spectrum') && isset($doc['openalex'])) {
     <?php if ($Settings->featureEnabled('spectrum')) { ?>
         <section id="spectrum" style="display:none">
             <?php
-            if (!empty($spectrum)) : ?>
-                <h2><?= lang('Topics', 'Themen') ?></h2>
-                <div class="box">
-                    <div class="content">
-                        <?php
-                        // Sort by score desc (defensive)
-                        usort($spectrum, function ($a, $b) {
-                            return ($b['score'] ?? 0) <=> ($a['score'] ?? 0);
-                        });
-
-                        $max = 10; // keep it scannable
-                        $i = 0;
-                        foreach ($spectrum as $spectrum) {
-                            if ($i++ >= $max) break;
-                            echo renderSpectrum(
-                                $spectrum['id'] ?? null,
-                                $spectrum['name'] ?? 'spectrum',
-                                round(($spectrum['score'] ?? 0) * 100),
-                                $spectrum['path'] ?? $spectrum['name'] ?? 'spectrum',
-                                $spectrum['domain_id'] ?? 'unknown'
-                            );
-                        } ?>
-                    </div>
-                </div>
-            <?php else : ?>
+            if (!empty($spectrum)) : 
+            include_once BASEPATH . "/php/Spectrum.php";
+            Spectrum::render($spectrum);
+            else : ?>
                 <p>
                     <?= lang('No topics are assigned to this activity.', 'Zu dieser Aktivität sind keine Themen zugewiesen.') ?>
                 </p>
             <?php endif; ?>
-            <p class="text-muted">
-                <i class="ph ph-info text-blue"></i>
-                <?= lang('These topics are automatically assigned by OpenAlex based on citation and co-occurrence analysis of the publication. They are intended for analytical purposes and may change over time.', 'Diese Themen werden automatisch von OpenAlex auf Basis von Zitations- und Ko-Vorkommensanalysen der Publikation vergeben. Sie dienen analytischen Zwecken und können sich im Zeitverlauf ändern.') ?>
-            </p>
         </section>
     <?php } ?>
 

@@ -89,12 +89,6 @@ function navigate(key) {
             })
             break;
 
-        case 'research':
-            if (spectrumExists) break;
-            spectrumExists = true;
-            spectrumTooltip()
-            break;
-
         case 'wordcloud':
             if (wordcloudExists) break;
             wordcloudExists = true;

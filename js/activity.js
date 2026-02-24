@@ -12,11 +12,6 @@ function navigate(key) {
             coauthors()
             break;
 
-        case 'spectrum':
-            if (spectrumTooltipExists) return;
-            spectrumTooltip()
-            spectrumTooltipExists = true
-            break;
         default:
             break;
     }

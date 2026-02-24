@@ -791,7 +791,7 @@ if ($topicsEnabled) {
 
 
         <?php
-        if ($Settings->featureEnabled('spectrum')) {
+        if ($Settings->featureEnabled('spectrum') && $count_spectrum > 0) {
             $spectrum = $osiris->activities->aggregate([
                 ['$match' => [
                     'projects' => $project['_id'],
@@ -834,56 +834,9 @@ if ($topicsEnabled) {
                 </h3>
                 <?php
                 if (!empty($spectrum)) :
-                    // relative normalization of spectrum weights for visualization
-                    $max_weight = max(array_column($spectrum, 'weight'));
-                    $spectrum_by_field = [];
-                    foreach ($spectrum as $aggr) {
-                        $field = $aggr['topic']['field'] ?? 'unknown';
-                        $score =  round($aggr['weight'] * 100 / $max_weight);
-                        if ($score < 4) continue; // skip very weak topics
-                        $aggr['score'] = $score; // overwrite weight with normalized score for visualization
-                        if (!isset($spectrum_by_field[$field])) {
-                            $spectrum_by_field[$field] = [];
-                        }
-                        $spectrum_by_field[$field][] = $aggr;
-                    }
-                ?>
-                    <div class="box" id="spectrum">
-                        <div class="content">
-                            <?php foreach ($spectrum_by_field as $field => $aggrs) {
-                                $domain_id = $aggrs[0]['topic']['domain_id'] ?? 'unknown';
-                            ?>
-                                <h4 class="spectrum-title spectrum-<?= strtolower($domain_id) ?>"><?= lang($field) ?></h4>
-                                <?php foreach ($aggrs as $aggr) {
-                                    $spectrum = $aggr['topic'];
-                                    $score = $aggr['score'];
-                                    echo renderSpectrum(
-                                        $spectrum['id'] ?? null,
-                                        $spectrum['name'] ?? 'spectrum',
-                                        $score,
-                                        $spectrum['path'] ?? $spectrum['name'] ?? 'spectrum',
-                                        $spectrum['domain_id'] ?? 'unknown',
-                                        $aggr['count']
-                                    );
-                                } ?>
-                            <?php } ?>
-                        </div>
-                    </div>
-                    <?php
-                    $spectrum_pubs = $osiris->activities->count(['openalex.topics.id' => ['$exists' => true], 'units' => $id, 'type' => 'publication']);
-                    if ($spectrum_pubs <= 10) {
-                        echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of publication titles and abstracts from ' . $spectrum_pubs . ' publications in OSIRIS. Since there are only a few publications in OSIRIS with assigned spectrum, the results may be incomplete.', 'Das Forschungs-Spektrum basiert auf der Analyse von Titeln und Abstracts von ' . $spectrum_pubs . ' Publikationen in OSIRIS. Da es nur wenige Publikationen in OSIRIS mit zugewiesenem Forschungs-Spektrum gibt, können die Ergebnisse unvollständig sein.') . '</p>';
-                    } else {
-                        echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Das Forschungs-Spektrum basiert auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
-                    }
-                    ?>
-                    <script>
-                        $(document).ready(function() {
-                            // initialize spectrum tooltip
-                            spectrumTooltip();
-                        });
-                    </script>
-                <?php else : ?>
+                    include_once BASEPATH . "/php/Spectrum.php";
+                    Spectrum::render($spectrum, $count_spectrum);
+                else : ?>
                     <p>
                         <?= lang('No Research Spectrum is assigned to this unit.', 'Zu dieser Einheit ist kein Forschungs-Spektrum zugewiesen.') ?>
                     </p>

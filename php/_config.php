@@ -964,36 +964,3 @@ function abortwith($code, $item = '', $link = '', $linkMsg = '')
     die();
 }
 
-
-function spectrumHelper($spectrum)
-{
-    $score = round(($spectrum['score'] ?? 0) * 100);
-    $name  = $spectrum['name'] ?? 'spectrum';
-    $id    = $spectrum['id'] ?? null;
-    $title = $spectrum['path'] ?? $name;
-    $href = $id ? $id : '#';
-
-    return '<span class="spectrum" target="_blank"
-        href="' . e($href) . '"
-        data-id="' . e($id) . '"
-        data-score="' . $score . '"
-        data-name="' . e($name) . '"
-        title="' . e($title) . '">
-        <div role="progressbar" aria-valuenow="' . $score . '" aria-valuemin="0" aria-valuemax="100" style="--value: ' . $score . '"></div>
-        ' . e($name) . '
-    </span>';
-}
-
-function renderSpectrum($id, $name, $score, $title = '', $domain = '', $count=0)
-{
-    return '<span class="spectrum spectrum-' . $domain . '"
-        data-id="' . e($id) . '"
-        data-score="' . $score . '"
-        data-name="' . e($name) . '"
-        data-domain="' . e($domain) . '"
-        data-count="' . ($count) . '"
-        title="' . e($title) . '">
-        <div role="progressbar" aria-valuenow="' . $score . '" aria-valuemin="0" aria-valuemax="100" style="--value: ' . $score . '"></div>
-        ' . e($name) . '
-    </span>';
-}

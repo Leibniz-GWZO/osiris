@@ -687,18 +687,6 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
     <?php } ?>
 
 
-
-    <?php if ($Settings->featureEnabled('wordcloud')) { ?>
-        <?php
-        $count_wordcloud = $osiris->activities->count(['title' => ['$exists' => true], 'rendered.users' => $user, 'type' => 'publication']);
-        if ($count_wordcloud > 0) { ?>
-            <a onclick="navigate('wordcloud')" id="btn-wordcloud" class="btn">
-                <i class="ph ph-cloud" aria-hidden="true"></i>
-                <?= lang('Word cloud')  ?>
-            </a>
-        <?php } ?>
-    <?php } ?>
-
     <?php if ($Settings->featureEnabled('spectrum')) { ?>
         <?php
         $count_spectrum = $osiris->activities->count([
@@ -710,6 +698,18 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
             <a onclick="navigate('spectrum')" id="btn-spectrum" class="btn">
                 <i class="ph ph-lightbulb" aria-hidden="true"></i>
                 <?= lang('Research Spectrum', 'Forschungs-Spektrum')  ?>
+            </a>
+        <?php } ?>
+    <?php } ?>
+
+
+    <?php if ($Settings->featureEnabled('wordcloud')) { ?>
+        <?php
+        $count_wordcloud = $osiris->activities->count(['title' => ['$exists' => true], 'rendered.users' => $user, 'type' => 'publication']);
+        if ($count_wordcloud > 0) { ?>
+            <a onclick="navigate('wordcloud')" id="btn-wordcloud" class="btn">
+                <i class="ph ph-cloud" aria-hidden="true"></i>
+                <?= lang('Word cloud')  ?>
             </a>
         <?php } ?>
     <?php } ?>
@@ -1806,8 +1806,8 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
 <?php if ($Settings->featureEnabled('spectrum')) { ?>
     <section id="spectrum" style="display:none">
-        <?php 
-        
+        <?php
+
         $spectrum = $osiris->activities->aggregate([
             ['$match' => [
                 'rendered.users' => $user,
@@ -1851,48 +1851,9 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
             ['$limit' => 25]
         ])->toArray();
         if (!empty($spectrum)) :
-            // relative normalization of spectrum weights for visualization
-            $max_weight = max(array_column($spectrum, 'weight'));
-            $spectrum_by_field = [];
-            foreach ($spectrum as $aggr) {
-                $field = $aggr['topic']['field'] ?? 'unknown';
-                if (!isset($spectrum_by_field[$field])) {
-                    $spectrum_by_field[$field] = [];
-                }
-                $spectrum_by_field[$field][] = $aggr;
-            }
-        ?>
-            <h3 class=""><?= lang('Research Spectrum', 'Forschungs-Spektrum') ?></h3>
-            <div class="box" id="spectrum">
-                <div class="content">
-                    <?php foreach ($spectrum_by_field as $field => $aggrs) { 
-                        $domain_id = $aggrs[0]['topic']['domain_id'] ?? 'unknown';
-                        ?>
-                        <h4 class="spectrum-title spectrum-<?= strtolower($domain_id) ?>"><?= lang($field) ?></h4>
-                        <?php foreach ($aggrs as $aggr) {
-                            $spectrum = $aggr['topic'];
-                            $score =  round($aggr['weight'] * 100 / $max_weight);
-                            echo renderSpectrum(
-                                $spectrum['id'] ?? null,
-                                $spectrum['name'] ?? 'spectrum',
-                                $score,
-                                $spectrum['path'] ?? $spectrum['name'] ?? 'spectrum',
-                                $spectrum['domain_id'] ?? 'unknown',
-                                $aggr['count']
-                            );
-                        } ?>
-                    <?php } ?>
-                </div>
-            </div>
-            <?php
-            $spectrum_pubs = $osiris->activities->count(['openalex.topics.id' => ['$exists' => true], 'rendered.users' => $user, 'type' => 'publication']);
-            if ($spectrum_pubs <= 5) {
-                echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of publication titles and abstracts from ' . $spectrum_pubs . ' publications in OSIRIS. Since there are only a few publications in OSIRIS with assigned spectrum, the results may be incomplete.', 'Forschungs-Spektrum basieren auf der Analyse von Titeln und Abstracts von ' . $spectrum_pubs . ' Publikationen in OSIRIS. Da es nur wenige Publikationen in OSIRIS mit zugewiesenen Forschungs-Spektrumn gibt, können die Ergebnisse unvollständig sein.') . '</p>';
-            } else {
-                echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Forschungs-Spektrum basieren auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
-            }
-            ?>
-        <?php else : ?>
+            include_once BASEPATH . "/php/Spectrum.php";
+            Spectrum::render($spectrum, $count_spectrum);
+        else : ?>
             <p>
                 <?= lang('No Research Spectrum is assigned to this person.', 'Zu dieser Person ist kein Forschungs-Spektrum zugewiesen.') ?>
             </p>

@@ -1662,6 +1662,8 @@ function spectrumTooltip() {
             id: el.attr('data-id'),
             domain: el.attr('data-domain') || 'unknown'
         }
+        data.score = parseFloat(data.score);
+        data.score = isNaN(data.score) ? lang('No score', 'Kein Score') : data.score.toFixed(2);
         el.popover({
             placement: 'auto top',
             container: '#spectrum',
