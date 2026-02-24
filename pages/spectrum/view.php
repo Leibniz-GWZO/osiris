@@ -1,20 +1,60 @@
 <?php
 
 $path = [];
-if ($level == 'field') {
-    $path[] = $spectrum['domain'];
+$child = 'field';
+$childIdField = 'field_id';
+$childNameField = 'field';
+if ($level == 'field' || $level == 'subfield' || $level == 'topic') {
+    $path[] = '<a href="'.ROOTPATH. '/spectrum/domain/'.$spectrum['domain_id'].'">'.$spectrum['domain'].'</a>';
+    $child = 'subfield';
+    $childIdField = 'subfield_id';
+    $childNameField = 'subfield';
 }
-if ($level == 'subfield') {
-    $path[] = $spectrum['field'];
+if ($level == 'subfield' || $level == 'topic') {
+    $path[] = '<a href="'.ROOTPATH. '/spectrum/field/'.$spectrum['field_id'].'">'.$spectrum['field'].'</a>';
+    $child = 'topic';
+    $childIdField = 'id';
+    $childNameField = 'name';
 }
 if ($level == 'topic') {
-    $path[] = $spectrum['field'];
-    $path[] = $spectrum['subfield'];
+    $path[] = '<a href="'.ROOTPATH. '/spectrum/subfield/'.$spectrum['subfield_id'].'">'.$spectrum['subfield'].'</a>';
+    $child = null;
+    $childIdField = null;
+    $childNameField = null;
 }
 ?>
 
 
 <style>
+    .spectrum-bar {
+        display: grid;
+        grid-template-columns: 2fr 4fr 60px;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .spectrum-bar a {
+        color: var(--primary-color);
+    }
+
+    .spectrum-bar .bar {
+        background: #eee;
+        height: 8px;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .spectrum-bar .fill {
+        background: var(--primary-color);
+        height: 100%;
+    }
+
+    .spectrum-bar .count {
+        font-size: 0.9em;
+        color: #666;
+        margin-left: 1rem;
+    }
+
     #spectrum {
         --primary-color: var(--spectrum-<?= e($spectrum['domain_id']) ?>-color);
         --primary-color-dark: var(--spectrum-<?= e($spectrum['domain_id']) ?>-color);
@@ -24,7 +64,7 @@ if ($level == 'topic') {
 <div id="spectrum">
     <ul class="breadcrumb category" style="--highlight-color: var(--primary-color);">
         <?php foreach ($path as $p) { ?>
-            <li><?= e($p) ?></li>
+            <li><?= $p ?></li>
         <?php } ?>
     </ul>
     <h1 class="text-primary">
@@ -41,13 +81,52 @@ if ($level == 'topic') {
 
     <div class="row">
         <div class="col-md-9">
+            <!-- children -->
+            <?php
+            if ($childIdField && $childNameField) {
+                $children = $osiris->activities->aggregate([
+                    ['$match' => ['openalex.topics.' . $idField => $id]],
+                    ['$unwind' => '$openalex.topics'],
+                    ['$match' => ['openalex.topics.' . $idField => $id]],
+                    ['$group' => [
+                        '_id' => '$openalex.topics.' . $childIdField,
+                        'name' => ['$first' => '$openalex.topics.' . $childNameField],
+                        'count' => ['$sum' => 1]
+                    ]],
+                    ['$sort' => ['count' => -1]],
+                    ['$limit' => 10]
+                ])->toArray();
+            ?>
+                <h2 id="subtopics">
+                    <?= lang('Subtopics', 'Unterthemen') ?>
+                </h2>
+                <div class="spectrum-chart box padded">
+                    <?php
+                    $max = 0;
+                    $max = $children[0]['count'];
+                    foreach ($children as $s):
+                        $percent = round($s['count'] * 100 / $max, 1);
+                        $name = $s['name'];
+                    ?>
+                        <div class="spectrum-bar">
+                            <a href="<?= ROOTPATH ?>/spectrum/<?= $child ?>/<?= e($s['_id']) ?>"><?= e($name) ?></a>
+                            <div class="bar">
+                                <div class="fill" style="width: <?= $percent ?>%"></div>
+                            </div>
+                            <div class="count"><?= $s['count'] ?></div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php } ?>
+
+
 
             <?php
             // Timeline data
             $timelineMatch = [
                 'openalex.topics.' . $idField => $id,
                 'affiliated' => true,
-                'year' => ['$gte' => $Settings->get('startyear', 2000)]
+                // 'year' => ['$gte' => $Settings->get('startyear', 2000)]
             ];
             $timeline = $osiris->activities->aggregate([
                 ['$match' => $timelineMatch],
@@ -66,6 +145,21 @@ if ($level == 'topic') {
                     'count' => (int)$row['count']
                 ];
             }
+            // fill in missing years
+            $currentYear = (int)date('Y');
+            $firstYear = $timelineData ? $timelineData[0]['year'] : $currentYear;
+            for ($y = $firstYear; $y <= $currentYear; $y++) {
+                if (!isset($timelineDataByYear[$y])) {
+                    $timelineData[] = [
+                        'year' => $y,
+                        'count' => 0
+                    ];
+                }
+            }
+            // sort by year
+            usort($timelineData, function($a, $b) {
+                return $a['year'] <=> $b['year'];
+            });
             ?>
 
             <script>
@@ -200,33 +294,6 @@ if ($level == 'topic') {
 
             <h2 id="organizational-units"><?= lang('Organizational units', 'Organisationseinheiten') ?></h2>
 
-            <style>
-                .spectrum-bar {
-                    display: grid;
-                    grid-template-columns: 2fr 4fr 60px;
-                    align-items: center;
-                    margin-bottom: 8px;
-                }
-
-                .spectrum-bar .bar {
-                    background: #eee;
-                    height: 8px;
-                    border-radius: 4px;
-                    overflow: hidden;
-                }
-
-                .spectrum-bar .fill {
-                    background: var(--primary-color);
-                    height: 100%;
-                }
-
-                .spectrum-bar .count {
-                    font-size: 0.9em;
-                    color: #666;
-                    margin-left: 1rem;
-                }
-            </style>
-
 
             <div class="spectrum-chart box padded">
                 <?php
@@ -283,7 +350,7 @@ if ($level == 'topic') {
                         <tr>
                             <td>
                                 <a href="<?= ROOTPATH ?>/profile/<?= e($r['_id']) ?>">
-                                <?= $DB->getNameFromId($r['_id']) ?>
+                                    <?= $DB->getNameFromId($r['_id']) ?>
                                 </a>
                             </td>
                             <td><?= $r['count'] ?></td>
@@ -339,6 +406,9 @@ if ($level == 'topic') {
                     </div>
 
                     <a href="#spectrum"><?= lang('Overview', 'Übersicht') ?></a>
+                    <?php if ($childIdField && $childNameField) { ?>
+                        <a href="#subtopics"><?= lang('Subtopics', 'Unterthemen') ?></a>
+                    <?php } ?>
                     <a href="#publication-timeline"><?= lang('Publication timeline', 'Publikationszeitstrahl') ?></a>
                     <a href="#organizational-units"><?= lang('Organizational units', 'Organisationseinheiten') ?></a>
                     <a href="#top-researchers"><?= lang('Top researchers', 'Beteiligte Forschende') ?></a>
