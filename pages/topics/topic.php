@@ -392,6 +392,12 @@ if ($Settings->featureEnabled('spectrum')) {
                     echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Das Forschungs-Spektrum basiert auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
                 }
                 ?>
+                <script>
+                    $(document).ready(function() {
+                        // initialize spectrum tooltip
+                        spectrumTooltip();
+                    });
+                </script>
             <?php else : ?>
                 <p>
                     <?= lang('No Research Spectrum is assigned to this ' . $topicLabel . '.', 'Zu diesem ' . $topicLabel . ' ist kein Forschungs-Spektrum zugewiesen.') ?>

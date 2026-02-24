@@ -33,7 +33,11 @@ foreach ($persons as $p) {
 }
 $edit_perm = ($project['created_by'] == $_SESSION['username'] || $Settings->hasPermission('projects.edit') || ($Settings->hasPermission('projects.edit-own') && $user_project));
 
-$N = $osiris->activities->count(['projects' => $project['_id']]);
+$count_activities = $osiris->activities->count(['projects' => $project['_id']]);
+$count_spectrum = 0;
+if ($Settings->featureEnabled('spectrum')) {
+    $count_spectrum = $osiris->activities->count(['projects' => $project['_id'], 'openalex.topics.id' => ['$exists' => true]]);
+}
 
 $institute = $Settings->get('affiliation_details');
 
@@ -266,11 +270,11 @@ if ($topicsEnabled) {
         </a>
     <?php } ?>
 
-    <?php if ($N > 0) { ?>
+    <?php if ($count_activities > 0) { ?>
         <a onclick="navigate('activities')" id="btn-activities" class="btn">
             <i class="ph ph-suitcase" aria-hidden="true"></i>
             <?= lang('Activities', 'Aktivitäten') ?>
-            <span class="index"><?= $N ?></span>
+            <span class="index"><?= $count_activities ?></span>
         </a>
     <?php } elseif ($edit_perm || $Settings->hasPermission('projects.connect')) { ?>
         <a id="btn-activities" class="btn" href="#add-activity">
@@ -678,7 +682,7 @@ if ($topicsEnabled) {
 
     <h2>
         <?= lang('Connected activities', 'Verknüpfte Aktivitäten') ?>
-        (<?= $N ?>)
+        (<?= $count_activities ?>)
     </h2>
 
     <div class="btn-toolbar mb-10">
@@ -691,7 +695,7 @@ if ($topicsEnabled) {
 
 
         <div class="dropdown with-arrow btn-group ">
-            <button class="btn primary" <?= $N == 0 ? 'disabled' : '' ?> data-toggle="dropdown" type="button" id="download-btn" aria-haspopup="true" aria-expanded="false">
+            <button class="btn primary" <?= $count_activities == 0 ? 'disabled' : '' ?> data-toggle="dropdown" type="button" id="download-btn" aria-haspopup="true" aria-expanded="false">
                 <i class="ph ph-download"></i> Download
                 <i class="ph ph-caret-down ml-5" aria-hidden="true"></i>
             </button>
@@ -766,20 +770,127 @@ if ($topicsEnabled) {
         <div id="timeline"></div>
     </div>
 
-    <div class="mt-20 w-full">
-        <table class="table dataTable responsive" id="activities-table">
-            <thead>
-                <tr>
-                    <th><?= lang('Type', 'Typ') ?></th>
-                    <th><?= lang('Activity', 'Aktivität') ?></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
+    <div class="row row-eq-spacing">
+        <div class="col-md">
 
+            <div class="mt-20 w-full">
+                <table class="table dataTable responsive" id="activities-table">
+                    <thead>
+                        <tr>
+                            <th><?= lang('Type', 'Typ') ?></th>
+                            <th><?= lang('Activity', 'Aktivität') ?></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+
+        <?php
+        if ($Settings->featureEnabled('spectrum')) {
+            $spectrum = $osiris->activities->aggregate([
+                ['$match' => [
+                    'projects' => $project['_id'],
+                    'type' => 'publication',
+                    'openalex.topics' => ['$exists' => true, '$ne' => []]
+                ]],
+
+                // total number of matched activities
+                ['$unwind' => '$openalex.topics'],
+
+                // group by topic id
+                ['$group' => [
+                    '_id' => '$openalex.topics.id',
+                    'count' => ['$sum' => 1],
+                    'sumScore' => ['$sum' => '$openalex.topics.score'],
+                    'topic' => ['$first' => '$openalex.topics']
+                ]],
+
+                // compute averages + share
+                ['$addFields' => [
+                    'avg_score' => ['$divide' => ['$sumScore', '$count']],
+                    'share' => ['$divide' => ['$count', $count_spectrum]],
+                    // optional combined weight (tweakable)
+                    'weight' => ['$multiply' => [
+                        ['$divide' => ['$count', $count_spectrum]],
+                        ['$divide' => ['$sumScore', $count_spectrum]]
+                    ]]
+                ]],
+
+                // filter noise
+                ['$match' => ['share' => ['$gte' => 0.05]]],
+
+                ['$sort' => ['weight' => -1]],
+                ['$limit' => 25]
+            ])->toArray();
+        ?>
+            <div class="col-md">
+                <h3>
+                    <?= lang('Research Spectrum', 'Forschungs-Spektrum') ?>
+                </h3>
+                <?php
+                if (!empty($spectrum)) :
+                    // relative normalization of spectrum weights for visualization
+                    $max_weight = max(array_column($spectrum, 'weight'));
+                    $spectrum_by_field = [];
+                    foreach ($spectrum as $aggr) {
+                        $field = $aggr['topic']['field'] ?? 'unknown';
+                        $score =  round($aggr['weight'] * 100 / $max_weight);
+                        if ($score < 4) continue; // skip very weak topics
+                        $aggr['score'] = $score; // overwrite weight with normalized score for visualization
+                        if (!isset($spectrum_by_field[$field])) {
+                            $spectrum_by_field[$field] = [];
+                        }
+                        $spectrum_by_field[$field][] = $aggr;
+                    }
+                ?>
+                    <div class="box" id="spectrum">
+                        <div class="content">
+                            <?php foreach ($spectrum_by_field as $field => $aggrs) {
+                                $domain_id = $aggrs[0]['topic']['domain_id'] ?? 'unknown';
+                            ?>
+                                <h4 class="spectrum-title spectrum-<?= strtolower($domain_id) ?>"><?= lang($field) ?></h4>
+                                <?php foreach ($aggrs as $aggr) {
+                                    $spectrum = $aggr['topic'];
+                                    $score = $aggr['score'];
+                                    echo renderSpectrum(
+                                        $spectrum['id'] ?? null,
+                                        $spectrum['name'] ?? 'spectrum',
+                                        $score,
+                                        $spectrum['path'] ?? $spectrum['name'] ?? 'spectrum',
+                                        $spectrum['domain_id'] ?? 'unknown',
+                                        $aggr['count']
+                                    );
+                                } ?>
+                            <?php } ?>
+                        </div>
+                    </div>
+                    <?php
+                    $spectrum_pubs = $osiris->activities->count(['openalex.topics.id' => ['$exists' => true], 'units' => $id, 'type' => 'publication']);
+                    if ($spectrum_pubs <= 10) {
+                        echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of publication titles and abstracts from ' . $spectrum_pubs . ' publications in OSIRIS. Since there are only a few publications in OSIRIS with assigned spectrum, the results may be incomplete.', 'Das Forschungs-Spektrum basiert auf der Analyse von Titeln und Abstracts von ' . $spectrum_pubs . ' Publikationen in OSIRIS. Da es nur wenige Publikationen in OSIRIS mit zugewiesenem Forschungs-Spektrum gibt, können die Ergebnisse unvollständig sein.') . '</p>';
+                    } else {
+                        echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Das Forschungs-Spektrum basiert auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
+                    }
+                    ?>
+                    <script>
+                        $(document).ready(function() {
+                            // initialize spectrum tooltip
+                            spectrumTooltip();
+                        });
+                    </script>
+                <?php else : ?>
+                    <p>
+                        <?= lang('No Research Spectrum is assigned to this unit.', 'Zu dieser Einheit ist kein Forschungs-Spektrum zugewiesen.') ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+        <?php } ?>
+    </div>
 </section>
 
 

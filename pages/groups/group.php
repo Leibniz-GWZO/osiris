@@ -583,8 +583,8 @@ if ($Settings->featureEnabled('wordcloud')) {
                             <?= lang('No Research Spectrum is assigned to this unit.', 'Zu dieser Einheit ist kein Forschungs-Spektrum zugewiesen.') ?>
                         </p>
                     <?php endif; ?>
-                <?php } ?>
                 </div>
+            <?php } ?>
         </div>
 
     </section>
