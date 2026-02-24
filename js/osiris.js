@@ -1663,7 +1663,7 @@ function spectrumTooltip() {
             domain: el.attr('data-domain') || 'unknown'
         }
         el.popover({
-            placement: 'auto bottom',
+            placement: 'auto top',
             container: '#spectrum',
             mouseOffset: 10,
             trigger: 'click',

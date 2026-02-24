@@ -701,50 +701,11 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
     <?php if ($Settings->featureEnabled('spectrum')) { ?>
         <?php
-        $spectrum = [];
-        $spectrum = $osiris->activities->aggregate([
-            ['$match' => [
-                'rendered.users' => $user,
-                'type' => 'publication',
-                'openalex.topics' => ['$exists' => true, '$ne' => []]
-            ]],
-
-            // total number of matched activities
-            ['$group' => [
-                '_id' => null,
-                'total' => ['$sum' => 1],
-                'docs' => ['$push' => '$$ROOT']
-            ]],
-            ['$unwind' => '$docs'],
-            ['$unwind' => '$docs.openalex.topics'],
-
-            // group by topic id
-            ['$group' => [
-                '_id' => '$docs.openalex.topics.id',
-                'count' => ['$sum' => 1],
-                'sumScore' => ['$sum' => '$docs.openalex.topics.score'],
-                'topic' => ['$first' => '$docs.openalex.topics'],
-                'total' => ['$first' => '$total']
-            ]],
-
-            // compute averages + share
-            ['$addFields' => [
-                'avg_score' => ['$divide' => ['$sumScore', '$count']],
-                'share' => ['$divide' => ['$count', '$total']],
-                // optional combined weight (tweakable)
-                'weight' => ['$multiply' => [
-                    ['$divide' => ['$count', '$total']],
-                    ['$divide' => ['$sumScore', '$count']]
-                ]]
-            ]],
-
-            // filter noise
-            ['$match' => ['share' => ['$gte' => 0.05]]],
-
-            ['$sort' => ['weight' => -1]],
-            ['$limit' => 25]
-        ])->toArray();
-        $count_spectrum = count($spectrum);
+        $count_spectrum = $osiris->activities->count([
+            'rendered.users' => $user,
+            'type' => 'publication',
+            'openalex.topics' => ['$exists' => true, '$ne' => []]
+        ]);
         if ($count_spectrum > 0) { ?>
             <a onclick="navigate('spectrum')" id="btn-spectrum" class="btn">
                 <i class="ph ph-lightbulb" aria-hidden="true"></i>
@@ -1845,7 +1806,51 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
 <?php if ($Settings->featureEnabled('spectrum')) { ?>
     <section id="spectrum" style="display:none">
-        <?php if (!empty($spectrum)) :
+        <?php 
+        
+        $spectrum = $osiris->activities->aggregate([
+            ['$match' => [
+                'rendered.users' => $user,
+                'type' => 'publication',
+                'openalex.topics' => ['$exists' => true, '$ne' => []]
+            ]],
+
+            // total number of matched activities
+            ['$group' => [
+                '_id' => null,
+                'total' => ['$sum' => 1],
+                'docs' => ['$push' => '$$ROOT']
+            ]],
+            ['$unwind' => '$docs'],
+            ['$unwind' => '$docs.openalex.topics'],
+
+            // group by topic id
+            ['$group' => [
+                '_id' => '$docs.openalex.topics.id',
+                'count' => ['$sum' => 1],
+                'sumScore' => ['$sum' => '$docs.openalex.topics.score'],
+                'topic' => ['$first' => '$docs.openalex.topics'],
+                'total' => ['$first' => '$total']
+            ]],
+
+            // compute averages + share
+            ['$addFields' => [
+                'avg_score' => ['$divide' => ['$sumScore', '$count']],
+                'share' => ['$divide' => ['$count', '$total']],
+                // optional combined weight (tweakable)
+                'weight' => ['$multiply' => [
+                    ['$divide' => ['$count', '$total']],
+                    ['$divide' => ['$sumScore', '$count']]
+                ]]
+            ]],
+
+            // filter noise
+            ['$match' => ['share' => ['$gte' => 0.05]]],
+
+            ['$sort' => ['weight' => -1]],
+            ['$limit' => 25]
+        ])->toArray();
+        if (!empty($spectrum)) :
             // relative normalization of spectrum weights for visualization
             $max_weight = max(array_column($spectrum, 'weight'));
             $spectrum_by_field = [];
@@ -1882,14 +1887,14 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
             <?php
             $spectrum_pubs = $osiris->activities->count(['openalex.topics.id' => ['$exists' => true], 'rendered.users' => $user, 'type' => 'publication']);
             if ($spectrum_pubs <= 5) {
-                echo '<p class="text-muted font-size-12">' . lang('spectrum are based on the analysis of publication titles and abstracts from ' . $spectrum_pubs . ' publications in OSIRIS. Since there are only a few publications in OSIRIS with assigned spectrum, the results may be incomplete.', 'Forschungs-Spektrum basieren auf der Analyse von Titeln und Abstracts von ' . $spectrum_pubs . ' Publikationen in OSIRIS. Da es nur wenige Publikationen in OSIRIS mit zugewiesenen Forschungs-Spektrumn gibt, können die Ergebnisse unvollständig sein.') . '</p>';
+                echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of publication titles and abstracts from ' . $spectrum_pubs . ' publications in OSIRIS. Since there are only a few publications in OSIRIS with assigned spectrum, the results may be incomplete.', 'Forschungs-Spektrum basieren auf der Analyse von Titeln und Abstracts von ' . $spectrum_pubs . ' Publikationen in OSIRIS. Da es nur wenige Publikationen in OSIRIS mit zugewiesenen Forschungs-Spektrumn gibt, können die Ergebnisse unvollständig sein.') . '</p>';
             } else {
-                echo '<p class="text-muted font-size-12">' . lang('spectrum are based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Forschungs-Spektrum basieren auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
+                echo '<p class="text-muted font-size-12">' . lang('Research Spectrum is based on the analysis of ' . $spectrum_pubs . ' publications in OSIRIS.', 'Forschungs-Spektrum basieren auf der Analyse von ' . $spectrum_pubs . ' Publikationen in OSIRIS.') . '</p>';
             }
             ?>
         <?php else : ?>
             <p>
-                <?= lang('No spectrum are assigned to this person.', 'Zu dieser Person sind keine Forschungs-Spektrum zugewiesen.') ?>
+                <?= lang('No Research Spectrum is assigned to this person.', 'Zu dieser Person ist kein Forschungs-Spektrum zugewiesen.') ?>
             </p>
         <?php endif; ?>
     </section>

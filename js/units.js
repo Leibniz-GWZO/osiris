@@ -89,7 +89,7 @@ function navigate(key) {
             })
             break;
 
-        case 'spectrum':
+        case 'research':
             if (spectrumExists) break;
             spectrumExists = true;
             spectrumTooltip()

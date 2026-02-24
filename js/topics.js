@@ -21,6 +21,11 @@ $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
     return !activeCategories.has(type);
 });
 
+$(document).ready(function () {
+    // initialize spectrum tooltip
+    spectrumTooltip();
+});
+
 function navigate(key) {
     console.log(key);
     $('section').hide()
