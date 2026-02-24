@@ -191,7 +191,7 @@ $pageactive = function ($p) use ($page) {
                     </div>
                 <?php } else { ?>
                     <a href="<?= ROOTPATH ?>/portal/info" class="navbar-brand">
-                        <img src="<?= ROOTPATH ?>/img/Portfolio.svg" alt="OSIRIS-Portfolio" id="osiris-logo">
+                        <img src="<?= ROOTPATH ?>/img/portfolio.svg" alt="OSIRIS-Portfolio" id="osiris-logo">
                     </a>
 
                     <a href="<?= $Settings->get('affiliation_details')['link'] ?? '#' ?>" class="navbar-brand ml-auto" target="_blank">

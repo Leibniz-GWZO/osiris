@@ -146,13 +146,6 @@ if ($process == 'project') {
         border-color: var(--danger-color);
     }
 
-    .kdsf-icon {
-        width: 1.4em;
-        height: 1.4em;
-        margin-left: 0.5rem;
-        vertical-align: middle;
-    }
-
     .kdsf {
         font-weight: bold;
         font-size: x-small;
@@ -468,7 +461,6 @@ if ($process == 'project') {
                                 <?= lang($field['en'], $field['de']) ?>
                                 <?php if ($kdsf) { ?>
                                     <small class="kdsf" data-toggle="tooltip" data-title="<?= $kdsf ?>">
-                                        <!-- <img src="<?= ROOTPATH ?>/img/kdsf-icon.svg" alt="KDSF" class="kdsf-icon"> -->
                                         KDSF
                                     </small>
                                 <?php } ?>
@@ -534,7 +526,6 @@ if ($process == 'project') {
                                 <?= lang($field['en'], $field['de']) ?>
                                 <?php if ($kdsf) { ?>
                                     <small class="kdsf" data-toggle="tooltip" data-title="<?= $kdsf ?>">
-                                        <!-- <img src="<?= ROOTPATH ?>/img/kdsf-icon.svg" alt="KDSF" class="kdsf-icon"> -->
                                         KDSF
                                     </small>
                                 <?php } ?>
