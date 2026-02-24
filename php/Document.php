@@ -1446,6 +1446,13 @@ class Document extends Settings
                     return $m['module'];
                 }
                 return 'Unknown';
+            case "teaching-course-title": // ["title", "module", "module_id"],
+                if (isset($this->doc['module_id'])) {
+                    $m = $this->DB->getConnected('teaching', $this->getVal('module_id'));
+                    if (empty($m)) return $this->getVal('title') ?? '';
+                    return $m['title'];
+                }
+                return $default;
             case "title": // ["title"],
                 return $this->getVal('title');
             case "topics": // ["topic"],
