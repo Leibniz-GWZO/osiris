@@ -86,6 +86,19 @@ foreach ($activities as $activity) {
 echo "<p>" . lang('Added updated and updated_by to', 'updated und updated_by hinzugefügt zu') . " $N " . lang('activities', 'Aktivitäten') . ".</p>\n";
 
 
+// Migrate OpenAlex IDs from 'openalex' field to 'openalex_id' and create indexes for command palette search
+$activities = $osiris->activities->find(['openalex' => ['$exists' => true]], ['projection' => ['openalex' => 1]]);
+$N = 0;
+foreach ($activities as $activity) {
+    $openalex = $activity['openalex'];
+    $osiris->activities->updateOne(
+        ['_id' => $activity['_id']],
+        ['$set' => ['openalex_id' => $openalex], '$unset' => ['openalex' => '']]
+    );
+    $N++;
+}
+echo "<p>Migrated OpenAlex IDs for $N activities.</p>\n";
+
 /* Create an index if it doesn't already exist. */
 function ensureIndex($collection, array $keys, array $options = [])
 {

@@ -188,10 +188,6 @@ class OpenAlexParser
                 $pos = 'corresponding';
             }
 
-            $approved = false;
-            if ($user == $_SESSION['username']) {
-                $approved = true;
-            }
             $authors[] = [
                 'last' => $name['lname'],
                 'first' => $name['fname'] . ($name['initials'] ? ' ' . $name['initials'] : ''),
@@ -199,7 +195,7 @@ class OpenAlexParser
                 'aoi' => in_array('https://openalex.org/' . $this->inst_id, array_column($a['institutions'], 'id')),
                 'orcid' => $orcid,
                 'user' => $user,
-                'approved' => $approved
+                'approved' => false
             ];
         }
 
@@ -229,7 +225,7 @@ class OpenAlexParser
             'day' => $day,
             'authors' => $authors,
             'pages' => $pages,
-            'openalex' => str_replace('https://openalex.org/', '', $work['id']),
+            'openalex_id' => str_replace('https://openalex.org/', '', $work['id']),
             'pubmed' => $pubmed,
             'open_access' => $work['open_access']['is_oa'],
             'oa_status' => $work['open_access']['oa_status'],
