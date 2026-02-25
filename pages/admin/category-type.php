@@ -166,12 +166,12 @@ if (!empty($form) && isset($form['_id'])) {
                     </label>
                 </div>
             </div> -->
-            <?php if ($Settings->featureEnabled('portal')) { 
+            <?php if ($Settings->featureEnabled('portal')) {
                 $portfolio = $type['portfolio'] ?? false;
                 if (!isset($type['portfolio']) && $type['parent'] == 'publication') {
                     $portfolio = true;
                 }
-                ?>
+            ?>
                 <div class="mt-20">
                     <input type="hidden" name="values[portfolio]" value="false">
                     <div class="custom-checkbox">
@@ -287,11 +287,11 @@ if (!empty($form) && isset($form['_id'])) {
                 <?= lang('Template builder', 'Template-Baukasten') ?> <i class="ph ph-arrow-square-out ml-5"></i>
             </a>
 
-            <a onclick="$(this).next().toggle();"><?=lang('Show cheat sheet', 'Zeige die Cheat-Sheet')?></a>
-                <div style="display: none; font-size: 0.9em;">
-                    <strong><?=lang('Available fields:', 'Verfügbare Felder:')?></strong>
-                    <ul class="list">
-                <?php
+            <a onclick="$(this).next().toggle();"><?= lang('Show cheat sheet', 'Zeige die Cheat-Sheet') ?></a>
+            <div style="display: none; font-size: 0.9em;">
+                <strong><?= lang('Available fields:', 'Verfügbare Felder:') ?></strong>
+                <ul class="list">
+                    <?php
                     // based on selected modules, show available fields
                     $available = [];
                     $all_fields = $Modules->all_modules;
@@ -300,15 +300,14 @@ if (!empty($form) && isset($form['_id'])) {
                         if (isset($mod['fields']) && is_array($mod['fields'])) {
                             $available = array_merge($available, array_keys($mod['fields']));
                         }
-                        
                     }
                     $available = array_unique($available);
                     sort($available);
                     foreach ($available as $a) { ?>
                         <li><code>{<?= $a ?>}</code></li>
                     <?php } ?>
-                    </ul>
-                </div>
+                </ul>
+            </div>
 
             <div class="input-group mb-10">
                 <div class="input-group-prepend">
@@ -405,6 +404,12 @@ if (!empty($form) && isset($form['_id'])) {
 
 <?php } ?>
 
+<br>
+<!-- rerender only this type -->
+<a href='<?= ROOTPATH ?>/rerender?subtype=<?= $id ?>' target="_blank" class="text-primary">
+    <i class="ph ph-arrow-clockwise"></i>
+    <?= lang('Rerender all activities of this type', 'Alle Aktivitäten dieses Typs neu rendern') ?>
+</a>
 
 <?php include_once BASEPATH . '/header-editor.php'; ?>
 <script src="<?= ROOTPATH ?>/js/admin-categories.js"></script>

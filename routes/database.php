@@ -51,6 +51,15 @@ Route::get('/rerender', function () {
     if (isset($_GET['type']) && !empty($_GET['type'])) {
         $filter['type'] = $_GET['type'];
     }
+    if (isset($_GET['subtype']) && !empty($_GET['subtype'])) {
+        $filter['subtype'] = $_GET['subtype'];
+    }
+    if (isset($_GET['username']) && !empty($_GET['username'])) {
+        $filter['rendered.users'] = $_GET['username'];
+    }
+    if (isset($_GET['unit']) && !empty($_GET['unit'])) {
+        $filter['units'] = $_GET['unit'];
+    }
 
     // start rendering process
     renderActivities($filter);
