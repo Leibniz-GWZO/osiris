@@ -954,7 +954,7 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                     <div class="box">
                         <div class="content">
                             <?php if ($Settings->hasPermission('conferences.edit')) { ?>
-                                <a href="<?= ROOTPATH ?>/conferences#add-conference" class="float-md-right btn primary">
+                                <a href="<?= ROOTPATH ?>/conferences/new" class="float-md-right btn primary">
                                     <i class="ph ph-plus"></i>
                                     <?= lang('Add', 'Hinzufügen') ?>
                                 </a>
