@@ -117,7 +117,7 @@ public $all_modules = array(
             "description_de" => "Ein Feld für eine Stadt, z.B. für den Verlag eines Buches oder für einen Konferenzort.",
             "width" => 6,
             "tags" => ['general', 'location'],
-            "section" => "locations",
+            "section" => "bibliography",
         ],
         "conference" => [
             "fields" => ["conference" => '1st CRIS Conference'],

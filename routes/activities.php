@@ -278,9 +278,7 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
     $Format->setDocument($doc);
 
     $name = $activity['title'] ?? $id;
-    // if (strlen($name) > 20)
-    //     $name = mb_substr(strip_tags($name), 0, 20) . "&hellip;";
-    // $name = ucfirst($activity['type']) . ": " . $name;
+
     $breadcrumb = [
         ['name' => lang('Activities', "Aktivitäten"), 'path' => "/activities"],
         ['name' => $name]
@@ -290,7 +288,90 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
     }
     $no_container = true;
     include BASEPATH . "/header.php";
-    include BASEPATH . "/pages/activity.php";
+
+
+    include_once BASEPATH . "/php/Modules.php";
+    $Modules = new Modules($doc);
+
+    include_once BASEPATH . "/php/Vocabulary.php";
+    $Vocabulary = new Vocabulary();
+
+    // check if this is an ongoing activity type
+    $ongoing = false;
+    $sws = false;
+    $supervisorThesis = false;
+
+    $typeArr = $Format->typeArr;
+    $upload_possible = $typeArr['upload'] ?? true;
+    $subtypeArr = $Format->subtypeArr;
+    $typeModules = DB::doc2Arr($subtypeArr['modules'] ?? array());
+    $typeFields = $Modules->getFields();
+
+    foreach ($typeModules as $m) {
+        if (str_ends_with($m, '*')) $m = str_replace('*', '', $m);
+        if ($m == 'date-range-ongoing') $ongoing = true;
+        if ($m == 'supervisor') $sws = true;
+        if ($m == 'supervisor-thesis') $supervisorThesis = true;
+    }
+
+    $projects = [];
+    if (isset($activity['projects']) && count($activity['projects']) > 0) {
+        $projects = $osiris->projects->find(
+            ['_id' => ['$in' => $activity['projects']]],
+            ['projection' => ['_id' => 1, 'acronym' => 1, 'name' => 1, 'start' => 1, 'end' => 1, 'title' => 1, 'funder' => 1]]
+        )->toArray();
+    }
+
+    $guests_involved = boolval($subtypeArr['guests'] ?? false);
+    $guests = $doc['guests'] ?? [];
+    // if ($guests_involved)
+    //     $guests = $osiris->guests->find(['activity' => $id])->toArray();
+
+    $edit_perm = ($user_activity || $Settings->hasPermission('activities.edit'));
+    $tagName = '';
+    if ($Settings->featureEnabled('tags')) {
+        $tagName = $Settings->tagLabel();
+    }
+
+    $connected_activities = $osiris->activitiesConnections->find(
+        ['$or' => [['source_id' => $id], ['target_id' => $id]]]
+    )->toArray();
+
+    // Nimm deinen bestehenden User-Kontext
+    $user_units = DB::doc2Arr($USER['units'] ?? []);
+    if (!empty($user_units)) {
+        $user_units = array_column($user_units, 'unit');
+    }
+
+    $documents = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)])->toArray();
+
+    $openalex = null;
+    $spectrum = [];
+    if ($Settings->featureEnabled('spectrum') && isset($doc['openalex'])) {
+        $openalex = $doc['openalex'] ?? null;
+        if (empty($openalex) && isset($doc['doi'])) {
+?>
+            <script>
+                $(document).ready(function() {
+                    $.post('/api/openalex/enrich', {
+                        doi: '<?= $doc['doi'] ?>'
+                    });
+                });
+            </script>
+        <?php
+        }
+        $spectrum = $openalex['topics'] ?? [];
+    }
+
+    // check user preference for activity view
+    $activity_view = $_GET['view'] ?? $USER['activity_view'] ?? 'default';
+    
+    if ($activity_view == 'new' || $activity_view == 'default') {
+        include BASEPATH . "/pages/activities/view.php";
+    } else {
+        include BASEPATH . "/pages/activities/activity.php";
+    }
+
     include BASEPATH . "/footer.php";
 }, 'login');
 
@@ -505,7 +586,7 @@ Route::get('/activities/edit/([a-zA-Z0-9]*)/(authors|editors|supervisors)', func
         include_once BASEPATH . "/footer.php";
         die();
     }
-    
+
     $user_activity = $DB->isUserActivity($form, $user);
     $edit_perm = ($user_activity || $Settings->hasPermission('activities.edit'));
     if (!$edit_perm) {
@@ -786,7 +867,7 @@ Route::post('/crud/activities/update/([A-Za-z0-9]*)', function ($id) {
         unset($values['authors']);
         unset($values['editors']);
     }
-    
+
     $values['updated'] = date('Y-m-d');
     $values['updated_by'] = ($_SESSION['username']);
 

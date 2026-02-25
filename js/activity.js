@@ -4,8 +4,10 @@ function navigate(key) {
     $('section').hide()
     $('section#' + key).show()
 
-    $('.pills .btn').removeClass('active')
-    $('.pills .btn#btn-' + key).addClass('active')
+    // $('.pills .btn').removeClass('active')
+    // $('.pills .btn#btn-' + key).addClass('active')
+    $('#navigation .btn').removeClass('active')
+    $('#navigation .btn#btn-' + key).addClass('active')
 
     switch (key) {
         case 'coauthors':
@@ -28,26 +30,37 @@ $(document).ready(function () {
     }
 });
 
-coauthorsExists = false;
-function coauthors() {
-    if (coauthorsExists) return;
-    coauthorsExists = true
+
+function showCollaboratorChart(collab_type, button){
+    // check if chart already exists
+    $('.collab-chart').hide();
+    var chartContainer = $('#chart-' + collab_type);
+
+    if (button) {
+        $('#collab-type-filters .btn').removeClass('active')
+        $(button).addClass('active')
+    }
+
+
+    chartContainer.show();
+    if (chartContainer.length == 0 || chartContainer.hasClass('plotted')) return;
+
     $.ajax({
         type: "GET",
-        url: ROOTPATH + "/api/dashboard/activity-authors",
+        url: ROOTPATH + "/api/dashboard/activity-" + collab_type,
         data: {
             activity: ACTIVITY_ID
         },
         dataType: "json",
         success: function (response) {
             console.log(response);
-            var container = document.getElementById('chart-authors')
+            var container = document.getElementById('chart-' + collab_type)
             if (response.count == 0) {
                 container.classList.add('hidden')
                 return;
             }
             var data = response.data;
-            var ctx = document.getElementById('chart-authors-canvas')
+            var ctx = document.getElementById('chart-' + collab_type + '-canvas')
             var myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -81,44 +94,15 @@ function coauthors() {
                     },
                 }
             });
-            var legend = d3.select('#dept-legend')
-                .append('div')
-            // .attr('class', 'content')
-
-            legend.append('h5')
-                .attr('class', 'mt-0')
-                .text(lang("Units", "Organisationseinheiten"))
-
-            data.labels.forEach((label, i) => {
-                var row = legend.append('div')
-                    .attr('class', 'd-flex mb-5 mt-10')
-                // .style('color', data.colors[i])
-                row.append('div')
-                    .style('background-color', data.colors[i])
-                    .style("width", "2rem")
-                    .style("height", "2rem")
-                    .style("border-radius", ".5rem")
-                    .style("display", "inline-block")
-                    .style("margin-right", "1rem")
-                row.append('span').text(label)
-                    .style('font-weight', 'bold')
-                    .attr('class', 'm-0')
-
-                data.persons[i].forEach(name => {
-                    legend.append('p')
-                        .style("margin", "0 0 0 3rem")
-                        .html(name)
-                });
-            });
-
-            if (data.multi) {
-                legend.append('p')
-                    .text(lang('* Multiple affiliations', '* Mehrere Zugehörigkeiten'))
-                    .style('font-size', 'small')
-            }
+            chartContainer.addClass('plotted');
         },
         error: function (response) {
             console.log(response);
         }
     });
+}
+
+
+function coauthors() {
+    showCollaboratorChart('collaborators');
 }

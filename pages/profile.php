@@ -1810,7 +1810,6 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 <?php if ($Settings->featureEnabled('spectrum')) { ?>
     <section id="spectrum" style="display:none">
         <h2>
-            <i class="ph ph-chart-donut" aria-hidden="true"></i>
             <?= lang('Research spectrum of', 'Forschungsspektrum von') ?> <?= $scientist['displayname'] ?>
         </h2>
         <?php

@@ -1019,36 +1019,55 @@ Route::get('/api/dashboard/author-network', function () {
 });
 
 
-Route::get('/api/dashboard/activity-authors', function () {
+Route::get('/api/dashboard/activity-(collaborators|authors|editors|supervisors)', function ($type) {
     error_reporting(E_ERROR | E_PARSE);
     include(BASEPATH . '/php/init.php');
 
-    if (!apikey_check($_GET['apikey'] ?? null)) {
-        echo return_permission_denied();
-        die;
-    }
+    // if (!apikey_check($_GET['apikey'] ?? null)) {
+    //     echo return_permission_denied();
+    //     die;
+    // }
 
     if (!isset($_GET['activity'])) return [];
 
     $lvl = 1;
-
     // select activities from database
     $filter = ['_id' => DB::to_ObjectID($_GET['activity'])];
     $doc = $osiris->activities->findOne($filter);
 
     $depts = [];
     $multi = false;
-    if (isset($doc['authors']) && !empty($doc['authors'])) {
-        // $users = array_column(DB::doc2Arr($doc['authors']), 'user');
-        foreach ($doc['authors'] as $a) {
+
+    $collaborators = [];
+    switch ($type) {
+        case 'collaborators':
+            foreach (['authors', 'editors', 'supervisors'] as $role) {
+                $collaborators = array_merge($collaborators, DB::doc2Arr($doc[$role] ?? []));
+            }
+            break;
+        case 'authors':
+            $collaborators = DB::doc2Arr($doc['authors'] ?? []);
+            break;
+        case 'editors':
+            $collaborators = DB::doc2Arr($doc['editors'] ?? []);
+            break;
+        case 'supervisors':
+            $collaborators = DB::doc2Arr($doc['supervisors'] ?? []);
+            break;
+    }
+
+    if (!empty($collaborators)) {
+        // $users = array_column(DB::doc2Arr($collaborators), 'user');
+        foreach ($collaborators as $i => $a) {
             $user = $a['user'] ?? null;
-            $name = Document::abbreviateAuthor($a['last'], $a['first'] ?? null);
             if (!($a['aoi'] ?? false)) {
-                $depts['external'][] = $name;
+                if (!isset($depts['external'])) $depts['external'] = 0;
+                $depts['external'] += 1;
                 continue;
             }
-            if (empty($user)) {
-                $depts['unknown'][] = $name;
+            if (empty($a['units'])) {
+                if (!isset($depts['unknown'])) $depts['unknown'] = 0;
+                $depts['unknown'] += 1;
                 continue;
             }
 
@@ -1062,15 +1081,13 @@ Route::get('/api/dashboard/activity-authors', function () {
             }
             $d = array_unique($d);
             if (count($d) == 0) {
-                $depts['unknown'][] = $name;
+                if (!isset($depts['unknown'])) $depts['unknown'] = 0;
+                $depts['unknown'] += 1;
                 continue;
-            } elseif (count($d) > 1) {
-                $name .= '*';
-                $multi = true;
             }
             foreach ($d as $unit) {
-                if (!isset($depts[$unit])) $depts[$unit] = [];
-                if (!in_array($name, $depts[$unit])) $depts[$unit][] = $name;
+                if (!isset($depts[$unit])) $depts[$unit] = 0;
+                $depts[$unit] += 1;
             }
         }
     }
@@ -1080,19 +1097,18 @@ Route::get('/api/dashboard/activity-authors', function () {
     $colors = [];
     $persons = [];
     foreach ($depts as $key => $value) {
-        if ($key == 'external') {
+        if ($key == 'external' && $value > 0) {
             $labels[] = 'External partners';
             $colors[] = '#00000095';
-        } elseif ($key == 'unknown') {
+        } elseif ($key == 'unknown' && $value > 0) {
             $labels[] = 'Unknown unit';
             $colors[] = '#cccccc95';
         } else {
             $group = $Groups->getGroup($key);
             $labels[] = $group['name'];
-            $colors[] = $group['color'] . '95';
+            $colors[] = $group['color'];
         }
-        $y[] = count($value);
-        $persons[] = $value;
+        $y[] = $value;
     }
     echo return_rest([
         'y' => $y,
