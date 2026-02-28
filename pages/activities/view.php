@@ -774,15 +774,15 @@ if ($edit_perm) {
                                     <td>
                                         <span class="key"><?= lang('Online Visibility', 'Online-Sichtbarkeit') ?>: </span>
                                         <div id="visibility-toggle" class="btn-group" role="group" aria-label="Visibility toggle">
-                                            <button type="button" class="btn small <?= ($selected_state == 'hidden') ? 'active' : '' ?>" id="btn-hidden" onclick="toggleVisibility('hidden')">
+                                            <button type="button" class="btn small <?= ($selected_state == 'hidden') ? 'active' : '' ?>" id="btn-hidden" onclick="toggleVisibility('hidden')" data-toggle="tooltip" data-title="<?= lang('The activity will be hidden from the public portal.', 'Die Aktivität wird im öffentlichen Portal verborgen sein.') ?>">
                                                 <?= lang('Hidden', 'Versteckt') ?>
                                             </button>
-                                            <button type="button" class="btn small <?= ($selected_state == 'visible') ? 'active' : '' ?>" id="btn-visible" onclick="toggleVisibility('visible')">
+                                            <button type="button" class="btn small <?= ($selected_state == 'visible') ? 'active' : '' ?>" id="btn-visible" onclick="toggleVisibility('visible')" data-toggle="tooltip" data-title="<?= lang('The activity will be visible in the public portal.', 'Die Aktivität wird im öffentlichen Portal sichtbar sein.') ?>">
                                                 <?= lang('Visible', 'Sichtbar') ?>
                                             </button>
                                             <?php if ($user_activity) { ?>
-                                                <button type="button" class="btn small <?= ($selected_state == 'highlight') ? 'active' : '' ?>" id="btn-highlight" onclick="toggleVisibility('highlight')">
-                                                    <?= lang('Highlighted', 'Hervorgehoben') ?>
+                                                <button type="button" class="btn small <?= ($selected_state == 'highlight') ? 'active' : '' ?>" id="btn-highlight" onclick="toggleVisibility('highlight')" data-toggle="tooltip" data-title="<?= lang('The activity will be featured more prominently in your profile and portfolio.', 'Die Aktivität wird prominenter in deinem Profil und Portfolio hervorgehoben.') ?>">
+                                                    <i class="ph ph-star" aria-label="<?= lang('Highlight', 'Hervorheben') ?>"></i>
                                                 </button>
                                             <?php } ?>
                                         </div>
