@@ -90,7 +90,7 @@ class SidebarNav
                     ],
                     [
                         'id' => 'events',
-                        'label' => lang('Events', 'Veranstaltungen'),
+                        'label' => lang('Events', 'Events'),
                         'icon' => 'calendar-dots',
                         'url' => '/conferences', // legacy
                         'active' => ['^/conferences($|/)'],

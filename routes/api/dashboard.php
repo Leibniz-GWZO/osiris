@@ -1097,7 +1097,7 @@ Route::get('/api/dashboard/activity-(contributors|authors|editors|supervisors)',
     $colors = [];
     foreach ($depts as $key => $value) {
         if ($key == 'external' && $value > 0) {
-            $labels[] = lang('External partners', 'Externe Partner');
+            $labels[] = lang('External partners', 'Externe Personen');
             $colors[] = '#ececec95';
         } elseif ($key == 'unknown' && $value > 0) {
             $labels[] = lang('Unknown unit', 'Unbekannte Einheit');

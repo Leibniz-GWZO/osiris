@@ -1,31 +1,231 @@
 
-<time datetime="2026-02-16">16.02.2026</time>
-<a class="anchor" href="#build-20260216" id="build-20260216"></a>
+<time datetime="2026-02-28">28.02.2026</time>
+<a class="anchor" href="#version-2.0.0" id="version-2.0.0"></a>
 
-## Build 20260216
 
-Dieses Update liefert eine Reihe von wichtigen Verbesserungen an der API, robustere Datenverarbeitung im Backend sowie mehr Flexibilität und Fehlerresilienz in der Oberfläche.
+## Version 2.0.0
 
-### API & Daten-Konsistenz
-- Neues /activity-fields API-Endpoint ergänzt — liefert alle Aktivitäts-Felder für Frontend-Use-Cases. 
-- Teaching-API gibt nun immer eine String-ID zurück und löst zugehörige Organisationsnamen auf, für klare API-Antworten. 
+Dieses Update steht ganz im Zeichen der User Experience! 
+Es bringt eine grundlegende Überarbeitung der Aktivitätsseite, eine verbesserte Seitenleiste und mit der Command Palette eine neue, schnelle Möglichkeit zur Navigation und Steuerung. Außerdem wurde eine komplett neue Funktion integriert, mit der ihr völlig neue Einsichten in eure Forschungsaktivitäten gewinnen könnt: das Forschungs-Spektrum.
 
-### UI & Filter-Verbesserungen
+Hier die wichtigsten Neuerungen:
+
+### <i class="ph-duotone ph-lightbulb"></i> Forschungs-Spektrum
+
+Das neue Forschungs-Spektrum basiert auf thematischen Zuordnungen von OpenAlex.
+
+Für jede Publikation werden automatisch die bis zu drei dominantesten thematischen Schwerpunkte berücksichtigt. Diese werden in OSIRIS strukturiert übernommen und hierarchisch dargestellt.
+- Vier Analyse-Ebenen: Domain, Field, Subfield und Schwerpunkt (Topic)
+- Farbkodierte Domains für eine klare visuelle Orientierung
+- Filter nach Zeitraum und Domain
+- Relative Stärke: zeigt die strukturelle Ausprägung eines Schwerpunkts im Vergleich zum stärksten Schwerpunkt innerhalb der aktuellen Auswahl
+- Eigene Detailseiten für jeden Schwerpunkt mit:
+- Publikationsentwicklung
+- Beteiligten Personen
+- Beteiligten Organisationseinheiten
+- Vollständiger Publikationsliste
+
+Das Forschungs-Spektrum kann für verschiedene Objekte berechnet werden:
+- gesamtes Institut
+- Organisationseinheiten
+- Forschungsbereiche
+- Personen
+- Projekte
+- Externe Organisationen
+
+Die Themen sind hierarchisch aufgebaut:
+- Domain (4 übergeordnete Bereiche)
+- Field
+- Subfield
+- Schwerpunkt
+
+Über Tabs kann ausgewählt werden, auf welcher Ebene die Analyse erfolgen soll.
+Damit wird sowohl eine grobe strategische Einordnung als auch eine feingranulare Betrachtung möglich.
+
+Das Forschungs-Spektrum basiert vollständig auf extern berechneten Themenclustern von OpenAlex.
+
+**Wichtige Punkte:**
+
+- Pro Publikation werden maximal drei dominante Themen berücksichtigt.
+- Die Zuordnung erfolgt algorithmisch.
+- Es handelt sich nicht um eine Bewertungsmatrix.
+- Zitationszahlen sind alters- und feldabhängig.
+- Alle relativen Werte sind filterabhängig (z. B. Zeitraum).
+
+Auf der Übersichtsseite steht eine ausführliche Infobox zur Verfügung.
+
+
+### <i class="ph-duotone ph-quotes"></i> Integration von Zitationsdaten
+
+Zusätzlich zur Anzahl der Publikationen werden nun auch Zitationsdaten (OpenAlex) integriert. Auf den Schwerpunkt-Seiten werden die durchschnittlichen Zitationszahlen pro Publikation dargestellt. In Publikationen mit Zitationsdaten wird die Anzahl der Zitationen angezeigt.
+
+### <i class="ph-duotone ph-activity"></i> Neue Aktivitätsansicht
+
+Die Aktivitätsseite wurde vollständig neu strukturiert.
+
+Anstatt einer tabellarischen Darstellung werden Inhalte nun modular und thematisch gegliedert angezeigt:
+- Zusammenfassung
+- Bibliographie
+- Schlüsselmerkmale (z.B. DOI, Open Access, Impact)
+- Forschungs-Spektrum
+- Schlagwörter
+- Dateien
+- Verknüpfungen
+- Mitwirkende (eigener Tab)
+
+Die neue Struktur verbessert die Lesbarkeit insbesondere bei umfangreichen Einträgen deutlich und trennt klar zwischen inhaltlichen Informationen und administrativen Steuerungen.
+
+**Wechsel zwischen neuer und klassischer Ansicht**
+
+Die bisherige Aktivitätsansicht bleibt weiterhin verfügbar.
+- Nutzende können jederzeit zwischen neuer und klassischer Ansicht wechseln.
+- Eine bevorzugte Ansicht kann im Benutzerprofil als Standard gespeichert werden.
+- Wird eine andere Ansicht als die gespeicherte verwendet, erscheint ein dezenter Hinweis mit der Möglichkeit, diese als neue Standardansicht festzulegen.
+- Wenn noch keine Präferenz gesetzt wurde, lädt OSIRIS standardmäßig die neue Ansicht.
+
+Damit ist ein sanfter Übergang möglich, ohne bestehende Workflows zu unterbrechen.
+
+**Verknüpfungen zentral verwalten**
+
+Alle verbundenen Elemente (Projekte, Infrastrukturen, Aktivitäten) wurden in einem gemeinsamen Bereich „Verknüpfungen“ zusammengeführt.
+
+Die Verwaltung erfolgt nun über eine eigene Seite:
+- Übersicht aller bestehenden Verbindungen
+- Hinzufügen neuer Verknüpfungen ohne verschachtelte Dialoge
+- Entfernen von Verknüpfungen ohne Löschen der Aktivität
+- Klare Darstellung von Beziehungstypen zwischen Aktivitäten
+
+Die bisherige Logik mit mehreren separaten Formularen wurde vereinheitlicht.
+
+**Verbesserte Mitwirkenden-Ansicht**
+
+Autorinnen, Herausgeber, Supervisoren und weitere Rollen werden nun in einem eigenen Bereich dargestellt.
+- Affiliierte Personen sind visuell hervorgehoben.
+- Sehr große Autor*innenlisten werden initial komprimiert dargestellt.
+- Es gibt Optionen, nur affiliierte Personen oder alle Mitwirkenden anzuzeigen.
+- Eine grafische Übersicht ergänzt die tabellarische Darstellung.
+
+
+### <i class="ph-duotone ph-prohibit"></i> Aktivitäten vom Berichtswesen ausschließen
+
+Für berechtigte Personen wurde eine neue Funktion eingeführt:
+
+Aktivitäten können nun vom Berichtswesen ausgeschlossen werden, ohne sie zu löschen.
+- Die Aktivität bleibt sichtbar und editierbar.
+- Sie erscheint jedoch nicht mehr in Berichten und statistischen Auswertungen.
+- Der Status ist im Meta-Bereich der Aktivität sichtbar.
+- Die Entscheidung ist jederzeit reversibel.
+
+Diese Funktion ermöglicht eine differenziertere Steuerung ohne Datenverlust. Dazu wurde auch ein neues Recht eingeführt, ihr findet es in Rollen und Rechte unter "Metriken und Berichte".
+
+
+
+### <i class="ph-duotone ph-command"></i> Command Palette
+
+Mit Version 2.0 erhält OSIRIS eine zentrale, schnelle Zugriffsebene: die Command Palette.
+
+Sie ermöglicht es, Navigation und Daten übergreifend zu durchsuchen – ohne durch Menüs navigieren zu müssen.
+- Zugriff per Tastenkürzel (z. B. Strg + K / Cmd + K)
+- Alternativ über die neue Suchleiste in der Navigationsleiste
+- Durchsucht Navigationselemente sowie zentrale Entitäten wie:
+- Projekte
+- Personen
+- Organisationen
+- Infrastrukturen
+- Journale
+- Veranstaltungen
+- Berücksichtigt aktivierte Features und individuelle Berechtigungen
+- Ergebnisse werden in Echtzeit aktualisiert
+- Vollständig keyboard-nutzbar
+
+Die Command Palette ersetzt die bisherige Suchleiste und schafft eine einheitliche, klar strukturierte Sucherfahrung.
+
+> **Hinweis:**
+> Einzelne Aktivitäten werden bewusst nicht direkt über die Command Palette durchsucht. Aufgrund der hohen Anzahl und nicht immer eindeutiger Titel ist hierfür die bestehende Listen- und erweiterte Suche besser geeignet.
+
+### <i class="ph-duotone ph-sidebar"></i> Verbesserte Seitenleiste
+
+Die Seitenleiste wurde strukturell überarbeitet und technisch neu aufgebaut. Gleichzeitig wurde bewusst auf radikale Umstellungen verzichtet, um bestehende Workflows nicht zu unterbrechen.
+
+Die Benachrichtigungen aus der oberen Navigationsleiste wurden in einen Aufgabenbereich in der Seitenleiste integriert. Damit sind alle relevanten Informationen und Aktionen an einem Ort gebündelt und man hat jederzeit einheitlichen Zugriff auf anstehende Aufgaben, Benachrichtigungen und Workflow-Elemente. Generell haben wir die Seitenleiste so überarbeitet, dass sie klarer strukturiert und übersichtlicher ist, ohne die gewohnte Navigation zu verändern.
+
+**Favoriten in der Seitenleiste**
+
+Neu ist die Möglichkeit, individuelle Favoriten festzulegen.
+
+In den Benutzereinstellungen können bis zu fünf Navigationselemente ausgewählt und priorisiert werden. Diese erscheinen anschließend am oberen Rand der Seitenleiste.
+- Individuelle Anpassung ohne Änderung der Gesamtstruktur
+- Sortierbar per Drag & Drop
+- Berücksichtigung von Rollen und Berechtigungen
+- Keine Duplikate in der Navigation
+
+Damit kombiniert OSIRIS eine stabile Grundstruktur mit persönlicher Anpassbarkeit.
+
+
+### <i class="ph-duotone ph-feather"></i> Sophie – Die Hüterin eurer Daten
+
+Mit Version 2.0 bekommt OSIRIS ein neues Gesicht:
+Sophie begleitet euch durch das System.
+
+Die kleine ägyptische Eule Sophie erscheint überall dort, wo Orientierung wichtig ist:
+- Bei leeren Tabellen muntert sie Nutzende auf, Inhalte zu füllen
+- Bei gefilterten Suchen ohne Treffer gibt sie Feedback
+- Bei Wartungsarbeiten informiert sie über den aktuellen Status
+- Bei Fehlermeldungen (z. B. 404, 403, 500) erklärt sie die Situation
+- Bei Erfolgs- und Bestätigungsmomenten gratuliert sie oder bestätigt Aktionen
+
+Sophie ist mehr als ein Maskottchen – sie ist ein integraler Bestandteil der Nutzererfahrung, die OSIRIS menschlicher und zugänglicher macht.
+
+### <i class="ph-duotone ph-bell"></i> Mitteilungen, Hinweise und Texte
+
+Mit Version 2.0 wurden zahlreiche Texte, Hinweise und Bestätigungsdialoge überarbeitet:
+- Fehler- und Erfolgsmeldungen wurden präzisiert und verständlicher formuliert
+- Bestätigungsdialoge wurden überarbeitet, um Klarheit über die Konsequenzen einer Aktion zu schaffen
+- Die Seite lädt nun nicht mehr neu, wenn man einen Dialog wegklickt
+- Neutralere Formulierungen (z. B. „zuständige Stelle“ statt feste Bezeichnungen)
+- Konsistente visuelle Zustände für Fehler, Erfolg, Leere und Wartung
+
+Ziel war es, OSIRIS an vielen kleinen Stellen ruhiger, klarer und konsistenter zu machen – ohne bestehende Arbeitsweisen zu verändern.
+
+
+### <i class="ph-duotone ph-shield"></i> Konsistenz in Berechtigungen und Fehlerbehandlung
+
+Im Zuge der Überarbeitung der Fehlermeldungen wurde die Berechtigungslogik in OSIRIS grundlegend überprüft und vereinheitlicht.
+
+In einzelnen Bereichen war es bislang möglich, auf Inhalte zuzugreifen, die aufgrund von Rollen oder Zuständigkeiten eigentlich nicht sichtbar sein sollten. Diese Inkonsistenzen wurden systematisch bereinigt.
+- Einheitliche Prüfung von Zugriffsrechten
+- Klare Trennung zwischen „nicht gefunden“ und „keine Berechtigung“
+- Strukturiertes Abbrechen von Aktionen mit konsistenten Fehlerseiten
+- Korrekte HTTP-Statuscodes im Hintergrund
+- Einheitliche visuelle Darstellung aller Abbruch-Situationen
+- Migrieren und Daten neu rendern ist nun nicht mehr für alle Personen möglich, sondern nur für Admins. Für andere Rollen steht bei notwendiger Migration nur eine Fehlermeldung mit unserer Eule Sophie zur Verfügung.
+
+Diese Überarbeitung sorgt für mehr Sicherheit, Klarheit und Konsistenz in der Nutzererfahrung – ohne bestehende Berechtigungen oder Arbeitsweisen zu verändern.
+
+
+### Weitere Verbesserungen
+- Die `Updated` und `Updated_by` Felder sind zurück! In Aktivitäten werden nun wieder die letzten Aktualisierungen und die verantwortlichen Personen angezeigt und sind auch wieder filterbar. Bei der Migration wurden die Daten aus der History zurückübertragen, sodass diese Informationen auch für ältere Aktivitäten wieder verfügbar sind.
+- Allen Icons wurden sogenannte "Aria Labels" hinzugefügt, um die Barrierefreiheit zu verbessern.
+- Die Optionen für die Barrierefreiheit wurden für ein konsistentes Nutzererlebnis in den Footer in den Bereich "Hilfe" verschoben
+- Die Farbe von Links wurde vereinheitlicht und ist nun nicht mehr abhängig von der Primärfarbe des Instituts, um die Lesbarkeit zu verbessern.
+- In der Autorenliste werden affiliierte Personen nun visuell stärker hervorgehoben, um die Identifikation zu erleichtern.
+- Ein Problem wurde behoben, durch das über andere Wege hinzugefügte Aktivitäten zu Fehlermeldungen in Tabellen geführt haben.
+- Ein Problem mit Journal-Metriken wurde behoben, wodurch sie bei Aktualisierungen nicht mehr ewig laden.
 - Jahr-Filter in Download-Funktion erweitert: nun flexibler von 1900 bis inklusive nächstes Jahr. 
 - Anzeige von Einheiten auf Aktivitätsseiten verbessert — keine Fehler mehr, wenn Feld fehlt. 
-
-### Backend-Fixes & Datenvalidierung
 - DOI- und PubMed-Lookups jetzt case-insensitive, robuster bei unterschiedlichen Schreibweisen. 
 - Version-Checks mit version_compare verbessert, um Versionsstring-Mismatch zu vermeiden. 
 - DOI-Werte werden immer als lowercase gespeichert für konsistente Datensätze. 
 - Smart-Render-CRON-Route wurde sichergestellt, dass immer korrekte Initialisierung geladen wird. 
-
-### Weitere Detailverbesserungen
 - CSS-Variable für Affiliations-Klasse immer korrekt zitiert (gültiges CSS). 
 - Profilseite: Kalendereintrag-Link aktualisiert auf richtigen Endpunkt. 
 - Template-Feld-Checks im Backend leicht gelockert für mehr Flexibilität. 
 - Bilddaten im Portfolio werden nicht doppelt kodiert — effizientere Darstellung. 
-- Versions-Build-Nummer aktualisiert. 
+- Neues /activity-fields API-Endpoint ergänzt — liefert alle Aktivitäts-Felder für Frontend-Use-Cases. 
+- Teaching-API gibt nun immer eine String-ID zurück und löst zugehörige Organisationsnamen auf, für klare API-Antworten. 
+
+Plus zahlreiche weitere kleinere Verbesserungen, Fehlerbehebungen und Optimierungen, die das Nutzererlebnis insgesamt ruhiger, klarer und konsistenter machen.
+
 
 
 <time datetime="2026-02-10">10.02.2026</time>

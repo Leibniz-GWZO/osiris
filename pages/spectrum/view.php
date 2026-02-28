@@ -5,19 +5,19 @@ $child = 'field';
 $childIdField = 'field_id';
 $childNameField = 'field';
 if ($level == 'field' || $level == 'subfield' || $level == 'topic') {
-    $path[] = '<a href="'.ROOTPATH. '/spectrum/domain/'.$spectrum['domain_id'].'">'.$spectrum['domain'].'</a>';
+    $path[] = '<a href="' . ROOTPATH . '/spectrum/domain/' . $spectrum['domain_id'] . '">' . $spectrum['domain'] . '</a>';
     $child = 'subfield';
     $childIdField = 'subfield_id';
     $childNameField = 'subfield';
 }
 if ($level == 'subfield' || $level == 'topic') {
-    $path[] = '<a href="'.ROOTPATH. '/spectrum/field/'.$spectrum['field_id'].'">'.$spectrum['field'].'</a>';
+    $path[] = '<a href="' . ROOTPATH . '/spectrum/field/' . $spectrum['field_id'] . '">' . $spectrum['field'] . '</a>';
     $child = 'topic';
     $childIdField = 'id';
     $childNameField = 'name';
 }
 if ($level == 'topic') {
-    $path[] = '<a href="'.ROOTPATH. '/spectrum/subfield/'.$spectrum['subfield_id'].'">'.$spectrum['subfield'].'</a>';
+    $path[] = '<a href="' . ROOTPATH . '/spectrum/subfield/' . $spectrum['subfield_id'] . '">' . $spectrum['subfield'] . '</a>';
     $child = null;
     $childIdField = null;
     $childNameField = null;
@@ -157,7 +157,7 @@ if ($level == 'topic') {
                 }
             }
             // sort by year
-            usort($timelineData, function($a, $b) {
+            usort($timelineData, function ($a, $b) {
                 return $a['year'] <=> $b['year'];
             });
             ?>
@@ -330,45 +330,30 @@ if ($level == 'topic') {
                     'count' => ['$sum' => 1]
                 ]],
                 ['$sort' => ['count' => -1]],
+                ['$limit' => 10],
+                ['$sort' => ['_id' => 1]] // sort alphabetically by name
             ])->toArray();
             ?>
-            <h2 id="top-researchers"><?= lang('Top researchers', 'Beteiligte Forschende') ?></h2>
+            <h2 id="top-researchers"><?= lang('Researchers', 'Forschende') ?></h2>
 
-            <small class="text-muted">
-                <?= lang('May include non-affiliated publications.', 'Kann auch nicht-affiliierte Publikationen enthalten.') ?>
-            </small>
+            <p>
+                <?= lang('This section shows researchers who have publications in OSIRIS that are associated with this topic. For better overview, only a selection is shown.',
+                'Hier werden Forschende angezeigt, die in OSIRIS Publikationen haben, die diesem Schwerpunkt zugeordnet sind. Zur besseren Übersicht wird nur eine Auswahl angezeigt.') ?>
+            </p>
 
-            <table class="table" id="researchers-table">
-                <thead>
-                    <tr>
-                        <th><?= lang('Researcher', 'Forschende') ?></th>
-                        <th><?= lang('Number of Publications', 'Anzahl der Publikationen') ?></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($researchers as $r): ?>
-                        <tr>
-                            <td>
-                                <a href="<?= ROOTPATH ?>/profile/<?= e($r['_id']) ?>">
-                                    <?= $DB->getNameFromId($r['_id']) ?>
-                                </a>
-                            </td>
-                            <td><?= $r['count'] ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+            <p class="font-size-16">
+                <?php foreach ($researchers as $r): ?>
+                <a class="badge primary mr-5 mb-5" href="<?= ROOTPATH ?>/profile/<?= e($r['_id']) ?>">
+                    <?= $DB->getNameFromId($r['_id']) ?>
+                </a>
+            <?php endforeach; ?>
+            </p>
 
-            <script>
-                var dataTable;
-                $(document).ready(function() {
-                    dataTable = $('#researchers-table').DataTable({
-                        "order": [
-                            [1, 'desc'],
-                        ],
-                    });
-                });
-            </script>
+            <p class="font-size-12 text-muted">
+                <?=lang('Only up to ten researchers are shown. The list is alphabetically ordered. If a person does not appear in the list does not mean that they cannot have contributed to the topic. This list is for orientation purposes only.', 
+                'Diese Liste dient nur zur Orientierung. Es werden nur bis zu zehn Forschende angezeigt und die Liste ist alphabetisch sortiert. Wenn eine Person nicht in der Liste erscheint, bedeutet das nicht, dass sie nicht zum Thema beigetragen haben kann. ') ?>
+            </p>
+
 
 
             <h2 id="related-publications">
