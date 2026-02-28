@@ -213,7 +213,7 @@ Route::post('/data/upload', function () {
     if (!empty($values['redirect'])) {
         $redirectUrl = $values['redirect'];
     } else {
-        $redirectUrl = ROOTPATH . "/" . $values['type'] . "/view/" . $values['id'] . "#section-files";
+        $redirectUrl = ROOTPATH . "/" . $values['type'] . "/view/" . $values['id'] . "?tab=documents";
     }
 
     if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {

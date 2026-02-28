@@ -2,6 +2,8 @@
 <time datetime="2026-02-16">16.02.2026</time>
 <a class="anchor" href="#build-20260216" id="build-20260216"></a>
 
+## Build 20260216
+
 Dieses Update liefert eine Reihe von wichtigen Verbesserungen an der API, robustere Datenverarbeitung im Backend sowie mehr Flexibilität und Fehlerresilienz in der Oberfläche.
 
 ### API & Daten-Konsistenz

@@ -18,6 +18,11 @@
 
 use chillerlan\QRCode\{QRCode, QROptions};
 
+// User context
+$user_units = DB::doc2Arr($USER['units'] ?? []);
+if (!empty($user_units)) {
+    $user_units = array_column($user_units, 'unit');
+}
 ?>
 
 <style>
@@ -27,10 +32,6 @@ use chillerlan\QRCode\{QRCode, QROptions};
         z-index: 10;
     }
 </style>
-
-<?php if ($Settings->featureEnabled('quality-workflow', false) && ($user_activity || $Settings->hasPermission('workflows.view'))) { 
-    include_once BASEPATH . '/components/activity-workflow.php';
-} ?>
 
 <style>
     [class^="col-"] .box {
@@ -67,7 +68,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
     if (isset($_GET['msg']) && $_GET['msg'] == 'add-success') { ?>
 
 
-        <?php if ($Settings->featureEnabled('projects') && !empty($doc['projects'] ?? [])) { ?>
+        <?php if ($Settings->featureEnabled('projects') && !empty($projects)) { ?>
             <div class="alert success mb-20">
                 <h3 class="title">
                     <?= lang('Projects connected', 'Projekte verknüpft') ?>
@@ -139,7 +140,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
             <?php if ($Settings->featureEnabled('tags')) { ?>
                 <a href="#add-tags" class="btn primary outline">
                     <i class="ph ph-tag"></i>
-                    <?= $tagName ?>
+                    <?= $tagLabel ?>
                 </a>
             <?php } ?>
 
@@ -147,10 +148,6 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
 
         <div class="btn-group">
-            <button class="btn primary outline" onclick="addToCart(this, '<?= $id ?>')">
-                <i class="<?= (in_array($id, $cart)) ? 'ph ph-duotone ph-basket ph-basket-plus text-success' : 'ph ph-basket ph-basket-plus' ?>"></i>
-                <?= lang('Collect', 'Sammeln') ?>
-            </button>
             <div class=" dropdown with-arrow btn-group ">
                 <button class="btn primary outline" data-toggle="dropdown" type="button" id="download-btn" aria-haspopup="true" aria-expanded="false">
                     <i class="ph ph-download"></i> Download
@@ -158,11 +155,80 @@ use chillerlan\QRCode\{QRCode, QROptions};
                 </button>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="download-btn">
                     <div class="content">
-                        
+                        <button class="btn primary outline" onclick="addToCart(this, '<?= $id ?>')">
+                            <i class="<?= (in_array($id, $cart)) ? 'ph ph-duotone ph-basket ph-basket-plus text-success' : 'ph ph-basket ph-basket-plus' ?>"></i>
+                            <?= lang('Collect', 'Sammeln') ?>
+                        </button>
+                        <hr>
+                        <form action="<?= ROOTPATH ?>/download" method="post">
+
+                            <input type="hidden" name="filter[id]" value="<?= $id ?>">
+
+                            <div class="form-group">
+
+                                <?= lang('Highlight:', 'Hervorheben:') ?>
+
+                                <div class="custom-radio ml-10">
+                                    <input type="radio" name="highlight" id="highlight-user" value="user" checked="checked">
+                                    <label for="highlight-user"><?= lang('Me', 'Mich') ?></label>
+                                </div>
+
+                                <div class="custom-radio ml-10">
+                                    <input type="radio" name="highlight" id="highlight-aoi" value="aoi">
+                                    <label for="highlight-aoi"><?= $Settings->get('affiliation') ?><?= lang(' Authors', '-Autoren') ?></label>
+                                </div>
+
+                                <div class="custom-radio ml-10">
+                                    <input type="radio" name="highlight" id="highlight-none" value="">
+                                    <label for="highlight-none"><?= lang('None', 'Nichts') ?></label>
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group">
+
+                                <?= lang('File format:', 'Dateiformat:') ?>
+
+                                <div class="custom-radio ml-10">
+                                    <input type="radio" name="format" id="format-word" value="word" checked="checked">
+                                    <label for="format-word">Word</label>
+                                </div>
+
+                                <div class="custom-radio ml-10">
+                                    <input type="radio" name="format" id="format-bibtex" value="bibtex">
+                                    <label for="format-bibtex">BibTex</label>
+                                </div>
+
+                            </div>
+                            <button class="btn primary outline">Download</button>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div class="dropdown">
+            <button class="btn" data-toggle="dropdown" type="button" id="dropdown-1" aria-haspopup="true" aria-expanded="false">
+                <?= lang('More Actions', 'Weitere Aktionen') ?> <i class="ph ph-dots-three-outline ml-5" aria-hidden="true"></i>
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdown-1">
+                <!-- <h6 class="header">Header</h6> -->
+                <div class="content">
+                    <a href="?view=new" class="btn block">
+                        <i class="ph ph-lightning m-0"></i>
+                        <?= lang('New View', 'Neue Ansicht') ?>
+                    </a>
+                    <?php if (!in_array($doc['type'], ['publication'])) { ?>
+                        <a href="<?= ROOTPATH ?>/activities/copy/<?= $id ?>" class="btn block">
+                            <i class="ph ph-copy"></i>
+                            <?= lang("Copy", "Kopie") ?>
+                        </a>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+
 
         <?php if ($Settings->featureEnabled('portal')) { ?>
             <a class="btn primary outline ml-auto" href="<?= ROOTPATH ?>/preview/activity/<?= $id ?>">
@@ -383,7 +449,6 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
         <?php if ($Settings->featureEnabled('portal')) {
             $doc['hide'] = $doc['hide'] ?? false;
-            $visible_subtypes = $Settings->getActivitiesPortfolio(true);
         ?>
             <div class="mr-10 badge bg-white">
                 <small><?= lang('Online Visibility', 'Online-Sichtbarkeit') ?>: </small>
@@ -489,7 +554,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
     <!-- TAB AREA -->
 
-    <nav class="pills mt-20 mb-0">
+    <nav class="pills mt-20 mb-0" id="navigation">
         <a onclick="navigate('general')" id="btn-general" class="btn active">
             <i class="ph ph-info" aria-hidden="true"></i>
             <?= lang('General', 'Allgemein') ?>
@@ -520,7 +585,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
         <?php if ($Settings->featureEnabled('projects')) { ?>
             <?php
-            $count_projects = count($doc['projects'] ?? []);
+            $count_projects = count($projects);
             if ($count_projects) :
             ?>
                 <a onclick="navigate('projects')" id="btn-projects" class="btn">
@@ -539,7 +604,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
         <?php if ($Settings->featureEnabled('infrastructures')) { ?>
             <?php
-            $count_infrastructures = count($doc['infrastructures'] ?? []);
+            $count_infrastructures = count($infrastructures);
             if ($count_infrastructures) :
             ?>
                 <a onclick="navigate('infrastructures')" id="btn-infrastructures" class="btn">
@@ -558,7 +623,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
         <?php
         if ($upload_possible):
-            $count_files = count($documents);
+            $count_files = count($files);
         ?>
             <a onclick="navigate('files')" id="btn-files" class="btn">
                 <i class="ph ph-files" aria-hidden="true"></i>
@@ -800,7 +865,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
                                         <?= lang('Edit', 'Bearbeiten') ?>
                                     </a>
                                 <?php } ?>
-                                <span class="key"><?= $tagName ?></span>
+                                <span class="key"><?= $tagLabel ?></span>
                                 <p id="tag-list" class="mt-5">
                                     <?php
                                     $tags = $doc['tags'] ?? [];
@@ -813,7 +878,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
                                             </a>
                                     <?php }
                                     } else {
-                                        echo lang('No ' . $tagName . ' assigned yet.', 'Noch keine ' . $tagName . ' vergeben.');
+                                        echo lang('No ' . $tagLabel . ' assigned yet.', 'Noch keine ' . $tagLabel . ' vergeben.');
                                     }
                                     ?>
                                 </p>
@@ -891,7 +956,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
                             ) ?>
                         </p>
 
-                    <?php else : ?>
+                    <?php elseif ($user_activity && $Settings->hasPermission('activities.delete-own')) : ?>
                         <p class="mt-0">
                             <b>Info:</b>
                             <?= lang(
@@ -994,16 +1059,6 @@ use chillerlan\QRCode\{QRCode, QROptions};
                 </style>
 
                 <?php
-                // --- Minimal helper: central role mapping (business logic) ---
-                function author_role_from_field(string $field_id): ?string
-                {
-                    return match ($field_id) {
-                        'supervisor', 'supervisor-thesis' => 'supervisors',
-                        'editor' => 'editors',
-                        'authors', 'author-table', 'scientist' => 'authors',
-                        default => null,
-                    };
-                }
 
                 $authorModules = ['authors', 'author-table', 'scientist', 'supervisor', 'supervisor-thesis', 'editor'];
 
@@ -1011,7 +1066,7 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
                     if (!in_array($field_id, $authorModules, true)) continue;
 
-                    $role = author_role_from_field($field_id);
+                    $role = Document::author_role_from_field($field_id);
                     if ($role === null) continue;
 
                     $authors = $activity[$role] ?? [];
@@ -1285,15 +1340,14 @@ use chillerlan\QRCode\{QRCode, QROptions};
 
         <?php if (!empty($connected_activities)) { ?>
             <table class="table">
-                <?php foreach ($connected_activities as $con) { ?>
-                    <?php
+                <?php foreach ($connected_activities as $con) {
                     // check if activity is target or source
                     $reverse = ($con['target_id'] == $id);
                     $activity = $osiris->activities->findOne(['_id' => $reverse ? $con['source_id'] : $con['target_id']], ['projection' => [
                         'rendered' => 1,
                     ]]);
                     $conLabel = $Format->getRelationshipLabel($con['relationship'], $reverse);
-                    ?>
+                ?>
                     <tr>
                         <td>
                             <h5 class="m-0">
@@ -1546,12 +1600,11 @@ use chillerlan\QRCode\{QRCode, QROptions};
                 <?= $Settings->infrastructureLabel() ?>
             </h2>
 
-            <?php if (!empty($doc['infrastructures'] ?? '')) {
+            <?php if (!empty($infrastructures)) {
             ?>
                 <table class="table">
                     <tbody>
-                        <?php foreach ($doc['infrastructures'] as $infra_id) {
-                            $infra = $osiris->infrastructures->findOne(['id' => $infra_id]);
+                        <?php foreach ($infrastructures as $infra) {
                             if (empty($infra)) continue;
                         ?>
                             <tr>
@@ -1593,19 +1646,19 @@ use chillerlan\QRCode\{QRCode, QROptions};
             <h2 class="title"><?= lang('Files', 'Dateien') ?></h2>
             <?php
             // check for legacy files
-            $files = $doc['files'] ?? array();
-            if (!empty($files)) : ?>
+            $legacy_files = $doc['files'] ?? array();
+            if (!empty($legacy_files)) : ?>
                 <div class="box padded">
-                    <?php foreach ($files as $file) :
-                        $doctype = $file['type'] ?? 'file';
+                    <?php foreach ($legacy_files as $legacy_file) :
+                        $doctype = $legacy_file['type'] ?? 'file';
                     ?>
                         <div class="">
                             <i class='ph ph-file ph-<?= $icon ?>'></i>
-                            <?= $file['filename'] ?>
+                            <?= $legacy_file['filename'] ?>
                             <div class="d-flex justify-content-between">
-                                <a href="<?= $file['filepath'] ?>" class="btn small primary"><i class="ph ph-download"></i> Download</a>
+                                <a href="<?= $legacy_file['filepath'] ?>" class="btn small primary"><i class="ph ph-download"></i> Download</a>
                                 <form action="<?= ROOTPATH ?>/crud/activities/upload-files/<?= $id ?>" method="post" class="d-inline-block">
-                                    <input type="hidden" name="delete" value="<?= $file['filename'] ?>">
+                                    <input type="hidden" name="delete" value="<?= $legacy_file['filename'] ?>">
 
                                     <button class="btn small danger" type="submit">
                                         <i class="ph-duotone ph-trash text-danger"></i>
@@ -1628,24 +1681,24 @@ use chillerlan\QRCode\{QRCode, QROptions};
             <table class="table">
                 <tbody>
                     <?php
-                    if (empty($documents)) {
+                    if (empty($files)) {
                         echo '<tr><td>' . lang('No documents available.', 'Keine Dokumente verfügbar.') . '</td></tr>';
                     } else {
-                        foreach ($documents as $doc) {
-                            $file_url = ROOTPATH . '/uploads/' . $doc['_id'] . '.' . $doc['extension'];
+                        foreach ($files as $file) {
+                            $file_url = ROOTPATH . '/uploads/' . $file['_id'] . '.' . $file['extension'];
                     ?>
                             <tr>
                                 <td class="font-size-18 text-center text-muted" style="width: 50px;">
-                                    <i class='ph ph-file ph-<?= getFileIcon($doc['extension'] ?? '') ?>'></i>
+                                    <i class='ph ph-file ph-<?= getFileIcon($file['extension'] ?? '') ?>'></i>
                                 </td>
                                 <td>
                                     <?php if ($edit_perm) : ?>
                                         <div class="float-right">
                                             <div class="dropdown">
-                                                <button class="btn link" data-toggle="dropdown" type="button" id="edit-doc-<?= $doc['_id'] ?>" aria-haspopup="true" aria-expanded="false">
+                                                <button class="btn link" data-toggle="dropdown" type="button" id="edit-doc-<?= $file['_id'] ?>" aria-haspopup="true" aria-expanded="false">
                                                     <i class="ph ph-edit text-primary"></i>
                                                 </button>
-                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="edit-doc-<?= $doc['_id'] ?>">
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="edit-doc-<?= $file['_id'] ?>">
                                                     <div class="content">
                                                         <form action="<?= ROOTPATH ?>/data/document/update" method="post">
                                                             <div class="form-group floating-form">
@@ -1653,30 +1706,30 @@ use chillerlan\QRCode\{QRCode, QROptions};
                                                                     <?php
                                                                     $vocab = $Vocabulary->getValues('activity-document-types');
                                                                     foreach ($vocab as $v) { ?>
-                                                                        <option value="<?= $v['id'] ?>" <?= ($doc['name'] == $v['id'] ? 'selected' : '') ?>><?= lang($v['en'], $v['de'] ?? null) ?></option>
+                                                                        <option value="<?= $v['id'] ?>" <?= ($file['name'] == $v['id'] ? 'selected' : '') ?>><?= lang($v['en'], $v['de'] ?? null) ?></option>
                                                                     <?php } ?>
                                                                 </select>
                                                                 <label for="name" class="required"><?= lang('Document type', 'Dokumenttyp') ?></label>
                                                             </div>
                                                             <div class="form-group">
                                                                 <label for="description"><?= lang('Description', 'Beschreibung') ?></label>
-                                                                <textarea class="form-control" name="description" placeholder="<?= lang('Description', 'Beschreibung') ?>"><?= $doc['description'] ?? '' ?></textarea>
+                                                                <textarea class="form-control" name="description" placeholder="<?= lang('Description', 'Beschreibung') ?>"><?= $file['description'] ?? '' ?></textarea>
                                                             </div>
-                                                            <input type="hidden" name="id" value="<?= $doc['_id'] ?>">
+                                                            <input type="hidden" name="id" value="<?= $file['_id'] ?>">
                                                             <button class="btn btn-block primary" type="submit"><?= lang('Save changes', 'Änderungen speichern') ?></button>
                                                         </form>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="dropdown">
-                                                <button class="btn link" data-toggle="dropdown" type="button" id="delete-doc-<?= $doc['_id'] ?>" aria-haspopup="true" aria-expanded="false">
+                                                <button class="btn link" data-toggle="dropdown" type="button" id="delete-doc-<?= $file['_id'] ?>" aria-haspopup="true" aria-expanded="false">
                                                     <i class="ph ph-trash text-danger"></i>
                                                 </button>
-                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="delete-doc-<?= $doc['_id'] ?>">
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="delete-doc-<?= $file['_id'] ?>">
                                                     <div class="content">
                                                         <form action="<?= ROOTPATH ?>/data/delete" method="post">
                                                             <span class="text-danger"><?= lang('Do you want to delete this document?', 'Möchtest du dieses Dokument wirklich löschen?') ?></span>
-                                                            <input type="hidden" name="id" value="<?= $doc['_id'] ?>">
+                                                            <input type="hidden" name="id" value="<?= $file['_id'] ?>">
                                                             <button class="btn btn-block danger" type="submit"><?= lang('Delete', 'Löschen') ?></button>
                                                         </form>
                                                     </div>
@@ -1686,18 +1739,18 @@ use chillerlan\QRCode\{QRCode, QROptions};
                                     <?php endif; ?>
                                     <h6 class="m-0">
                                         <a href="<?= $file_url ?>" target="_blank" rel="noopener">
-                                            <?= $Vocabulary->getValue('activity-document-types', $doc['name'] ?? '', lang('Other', 'Sonstiges')); ?>
+                                            <?= $Vocabulary->getValue('activity-document-types', $file['name'] ?? '', lang('Other', 'Sonstiges')); ?>
                                             <i class="ph ph-download"></i>
                                         </a>
                                     </h6>
-                                    <?= $doc['description'] ?? '' ?>
+                                    <?= $file['description'] ?? '' ?>
                                     <br>
                                     <div class="font-size-12 text-muted d-flex align-items-center justify-content-between">
                                         <div>
-                                            <?= $doc['filename'] ?> (<?= $doc['size'] ?> Bytes)
+                                            <?= $file['filename'] ?> (<?= $file['size'] ?> Bytes)
                                             <br>
-                                            <?= lang('Uploaded by', 'Hochgeladen von') ?> <?= $DB->getNameFromId($doc['uploaded_by']) ?>
-                                            <?= lang('on', 'am') ?> <?= date('d.m.Y', strtotime($doc['uploaded'])) ?>
+                                            <?= lang('Uploaded by', 'Hochgeladen von') ?> <?= $DB->getNameFromId($file['uploaded_by']) ?>
+                                            <?= lang('on', 'am') ?> <?= date('d.m.Y', strtotime($file['uploaded'])) ?>
                                         </div>
                                     </div>
                                 </td>
@@ -1764,16 +1817,16 @@ use chillerlan\QRCode\{QRCode, QROptions};
                     <span aria-hidden="true">&times;</span>
                 </a>
                 <h5 class="title">
-                    <?= lang('Connect ' . $tagName, $tagName . ' verknüpfen') ?>
+                    <?= lang('Connect ' . $tagLabel, $tagLabel . ' verknüpfen') ?>
                 </h5>
                 <p>
-                    <?= lang('Currently connected ', 'Zurzeit ausgewählte ') . $tagName ?>:
+                    <?= lang('Currently connected ', 'Zurzeit ausgewählte ') . $tagLabel ?>:
                     <?php
                     $tags = $doc['tags'] ?? [];
                     if (count($tags)) {
                         echo $Settings->printTags($tags, 'all-activities');
                     } else {
-                        echo lang('No ' . $tagName . ' assigned yet.', 'Noch keine ' . $tagName . ' vergeben.');
+                        echo lang('No ' . $tagLabel . ' assigned yet.', 'Noch keine ' . $tagLabel . ' vergeben.');
                     }
                     ?>
                 </p>
@@ -1797,12 +1850,12 @@ use chillerlan\QRCode\{QRCode, QROptions};
     <?php if ($Settings->featureEnabled('spectrum')) { ?>
         <section id="spectrum" style="display:none">
             <?php
-            if (!empty($spectrum)) : 
-            include_once BASEPATH . "/php/Spectrum.php";
-            Spectrum::render($spectrum);
+            if (!empty($spectrum)) :
+                include_once BASEPATH . "/php/Spectrum.php";
+                Spectrum::render($spectrum);
             else : ?>
                 <p>
-                    <?= lang('No topics are assigned to this activity.', 'Zu dieser Aktivität sind keine Themen zugewiesen.') ?>
+                    <?= lang('No topics are assigned to this activity.', 'OpenAlex hat zu dieser Aktivität keine Themen zugewiesen.') ?>
                 </p>
             <?php endif; ?>
         </section>
@@ -1820,8 +1873,8 @@ use chillerlan\QRCode\{QRCode, QROptions};
         </a>
         <div class="row row-eq-spacing">
             <div class="col-md-6 flex-grow-0" style="max-width: 40rem">
-                <div id="chart-authors">
-                    <canvas id="chart-authors-canvas"></canvas>
+                <div id="chart-contributors">
+                    <canvas id="chart-contributors-canvas"></canvas>
                 </div>
             </div>
             <div class="offset-1"></div>
@@ -1917,8 +1970,9 @@ use chillerlan\QRCode\{QRCode, QROptions};
         <?php } ?>
     </section>
 
-    
     <?php if ($guests_involved) { ?>
+
+
         <?php if ($Settings->featureEnabled('guest-forms')) {
 
             $guest_server = $Settings->get('guest-forms-server');

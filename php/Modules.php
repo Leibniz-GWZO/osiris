@@ -19,8 +19,8 @@ class Modules
     private $fields = array();
     private $type = '';
 
-   
-public $all_modules = array(
+
+    public $all_modules = array(
         "authors" => [
             "fields" => ["authors" => [
                 [

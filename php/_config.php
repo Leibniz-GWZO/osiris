@@ -964,3 +964,10 @@ function abortwith($code, $item = '', $link = '', $linkMsg = '')
     die();
 }
 
+
+function formatBytes($bytes, $precision = 1)
+{
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $factor = floor((strlen($bytes) - 1) / 3);
+    return sprintf("%.{$precision}f", $bytes / pow(1024, $factor)) . ' ' . $units[$factor];
+}

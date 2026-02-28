@@ -27,6 +27,11 @@
                 "en": "Delete activities"
             },
             {
+                "id": "activities.delete-own",
+                "de": "Eigene Aktivitäten löschen",
+                "en": "Delete own activities"
+            },
+            {
                 "id": "activities.lock",
                 "de": "Aktivitäten sperren",
                 "en": "Lock activities"

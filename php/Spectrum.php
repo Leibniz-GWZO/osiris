@@ -56,11 +56,11 @@ class Spectrum
     </span>';
     }
 
-    public static function render($spectrum, $count = null)
+    public static function render($spectrum, $count = null, $class = '')
     {
         $spectrum_by_field = self::aggregate($spectrum);
 ?>
-        <div class="box" id="spectrum">
+        <div class="box <?= $class ?>" id="spectrum">
             <div class="content">
                 <?php foreach ($spectrum_by_field as $field => $aggrs) {
                     $domain_id = $aggrs[0]['topic']['domain_id'] ?? 'unknown';
@@ -83,7 +83,7 @@ class Spectrum
             <?php if ($count !== null) { ?>
                     <?php self::hint($count); ?>
             <?php } else { ?>
-                    <small><?= lang('These topics are automatically assigned by OpenAlex based on citation and co-occurrence analysis of the publication. They are intended for analytical purposes and may change over time.', 'Diese Themen werden automatisch von OpenAlex auf Basis von Zitations- und Ko-Vorkommensanalysen der Publikation vergeben. Sie dienen analytischen Zwecken und können sich im Zeitverlauf ändern.') ?></small>
+                    <small><?= lang('These topics are automatically assigned by OpenAlex.', 'Diese Themen werden automatisch von OpenAlex vergeben.') ?></small>
                     <a href="<?= ROOTPATH ?>/spectrum#what-is-spectrum" class="ml-10" style="white-space: nowrap;"><i class="ph ph-question"></i> <?= lang('Learn more', 'Erfahre mehr') ?></a>
                 </div>
             <?php } ?>

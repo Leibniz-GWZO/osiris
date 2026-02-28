@@ -4,8 +4,6 @@ function navigate(key) {
     $('section').hide()
     $('section#' + key).show()
 
-    // $('.pills .btn').removeClass('active')
-    // $('.pills .btn#btn-' + key).addClass('active')
     $('#navigation .btn').removeClass('active')
     $('#navigation .btn#btn-' + key).addClass('active')
 
@@ -26,12 +24,16 @@ $(document).ready(function () {
     // get hash
     var hash = window.location.hash
     if (hash && hash.includes('#section-')) {
-        navigate(hash.replace('#section-', ''))
+        let key = hash.replace('#section-', '')
+        // check if section exists
+        if ($('section#' + key).length) {
+            navigate(key)
+        }
     }
 });
 
 
-function showCollaboratorChart(collab_type, button){
+function showCollaboratorChart(collab_type, button) {
     // check if chart already exists
     $('.collab-chart').hide();
     var chartContainer = $('#chart-' + collab_type);
@@ -104,5 +106,24 @@ function showCollaboratorChart(collab_type, button){
 
 
 function coauthors() {
-    showCollaboratorChart('collaborators');
+    showCollaboratorChart('contributors');
+}
+
+
+function navigateCitation(id) {
+    $('#citation-tabs .btn').removeClass('active');
+    $('#btn-' + id).addClass('active');
+    $('.citation-box').hide();
+    $('#' + id + '-box').show();
+}
+
+function copyToClipboard(selector) {
+    // check if navigator.clipboard is available
+    if (!navigator.clipboard) {
+        toastError(lang('This browser does not support copying to clipboard.', 'Dieser Browser unterstützt das Kopieren in die Zwischenablage nicht.'));
+        return;
+    }
+    var text = $(selector).text()
+    navigator.clipboard.writeText(text)
+    toastSuccess(lang('Query copied to clipboard.', 'Abfrage in die Zwischenablage kopiert.'))
 }

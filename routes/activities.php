@@ -261,23 +261,18 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
 
     $doc = json_decode(json_encode($activity->getArrayCopy(), JSON_PARTIAL_OUTPUT_ON_ERROR), true);
     $locked = $activity['locked'] ?? false;
-    if ($doc['type'] == 'publication' && isset($doc['journal'])) {
-        // fix old journal_ids
-        if (isset($doc['journal_id']) && !preg_match("/^[0-9a-fA-F]{24}$/", $doc['journal_id'])) {
-            $doc['journal_id'] = null;
-            $osiris->activities->updateOne(
-                ['_id' => $activity['_id']],
-                ['$unset' => ['journal_id' => '']]
-            );
-        }
-    }
     renderActivities(['_id' =>  $activity['_id']]);
     $user_activity = $DB->isUserActivity($doc, $user);
+    // User context
+    $user_units = DB::doc2Arr($USER['units'] ?? []);
+    if (!empty($user_units)) {
+        $user_units = array_column($user_units, 'unit');
+    }
 
     $Format = new Document;
     $Format->setDocument($doc);
 
-    $name = $activity['title'] ?? $id;
+    $name = $activity['rendered']['title'] ?? $id;
 
     $breadcrumb = [
         ['name' => lang('Activities', "Aktivitäten"), 'path' => "/activities"],
@@ -286,8 +281,6 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
     if ($Format->hasSchema()) {
         $additionalHead = $Format->schema();
     }
-    $no_container = true;
-    include BASEPATH . "/header.php";
 
 
     include_once BASEPATH . "/php/Modules.php";
@@ -306,50 +299,67 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
     $subtypeArr = $Format->subtypeArr;
     $typeModules = DB::doc2Arr($subtypeArr['modules'] ?? array());
     $typeFields = $Modules->getFields();
+    $fields = array_keys($typeFields);
 
-    foreach ($typeModules as $m) {
-        if (str_ends_with($m, '*')) $m = str_replace('*', '', $m);
+    foreach ($fields as $m) {
+        // if (str_ends_with($m, '*')) $m = str_replace('*', '', $m);
         if ($m == 'date-range-ongoing') $ongoing = true;
         if ($m == 'supervisor') $sws = true;
         if ($m == 'supervisor-thesis') $supervisorThesis = true;
     }
+    $visible_subtypes = $Settings->getActivitiesPortfolio(true);
 
+    // get connected projects, infrastructures and activities
     $projects = [];
-    if (isset($activity['projects']) && count($activity['projects']) > 0) {
+    if ($Settings->featureEnabled('projects') && isset($activity['projects']) && count($activity['projects']) > 0) {
         $projects = $osiris->projects->find(
             ['_id' => ['$in' => $activity['projects']]],
             ['projection' => ['_id' => 1, 'acronym' => 1, 'name' => 1, 'start' => 1, 'end' => 1, 'title' => 1, 'funder' => 1]]
         )->toArray();
     }
 
-    $guests_involved = boolval($subtypeArr['guests'] ?? false);
-    $guests = $doc['guests'] ?? [];
-    // if ($guests_involved)
-    //     $guests = $osiris->guests->find(['activity' => $id])->toArray();
-
-    $edit_perm = ($user_activity || $Settings->hasPermission('activities.edit'));
-    $tagName = '';
-    if ($Settings->featureEnabled('tags')) {
-        $tagName = $Settings->tagLabel();
+    $infrastructures = [];
+    if ($Settings->featureEnabled('infrastructures') && isset($activity['infrastructures']) && count($activity['infrastructures']) > 0) {
+        $infrastructures = $osiris->infrastructures->find(
+            ['id' => ['$in' => $activity['infrastructures']]],
+            ['projection' => ['_id' => 1, 'name' => 1, 'subtitle' => 1, 'start_date' => 1, 'end_date' => 1]]
+        )->toArray();
     }
 
     $connected_activities = $osiris->activitiesConnections->find(
         ['$or' => [['source_id' => $id], ['target_id' => $id]]]
     )->toArray();
 
-    // Nimm deinen bestehenden User-Kontext
-    $user_units = DB::doc2Arr($USER['units'] ?? []);
-    if (!empty($user_units)) {
-        $user_units = array_column($user_units, 'unit');
+    $guests_involved = false;
+    $guests = [];
+    if ($Settings->featureEnabled('guests')) {
+        $guests_involved = boolval($subtypeArr['guests'] ?? false);
+        $guests = $doc['guests'] ?? [];
     }
 
-    $documents = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)])->toArray();
+    $edit_perm = ($user_activity || $Settings->hasPermission('activities.edit'));
+    $canEdit = ($edit_perm) && (!$locked || $Settings->hasPermission('activities.edit-locked'));
+    $canDelete = false;
+    if ($locked) {
+        $canDelete = $Settings->hasPermission('activities.delete-locked');
+    } elseif ($Settings->hasPermission('activities.delete')) {
+        $canDelete = true;
+    } else if ($user_activity) {
+        $canDelete = $Settings->hasPermission('activities.delete-own');
+    }
+
+    $tagLabel = '';
+    if ($Settings->featureEnabled('tags')) {
+        $tagLabel = $Settings->tagLabel();
+    }
+
+    $files = $osiris->uploads->find(['type' => 'activities', 'id' => strval($id)])->toArray();
 
     $openalex = null;
     $spectrum = [];
-    if ($Settings->featureEnabled('spectrum') && isset($doc['openalex'])) {
+    if ($Settings->featureEnabled('spectrum') && isset($doc['doi']) && $doc['type'] == 'publication') {
         $openalex = $doc['openalex'] ?? null;
-        if (empty($openalex) && isset($doc['doi'])) {
+        if (empty($openalex)) {
 ?>
             <script>
                 $(document).ready(function() {
@@ -358,14 +368,19 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
                     });
                 });
             </script>
-        <?php
+<?php
         }
         $spectrum = $openalex['topics'] ?? [];
     }
 
     // check user preference for activity view
     $activity_view = $_GET['view'] ?? $USER['activity_view'] ?? 'default';
-    
+
+    $no_container = true;
+    include BASEPATH . "/header.php";
+    if ($Settings->featureEnabled('quality-workflow', false) && ($user_activity || $Settings->hasPermission('workflows.view'))) {
+        include_once BASEPATH . '/pages/activities/activity-workflow.php';
+    }
     if ($activity_view == 'new' || $activity_view == 'default') {
         include BASEPATH . "/pages/activities/view.php";
     } else {
@@ -376,63 +391,65 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
 }, 'login');
 
 
-
-Route::get('/activities/new-view/([a-zA-Z0-9]*)', function ($id) {
+Route::get('/activities/edit-connections/([a-zA-Z0-9]*)', function ($id) {
     include_once BASEPATH . "/php/init.php";
-    include_once BASEPATH . "/php/Render.php";
-    include_once BASEPATH . "/php/Modules.php";
-    include_once BASEPATH . "/php/Vocabulary.php";
+    $user = $_SESSION['username'];
+    $id = $DB->to_ObjectID($id);
 
     $user = $_SESSION['username'];
     $id = $DB->to_ObjectID($id);
-    $activity = $osiris->activities->findOne(['_id' => $id], ['projection' => ['file' => 0]]);
-
-    if (!empty($activity)) {
-        $doc = json_decode(json_encode($activity->getArrayCopy(), JSON_PARTIAL_OUTPUT_ON_ERROR), true);
-        $locked = $activity['locked'] ?? false;
-        if ($doc['type'] == 'publication' && isset($doc['journal'])) {
-            // fix old journal_ids
-            if (isset($doc['journal_id']) && !preg_match("/^[0-9a-fA-F]{24}$/", $doc['journal_id'])) {
-                $doc['journal_id'] = null;
-                $osiris->activities->updateOne(
-                    ['_id' => $activity['_id']],
-                    ['$unset' => ['journal_id' => '']]
-                );
-            }
-        }
-        renderActivities(['_id' =>  $activity['_id']]);
-        $user_activity = $DB->isUserActivity($doc, $user);
-
-        $Format = new Document;
-        $Format->setDocument($doc);
-
-        $name = $activity['title'] ?? $id;
-        // if (strlen($name) > 20)
-        //     $name = mb_substr(strip_tags($name), 0, 20) . "&hellip;";
-        // $name = ucfirst($activity['type']) . ": " . $name;
-        $breadcrumb = [
-            ['name' => lang('Activities', "Aktivitäten"), 'path' => "/activities"],
-            ['name' => $name]
-        ];
-        if ($Format->hasSchema()) {
-            $additionalHead = $Format->schema();
-        }
+    $doc = $osiris->activities->findOne(['_id' => $id], ['projection' => ['file' => 0]]);
+    if (empty($doc)) {
+        abortwith(404, lang('Activity', "Aktivität"), '/activities');
     }
-    $no_container = true;
+
+    $user_activity = $DB->isUserActivity($doc, $user);
+    $edit_perm = ($user_activity || $Settings->hasPermission('activities.edit'));
+    if (!$edit_perm) {
+        abortwith(403, lang('You do not have permission to edit this activity.', 'Du hast keine Berechtigung, diese Aktivität zu bearbeiten.'), '/activities/view/' . $id, lang('Go back to activity', 'Zurück zur Aktivität'));
+    }
+
+    $Format = new Document;
+    $Format->setDocument($doc);
+
+    $name = $doc['rendered']['title'] ?? $id;
+
+    // get connected projects, infrastructures and activities
+    $projects = [];
+    if ($Settings->featureEnabled('projects') && isset($doc['projects']) && count($doc['projects']) > 0) {
+        $projects = $osiris->projects->find(
+            ['_id' => ['$in' => $doc['projects']]],
+            ['projection' => ['_id' => 1, 'acronym' => 1, 'name' => 1, 'start' => 1, 'end' => 1, 'title' => 1, 'funder' => 1]]
+        )->toArray();
+    }
+
+    $infrastructures = [];
+    if ($Settings->featureEnabled('infrastructures') && isset($doc['infrastructures']) && count($doc['infrastructures']) > 0) {
+        $infrastructures = $osiris->infrastructures->find(
+            ['id' => ['$in' => $doc['infrastructures']]],
+            ['projection' => ['_id' => 1, 'id' => 1, 'name' => 1, 'subtitle' => 1, 'start_date' => 1, 'end_date' => 1]]
+        )->toArray();
+    }
+
+    $connected_activities = $osiris->activitiesConnections->find(
+        ['$or' => [['source_id' => $id], ['target_id' => $id]]]
+    )->toArray();
+
+    // User context
+    $user_units = DB::doc2Arr($USER['units'] ?? []);
+    if (!empty($user_units)) {
+        $user_units = array_column($user_units, 'unit');
+    }
+
+    $breadcrumb = [
+        ['name' => lang('Activities', "Aktivitäten"), 'path' => "/activities"],
+        ['name' => $name, 'path' => "/activities/view/$id"],
+        ['name' => lang("Connections", "Verknüpfungen")]
+    ];
+
     include BASEPATH . "/header.php";
-
-    if (empty($activity)) { ?>
-        <div class="content-container">
-            <div class="alert alert-danger">
-                <?php echo lang("Activity not found.", "Aktivität nicht gefunden."); ?>
-            </div>
-        </div>
-<?php
-    } else {
-        $Modules = new Modules($doc);
-        $Vocabulary = new Vocabulary();
-        include BASEPATH . "/pages/activities/new-view.php";
-    }
+    include BASEPATH . '/header-editor.php';
+    include BASEPATH . "/pages/activities/connections.php";
     include BASEPATH . "/footer.php";
 }, 'login');
 
@@ -553,7 +570,6 @@ Route::get('/activities/doublet/([a-zA-Z0-9]*)/([a-zA-Z0-9]*)', function ($id1, 
     include BASEPATH . "/footer.php";
 }, 'login');
 
-
 Route::get('/activities/copy/([a-zA-Z0-9]*)', function ($id) {
     include_once BASEPATH . "/php/init.php";
     $user = $_SESSION['username'];
@@ -561,6 +577,9 @@ Route::get('/activities/copy/([a-zA-Z0-9]*)', function ($id) {
 
     global $form;
     $form = $osiris->activities->findOne(['_id' => $id]);
+    if (!$form) {
+        abortwith(404, lang('Activity', "Aktivität"), '/activities');
+    }
     $copy = true;
 
     $breadcrumb = [
@@ -580,6 +599,10 @@ Route::get('/activities/edit/([a-zA-Z0-9]*)/(authors|editors|supervisors)', func
     $id = $DB->to_ObjectID($id);
 
     $form = $osiris->activities->findOne(['_id' => $id]);
+    if (!$form) {
+        abortwith(404, lang('Activity', "Aktivität"), '/activities');
+    }
+
     if (($form['locked'] ?? false) && !$Settings->hasPermission('activities.edit-locked')) {
         include_once BASEPATH . "/header.php";
         echo lockedPage($id);
@@ -943,6 +966,21 @@ Route::post('/crud/activities/update/([A-Za-z0-9]*)', function ($id) {
 Route::post('/crud/activities/delete/([A-Za-z0-9]*)', function ($id) {
     include_once BASEPATH . "/php/init.php";
     $id = $DB->to_ObjectID($id);
+
+    // check permissions
+    $doc = $osiris->activities->findOne(['_id' => $id]);
+    if (empty($doc)) {
+        abortwith(404, lang('Activity', "Aktivität"), '/activities');
+    }
+    $user_activity = $DB->isUserActivity($doc, $_SESSION['username']);
+    if (!$user_activity && !$Settings->hasPermission('activities.delete')) {
+        abortwith(403, lang('You do not have permission to delete this activity.', 'Du hast keine Berechtigung, diese Aktivität zu löschen.'), '/activities/view/' . $id, lang('Go back to activity', 'Zurück zur Aktivität'));
+    }
+    // check if locked
+    if (($doc['locked'] ?? false) && !$Settings->hasPermission('activities.delete-locked')) {
+        abortwith(403, lang('You do not have permission to delete this locked activity.', 'Du hast keine Berechtigung, diese gesperrte Aktivität zu löschen.'), '/activities/view/' . $id, lang('Go back to activity', 'Zurück zur Aktivität'));
+    }
+
     $updateResult = $osiris->activities->deleteOne(
         ['_id' => $id]
     );
@@ -958,6 +996,42 @@ Route::post('/crud/activities/delete/([A-Za-z0-9]*)', function ($id) {
     ]);
 });
 
+Route::post('/crud/activities/connections/(.*)', function ($id) {
+    include_once BASEPATH . "/php/init.php";
+    $mongoid = $DB->to_ObjectID($id);
+    $update = [];
+    if (isset($_POST['projects'])) {
+        if (empty($_POST['projects'])) {
+            $update['projects'] = [];
+        } else {
+            $update['projects'] = array_map(function ($v) use ($DB) {
+                return $DB->to_ObjectID($v);
+            }, $_POST['projects']);
+        }
+    }
+    if (isset($_POST['infrastructures'])) {
+        if (empty($_POST['infrastructures'])) {
+            $update['infrastructures'] = [];
+        } else {
+            $update['infrastructures'] = $_POST['infrastructures'];
+        }
+    }
+    if (!empty($update)) {
+        $osiris->activities->updateOne(
+            ['_id' => $mongoid],
+            ['$set' => $update]
+        );
+    }
+    if (isset($_POST['redirect']) && !str_contains($_POST['redirect'], "//")) {
+        $_SESSION['msg'] = lang("Connections updated successfully.", "Verknüpfungen erfolgreich aktualisiert.");
+        $_SESSION['msg_type'] = "success";
+        header("Location: " . $_POST['redirect']);
+        die();
+    }
+    echo json_encode([
+        'updated' => $update
+    ]);
+});
 
 // DEPERCATED: use /upload endpoint instead
 // we keep this for backward compatibility and for deleting legacy files
@@ -1495,7 +1569,6 @@ Route::post('/crud/activities/lock', function () {
 
 Route::post('/crud/activities/connect', function () {
     include_once BASEPATH . "/php/init.php";
-
     $target = $_POST['target_id'] ?? null;
     $source = $_POST['source_id'] ?? null;
 
@@ -1534,7 +1607,7 @@ Route::post('/crud/activities/connect', function () {
         echo json_encode([
             'inserted' => 0,
             'id' => (string)$existing['_id'],
-            'message' => 'Connection already exists.'
+            'message' => lang("Connection already exists.", "Verbindung existiert bereits.")
         ]);
         die();
     }
@@ -1549,7 +1622,7 @@ Route::post('/crud/activities/connect', function () {
     }
     echo json_encode([
         'inserted' => $insertOneResult->getInsertedCount(),
-        'id' => $id,
+        'id' => (string)$id,
     ]);
 });
 

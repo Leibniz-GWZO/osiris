@@ -1019,7 +1019,7 @@ Route::get('/api/dashboard/author-network', function () {
 });
 
 
-Route::get('/api/dashboard/activity-(collaborators|authors|editors|supervisors)', function ($type) {
+Route::get('/api/dashboard/activity-(contributors|authors|editors|supervisors)', function ($type) {
     error_reporting(E_ERROR | E_PARSE);
     include(BASEPATH . '/php/init.php');
 
@@ -1038,27 +1038,27 @@ Route::get('/api/dashboard/activity-(collaborators|authors|editors|supervisors)'
     $depts = [];
     $multi = false;
 
-    $collaborators = [];
+    $contributors = [];
     switch ($type) {
-        case 'collaborators':
+        case 'contributors':
             foreach (['authors', 'editors', 'supervisors'] as $role) {
-                $collaborators = array_merge($collaborators, DB::doc2Arr($doc[$role] ?? []));
+                $contributors = array_merge($contributors, DB::doc2Arr($doc[$role] ?? []));
             }
             break;
         case 'authors':
-            $collaborators = DB::doc2Arr($doc['authors'] ?? []);
+            $contributors = DB::doc2Arr($doc['authors'] ?? []);
             break;
         case 'editors':
-            $collaborators = DB::doc2Arr($doc['editors'] ?? []);
+            $contributors = DB::doc2Arr($doc['editors'] ?? []);
             break;
         case 'supervisors':
-            $collaborators = DB::doc2Arr($doc['supervisors'] ?? []);
+            $contributors = DB::doc2Arr($doc['supervisors'] ?? []);
             break;
     }
 
-    if (!empty($collaborators)) {
-        // $users = array_column(DB::doc2Arr($collaborators), 'user');
-        foreach ($collaborators as $i => $a) {
+    if (!empty($contributors)) {
+        // $users = array_column(DB::doc2Arr($contributors), 'user');
+        foreach ($contributors as $i => $a) {
             $user = $a['user'] ?? null;
             if (!($a['aoi'] ?? false)) {
                 if (!isset($depts['external'])) $depts['external'] = 0;
@@ -1095,18 +1095,17 @@ Route::get('/api/dashboard/activity-(collaborators|authors|editors|supervisors)'
     $labels = [];
     $y = [];
     $colors = [];
-    $persons = [];
     foreach ($depts as $key => $value) {
         if ($key == 'external' && $value > 0) {
-            $labels[] = 'External partners';
-            $colors[] = '#00000095';
+            $labels[] = lang('External partners', 'Externe Partner');
+            $colors[] = '#ececec95';
         } elseif ($key == 'unknown' && $value > 0) {
-            $labels[] = 'Unknown unit';
+            $labels[] = lang('Unknown unit', 'Unbekannte Einheit');
             $colors[] = '#cccccc95';
         } else {
             $group = $Groups->getGroup($key);
-            $labels[] = $group['name'];
-            $colors[] = $group['color'];
+            $labels[] = lang($group['name'], $group['name_de'] ?? null);
+            $colors[] = $group['color'] . 'aa';
         }
         $y[] = $value;
     }
@@ -1114,7 +1113,6 @@ Route::get('/api/dashboard/activity-(collaborators|authors|editors|supervisors)'
         'y' => $y,
         'colors' => $colors,
         'labels' => $labels,
-        'persons' => $persons,
         'multi' => $multi
     ], count($labels));
 });

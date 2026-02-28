@@ -4,6 +4,14 @@ let SELECTED_CAT = null;
 let SELECTED_TYPE = null;
 let DOIDATA = null;
 
+var SCIENTISTS;
+$(document).ready(function () {
+    var scientists = $('#scientist-list option').map(function (index, item) {
+        return item.value
+    })
+    SCIENTISTS = Object.values(scientists)
+
+});
 // escape HTML special chars to avoid breaking the surrounding markup
 const escapeHtml = (str) => {
     if (str === null || str === undefined) return '';
