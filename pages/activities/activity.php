@@ -746,6 +746,63 @@ if (!empty($user_units)) {
                             <div id="formatted"><?= $doc['rendered']['print'] ?></div>
                         </td>
                     </tr>
+
+                    <?php if ($Settings->hasPermission('activities.exclude')) {
+                        $exclude = $doc['exclude_from_reports'] ?? false;
+                    ?>
+                        <tr>
+                            <td>
+                                <span class="key"><?= lang('Include in reports', 'In Berichten') ?>: </span>
+                                <div id="exclude-toggle" class="btn-group" role="group" aria-label="Exclude toggle">
+                                    <button type="button" class="btn small <?= $exclude ? '' : 'active' ?>"
+                                        id="btn-include" onclick="toggleExclude(false)"
+                                        data-toggle="tooltip" data-title="<?= lang('Will be included in all reports and analytics.', 'wird in allen Berichten und Analysen enthalten sein.') ?>"
+                                        style="--blue-color: var(--success-color); --blue-color-20: var(--success-color-20);">
+                                        <i class="ph ph-check-circle"></i>
+                                        <?= lang('Include', 'Einbeziehen') ?>
+                                    </button>
+                                    <button type="button" class="btn small <?= $exclude ? 'active' : '' ?>"
+                                        id="btn-exclude" onclick="toggleExclude(true)"
+                                        data-toggle="tooltip" data-title="<?= lang('Will be excluded from all reports and analytics.', 'Wird von allen Berichten und Analysen ausgeschlossen.') ?>"
+                                        style="--blue-color: var(--danger-color); --blue-color-20: var(--danger-color-20);">
+                                        <i class="ph ph-prohibit"></i>
+                                        <?= lang('Exclude', 'Ausschließen') ?>
+                                    </button>
+                                </div>
+
+                                <script>
+                                    function toggleExclude(exclude) {
+                                        $('#btn-include').toggleClass('active', !exclude);
+                                        $('#btn-exclude').toggleClass('active', exclude);
+
+                                        $.ajax({
+                                            type: "POST",
+                                            url: ROOTPATH + "/crud/activities/exclude-from-reports",
+                                            data: {
+                                                activity: ACTIVITY_ID,
+                                            },
+                                            dataType: "json",
+                                            success: function(response) {
+                                                if (!response.success) {
+                                                    toastError(lang('Failed to update the activity. Please try again.', 'Aktualisierung der Aktivität fehlgeschlagen. Bitte versuche es erneut.'));
+                                                    return;
+                                                }
+                                                if (exclude) {
+                                                    toastSuccess(lang('This activity is now excluded from reports and analytics.', 'Diese Aktivität ist jetzt von Berichten und Analysen ausgeschlossen.'));
+                                                } else {
+                                                    toastSuccess(lang('This activity is now included in reports and analytics.', 'Diese Aktivität ist jetzt in Berichten und Analysen enthalten.'));
+                                                }
+                                            },
+                                            error: function(response) {
+                                                console.log(response);
+                                            }
+                                        });
+                                    }
+                                </script>
+                            </td>
+                        </tr>
+                    <?php } ?>
+
                     <?php
                     $Format->usecase = "list";
 

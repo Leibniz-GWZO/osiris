@@ -1031,6 +1031,17 @@ class ActivityFields extends Fields
                 ],
                 'label' => lang('Updated by (Abbreviation)', 'Aktualisiert von (Kürzel)'),
                 'type' => 'string'
+            ],
+            [
+                'id' => 'exclude_from_reports',
+                'module_of' => ['general'],
+                'usage' => [
+                    'aggregate',
+                    'filter',
+                    'columns'
+                ],
+                'label' => lang('Reports: exclude', 'Berichte: ausschließen'),
+                'type' => 'boolean',
             ]
         ];
 
@@ -1105,6 +1116,8 @@ class ActivityFields extends Fields
                 ]
             ];
         }
+
+        
 
         $FIELDS = parent::addCustomFields($FIELDS, $osiris, $typeModules);
         $this->fields = array_values($FIELDS);

@@ -78,6 +78,11 @@
         "icon": "chart-line-up",
         "fields": [
             {
+                "id": "activities.exclude",
+                "de": "Aktivitäten aus Berichten ausschließen",
+                "en": "Exclude activities from reports"
+            },
+            {
                 "id": "report.dashboard",
                 "de": "Quartalsübersichten sehen (im Dashboard und Profil)",
                 "en": "See quarter overview (in Dashboard and Profile)"

@@ -1648,3 +1648,30 @@ Route::post('/crud/activities/disconnect', function () {
         'deleted' => $deletedCount
     ]);
 });
+
+Route::post('/crud/activities/exclude-from-reports', function () {
+    include_once BASEPATH . "/php/init.php";
+    if (!isset($_POST['activity'])) {
+        die('Error: no activity id given.');
+    }
+    $activity_id = $DB->to_ObjectID($_POST['activity']);
+    // toggle exclude from reports
+    $activity = $osiris->activities->findOne(['_id' => $activity_id]);
+    if (empty($activity)) die('Error: No Activity found');
+    $exclude = $activity['exclude_from_reports'] ?? false;
+    $updateResult = $osiris->activities->updateOne(
+        ['_id' => $activity['_id']],
+        ['$set' => ["exclude_from_reports" => !$exclude]]
+    );
+    if (isset($_POST['redirect']) && !str_contains($_POST['redirect'], "//")) {
+        $_SESSION['msg'] = lang("Activity report status updated.", "Status der Aktivität im Bericht aktualisiert.");
+        $_SESSION['msg_type'] = "success";
+        header("Location: " . $_POST['redirect']);
+        die();
+    }
+    echo json_encode([
+        'updated' => $updateResult->getModifiedCount(),
+        'exclude_from_reports' => $exclude,
+        'success' => $updateResult->getModifiedCount() > 0
+    ]);
+});
