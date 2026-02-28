@@ -217,7 +217,7 @@ if (!empty($user_units)) {
                 <div class="content">
                     <a href="?view=new" class="btn block">
                         <i class="ph ph-lightning m-0"></i>
-                        <?= lang('New View', 'Neue Ansicht') ?>
+                        <?= lang('Modern View', 'Moderne Ansicht') ?>
                     </a>
                     <?php if (!in_array($doc['type'], ['publication'])) { ?>
                         <a href="<?= ROOTPATH ?>/activities/copy/<?= $id ?>" class="btn block">

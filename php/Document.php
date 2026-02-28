@@ -1742,7 +1742,8 @@ class Document extends Settings
         $ids = [];
         $doc = $this->doc;
         // generate a unique ID 
-        $id = $doc['authors'][0]['last'] . $doc['year'];
+        $id = $doc['authors'][0]['last'] ?? $doc['supervisors'][0]['last'] ?? 'unknown';
+        $id .= $doc['year'];
         $oid = $id;
         $i = 'a';
         while (in_array($id, $ids)) {

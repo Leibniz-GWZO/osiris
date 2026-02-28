@@ -84,6 +84,7 @@ if ($edit_perm) {
 
 ?>
 
+
 <link rel="stylesheet" href="<?= ROOTPATH ?>/css/activity.css?v=<?= OSIRIS_BUILD ?>">
 
 <script>
@@ -99,14 +100,12 @@ if ($edit_perm) {
 
 
 <div class="content-container">
-
-    <?php
-    if (function_exists('printMsg') && (isset($_GET['msg']) || isset($_GET['error'])) || isset($_SESSION['msg'])) {
-        printMsg();
-    }
-    ?>
-
     <div class="container-lg">
+        <?php
+        if (isset($_SESSION['msg'])) {
+            printMsg();
+        }
+        ?>
 
         <div class="btn-toolbar mb-20 ml-10">
             <?php if ($canEdit) { ?>
@@ -205,7 +204,7 @@ if ($edit_perm) {
                     <div class="content">
                         <a href="?view=old" class="btn block">
                             <i class="ph ph-lightning-slash m-0"></i>
-                            <?= lang('Old View', 'Alte Ansicht') ?>
+                            <?= lang('Classic View', 'Klassische Ansicht') ?>
                         </a>
                         <?php if (!in_array($doc['type'], ['publication'])) { ?>
                             <hr>
@@ -235,6 +234,7 @@ if ($edit_perm) {
                         <?php if ($canDelete) { ?>
                             <hr>
                             <form action="<?= ROOTPATH ?>/crud/activities/delete/<?= $id ?>" method="post" onsubmit="return confirm('<?= lang('Are you sure you want to delete this activity?', 'Möchtest du diese Aktivität wirklich löschen?') ?>')">
+                                <input type="hidden" class="hidden" name="redirect" value="<?= ROOTPATH . "/activities" ?>">
                                 <button class="btn danger block" type="submit">
                                     <i class="ph ph-trash"></i>
                                     <?= lang('Delete activity', 'Lösche Aktivität') ?>

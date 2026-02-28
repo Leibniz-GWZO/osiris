@@ -374,16 +374,20 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
     }
 
     // check user preference for activity view
-    $activity_view = $_GET['view'] ?? $USER['activity_view'] ?? 'default';
+    $activity_view = $_GET['view'] ?? $USER['activity_view'] ?? 'none';
 
     $no_container = true;
     include BASEPATH . "/header.php";
     if ($Settings->featureEnabled('quality-workflow', false) && ($user_activity || $Settings->hasPermission('workflows.view'))) {
         include_once BASEPATH . '/pages/activities/activity-workflow.php';
     }
-    if ($activity_view == 'new' || $activity_view == 'default') {
+    if ($activity_view == 'new' || $activity_view == 'none') {
+        $currentView = 'new';
+        include BASEPATH . "/pages/activities/preference-banner.php";
         include BASEPATH . "/pages/activities/view.php";
     } else {
+        $currentView = 'legacy';
+        include BASEPATH . "/pages/activities/preference-banner.php";
         include BASEPATH . "/pages/activities/activity.php";
     }
 

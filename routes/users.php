@@ -1208,3 +1208,28 @@ Route::post('/crud/messages/delete-all', function () {
         'success' => $updated > 0
     ]);
 }, 'login');
+
+Route::post('/crud/users/set-preference', function () {
+    include_once BASEPATH . "/php/init.php";
+
+    $user = $_SESSION['username'];
+    $key = $_POST['key'] ?? null;
+    $value = $_POST['value'] ?? null;
+    if (empty($key)) {
+        abortwith(400, lang("No preference key provided.", "Kein Präferenzschlüssel angegeben."));
+    }
+    $updateResult = $osiris->persons->updateOne(
+        ['username' => $user],
+        ['$set' => [$key => $value]]
+    );
+    if (isset($_POST['redirect']) && !str_contains($_POST['redirect'], "//")) {
+        $_SESSION['msg'] = lang("Preference updated.", "Präferenz aktualisiert.");
+        $_SESSION['msg_type'] = 'success';
+        header("Location: " . $_POST['redirect']);
+        die;
+    }
+    echo json_encode([
+        'updated' => $updateResult->getModifiedCount(),
+        'success' => $updateResult->getModifiedCount() > 0
+    ]);
+});

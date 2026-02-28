@@ -1870,17 +1870,17 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
         ])->toArray();
         if (!empty($spectrum)) :
         ?>
-        <?php if ($show_link) { ?>
-            <p class="text-muted mb-0">
-                <?php if (!$full_spectrum && $count_spectrum > 10) { ?>
-                    <?= lang('Based on publications within the past 5 years.', 'Basierend auf Publikationen aus den vergangenen 5 Jahren.') ?>
-                    <a href="?fullspectrum=1#section-spectrum"><?= lang('View full spectrum', 'Vollständiges Spektrum anzeigen') ?></a>
-                <?php } elseif ($full_spectrum) { ?>
-                    <?= lang('Based on all publications in OSIRIS.', 'Basierend auf allen Publikationen in OSIRIS.') ?>
-                    <a href="?#section-spectrum"><?= lang('View recent spectrum', 'Aktuelles Spektrum anzeigen') ?></a>
-                <?php } ?>
-            </p>
-        <?php } ?>
+            <?php if ($show_link) { ?>
+                <p class="text-muted mb-0">
+                    <?php if (!$full_spectrum && $count_spectrum > 10) { ?>
+                        <?= lang('Based on publications within the past 5 years.', 'Basierend auf Publikationen aus den vergangenen 5 Jahren.') ?>
+                        <a href="?fullspectrum=1#section-spectrum"><?= lang('View full spectrum', 'Vollständiges Spektrum anzeigen') ?></a>
+                    <?php } elseif ($full_spectrum) { ?>
+                        <?= lang('Based on all publications in OSIRIS.', 'Basierend auf allen Publikationen in OSIRIS.') ?>
+                        <a href="?#section-spectrum"><?= lang('View recent spectrum', 'Aktuelles Spektrum anzeigen') ?></a>
+                    <?php } ?>
+                </p>
+            <?php } ?>
         <?php
             include_once BASEPATH . "/php/Spectrum.php";
             Spectrum::render($spectrum, $count_spectrum);
