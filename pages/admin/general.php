@@ -1786,7 +1786,7 @@ $affiliation = $Settings->get('affiliation_details');
                         <a href="#altmetrics" class="submenu"><?= lang('Altmetrics', 'Altmetriken') ?></a>
                         <a href="#spectrum" class="submenu"><?= lang('Research Spectrum', 'Forschungs-Spektrum') ?></a>
 
-                        <a href="#guest-management-features"><?= lang('People and Guests', 'Personen und Gäste') ?></a>
+                        <a href="#guest-management-features"><?= lang('Profiles and Guests', 'Profile und Gäste') ?></a>
                         <a href="#new-colleagues" class="submenu"><?= lang('New Colleagues', 'Neue Kolleg:innen') ?></a>
                         <a href="#guest-forms" class="submenu"><?= lang('Guest forms', 'Gästeformulare') ?></a>
                     </div>
