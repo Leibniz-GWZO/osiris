@@ -1465,18 +1465,18 @@ Route::get('/api/organizations', function () {
 });
 
 
-Route::get('/api/openalex/enrich', function () {
+Route::post('/api/openalex/enrich', function () {
     include_once BASEPATH . "/php/init.php";
     header('Content-Type: application/json; charset=utf-8');
 
-    if (empty($_GET['doi'])) {
+    if (empty($_POST['doi'])) {
         http_response_code(400);
         echo json_encode(['ok' => false, 'error' => 'Missing doi']);
         return;
     }
 
     // Normalize DOI (lowercase, strip "doi:" prefix, trim)
-    $doi = trim($_GET['doi']);
+    $doi = trim($_POST['doi']);
     $doiNorm = strtolower($doi);
     $doiNorm = preg_replace('~^doi:\s*~i', '', $doiNorm);
 
@@ -1500,12 +1500,6 @@ Route::get('/api/openalex/enrich', function () {
         return;
     }
 
-    // Respond immediately, then continue "in background"
-    http_response_code(202);
-    echo json_encode(['ok' => true, 'queued' => true, 'activities' => count($activityIds)]);
-    if (function_exists('fastcgi_finish_request')) fastcgi_finish_request();
-
-    ignore_user_abort(true);
     @set_time_limit(20);
 
     // Fetch OpenAlex work by DOI
@@ -1574,4 +1568,5 @@ Route::get('/api/openalex/enrich', function () {
             ['$set' => ['openalex' => $openalex]]
         );
     }
+    echo json_encode(['ok' => true, 'updated_activities' => count($activityIds), 'ids' => $activityIds, 'openalex_data' => $openalex]);
 });

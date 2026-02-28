@@ -363,9 +363,7 @@ Route::get('/activities/view/([a-zA-Z0-9]*)', function ($id) {
 ?>
             <script>
                 $(document).ready(function() {
-                    $.post('/api/openalex/enrich', {
-                        doi: '<?= $doc['doi'] ?>'
-                    });
+                    fetchOpenAlex('<?= $doc['doi'] ?>');
                 });
             </script>
 <?php

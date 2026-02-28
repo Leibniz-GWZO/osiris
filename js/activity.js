@@ -127,3 +127,31 @@ function copyToClipboard(selector) {
     navigator.clipboard.writeText(text)
     toastSuccess(lang('Query copied to clipboard.', 'Abfrage in die Zwischenablage kopiert.'))
 }
+
+function fetchOpenAlex(doi) {
+    // set button to loading state
+    $('#openalex-refresh-button').prop('disabled', true).addClass('loading');
+    $.ajax({
+        type: "POST",
+        url: ROOTPATH + "/api/openalex/enrich",
+        data: {
+            doi: doi
+        },
+        dataType: "json",
+        success: function (response) {
+            console.log(response);
+            if (response.ok) {
+            $('#openalex-refresh-button').hide()
+            // insert text instead of button
+            $('#openalex-refresh-button').after('<span class="text-success">' + lang('OpenAlex was queried. Refresh the page to see updated data.', 'OpenAlex wurde abgefragt. Aktualisiere die Seite, um die aktualisierten Daten zu sehen.') + '</span>')
+            } else {
+                $('#openalex-refresh-button').prop('disabled', false).removeClass('loading');
+                toastError(lang('Failed to fetch data from OpenAlex.', 'Daten konnten nicht von OpenAlex abgerufen werden.'));
+            }
+
+        },
+        error: function (response) {
+            console.log(response);
+        }
+    });
+}

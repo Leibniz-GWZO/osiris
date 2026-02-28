@@ -963,10 +963,24 @@ if ($edit_perm) {
                         elseif (!empty($spectrum)) :
                             include_once BASEPATH . "/php/Spectrum.php";
                             Spectrum::render($spectrum, $count = null, $class = 'mt-0');
-                        else : ?>
+                        else :
+                            $fetched = $openalex['fetched_at'] ?? null;
+                        ?>
                             <p>
                                 <?= lang('No topics are assigned to this activity.', 'Zu dieser Aktivität sind keine Themen zugewiesen.') ?>
                             </p>
+                            <?php if ($fetched) : ?>
+                                <small class="d-block mt-5 text-muted">
+                                    <?= lang('Topic data was last updated on', 'Die Themen wurden zuletzt aktualisiert am') ?> <?= date('d.m.Y', strtotime($fetched)) ?>
+                                </small>
+                            <?php endif; ?>
+                            <!-- if fetched is longer ago, show a button to fetch new data -->
+                            <?php if (!$fetched || strtotime($fetched) < strtotime('-30 days')) : ?>
+                                <button class="btn primary small mt-5" id="openalex-refresh-button" onclick="fetchOpenAlex('<?= $doc['doi'] ?>')">
+                                    <i class="ph ph-arrows-clockwise"></i>
+                                    <?= lang('Fetch latest topics', 'Neueste Themen abrufen') ?>
+                                </button>
+                            <?php endif; ?>
                         <?php endif; ?>
 
                     <?php endif; ?>
