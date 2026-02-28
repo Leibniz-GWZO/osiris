@@ -381,20 +381,12 @@ if ($edit_perm) {
                             <?php endif; ?>
                         </div>
 
-                        <?php if (!empty($departments)): ?>
+                        <?php if ($count_authors > 0): ?>
                             <h3>
-                                <?= lang("Persons and Departments", "Personen und Abteilungen") ?><sup>*</sup>
-
+                                <?= lang("Contributors", "Mitwirkende") ?>
+                                <span class="data-index"><?= $count_authors ?></span>
                                 <a onclick="navigate('coauthors')">
-                                    <i class="ph ph-arrow-square-right" title="<?= lang('View all contributors', 'Alle Mitwirkenden anzeigen') ?>"></i>
-                                </a>
-                            </h3>
-                        <?php elseif ($count_authors > 0): ?>
-                            <h3>
-                                <?= lang("Persons", "Personen") ?><sup>*</sup>
-
-                                <a onclick="navigate('coauthors')">
-                                    <i class="ph ph-arrow-square-right" title="<?= lang('View all contributors', 'Alle Mitwirkenden anzeigen') ?>"></i>
+                                    <i class="ph ph-arrow-square-right ml-5" title="<?= lang('View all contributors', 'Alle Mitwirkenden anzeigen') ?>"></i>
                                 </a>
                             </h3>
                         <?php else: ?>
@@ -515,9 +507,10 @@ if ($edit_perm) {
                         <?php endif; ?>
 
 
-                        <?php if ($Settings->featureEnabled('tags') && $edit_perm) : ?>
+                        <?php if ($Settings->featureEnabled('tags')) : ?>
                             <h4>
                                 <?= $tagLabel ?>
+                                <span class="data-index"><?= count($tags) ?></span>
                                 <?php if ($edit_perm && $Settings->hasPermission('activities.tags')) { ?>
                                     <a href="#edit-tags" class="ml-10">
                                         <i class="ph ph-edit"></i>
@@ -547,6 +540,7 @@ if ($edit_perm) {
                         <?php if ($upload_possible): ?>
                             <h4>
                                 <?= lang("Files", "Dateien"); ?>
+                                <span class="data-index"><?= count($files) ?></span>
                                 <?php if ($canEdit): ?>
                                     <a href="#edit-files" class="ml-10">
                                         <i class="ph ph-edit"></i>
