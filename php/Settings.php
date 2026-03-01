@@ -8,10 +8,6 @@ include_once "Groups.php";
  */
 class Settings
 {
-    /**
-     * @deprecated 1.3.0
-     */
-    public $settings = array();
     // private $user = array();
     public $roles = array();
     public $allowedTypes = array();
@@ -22,6 +18,7 @@ class Settings
     public $topics = [];
     public $activityCategories = [];
     public $sidebarFavorites = [];
+    private $dismissedAnnouncement = false;
 
     function __construct($user = array())
     {
@@ -39,6 +36,9 @@ class Settings
         }
         if (isset($user['sidebar_favorites']) && is_iterable($user['sidebar_favorites'])) {
             $this->sidebarFavorites = DB::doc2Arr($user['sidebar_favorites']);
+        }
+        if (isset($user['dismissed_announcement_at']) && !empty($user['dismissed_announcement_at'])) {
+            $this->dismissedAnnouncement = $user['dismissed_announcement_at'];
         }
         // everyone is a user
         $this->roles[] = 'user';
@@ -1001,5 +1001,39 @@ class Settings
             ];
         }
         return DB::doc2Arr($mappings);
+    }
+
+    public function isAnnouncementActive(): bool
+    {
+        $announcement = $this->get('announcement');
+
+        if (empty($announcement) || empty($announcement['active'])) {
+            return false;
+        }
+
+        // Check expiration
+        if (!empty($announcement['expires'])) {
+            $expires = strtotime($announcement['expires']);
+            if ($expires !== false && $expires < time()) {
+                return false;
+            }
+        }
+
+        // If no user context given, just check global state
+        if ($this->dismissedAnnouncement === false) {
+            return true;
+        }
+
+        // Check if user dismissed after last update
+        $dismissedAt = $this->dismissedAnnouncement ?? null;
+        $updatedAt   = $announcement['updated_at'] ?? null;
+
+        if ($dismissedAt && $updatedAt) {
+            if (strtotime($dismissedAt) >= strtotime($updatedAt)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

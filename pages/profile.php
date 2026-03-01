@@ -722,6 +722,93 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
 <?php if ($currentuser) { ?>
     <section id="news">
+
+        <?php
+        $announcement_active = $Settings->isAnnouncementActive();
+        if ($announcement_active) {
+            $announcement = $Settings->get('announcement'); ?>
+
+            <style>
+                #announcement {
+                    display: flex;
+                    align-items: center;
+                    position: relative;
+                    padding: 1.5rem;
+                }
+
+                #announcement img#sophie-announcement {
+                    max-width: 120px;
+                    margin: -1rem 2rem -1rem 0;
+                }
+
+                #announcement h1,
+                #announcement h2,
+                #announcement h3,
+                #announcement h4,
+                #announcement h5,
+                #announcement h6 {
+                    color: var(--primary-color);
+                    margin-top: 0;
+                }
+
+                #announcement h1 {
+                    font-size: 2.2rem;
+                }
+
+                #announcement h2 {
+                    font-size: 1.8rem;
+                }
+
+                #announcement h3 {
+                    font-size: 1.6rem;
+                }
+            </style>
+            <div class="box mb-0 border-primary primary" id="announcement" data-announcement-version="<?= strtotime($announcement['updated_at'] ?? 'now') ?>">
+
+                <img src="<?= ROOTPATH ?>/img/sophie/sophie-announced.png" alt="Announcement" id="sophie-announcement">
+                <div>
+                    <a data-dismiss="modal" class="float-right" role="button" aria-label="Close" onclick="dismissAnnouncementSession()">
+                        <i class="ph ph-x"></i>
+                    </a>
+                    <?= lang($announcement['en'] ?? '', $announcement['de'] ?? '') ?>
+                    <button class="btn primary small" onclick="dismissAnnouncement()">
+                        <i class="ph ph-x-circle"></i>
+                        <?= lang('Don’t show again', 'Nicht mehr anzeigen') ?>
+                    </button>
+                </div>
+            </div>
+            <script>
+                function dismissAnnouncement() {
+                    fetch('<?= ROOTPATH ?>/crud/users/dismiss-announcement', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    }).then(() => {
+                        document.getElementById('announcement').remove();
+                    });
+                }
+
+                function dismissAnnouncementSession() {
+                    const announcementVersion = $('#announcement').data('announcement-version');
+                    localStorage.setItem('osiris_hide_announcement_hidden_' + announcementVersion, Date.now() + 24 * 60 * 60 * 1000);
+                    document.getElementById('announcement').remove();
+                }
+                $(document).ready(function() {
+                    const announcementVersion = $('#announcement').data('announcement-version');
+                    const hideUntil = localStorage.getItem('osiris_hide_announcement_hidden_' + announcementVersion);
+                    if (hideUntil && Date.now() < hideUntil) {
+                        $('#announcement').remove();
+                    }
+                });
+            </script>
+        <?php
+
+        }
+
+        ?>
+
+
         <div class="row row-eq-spacing my-0">
             <div class="col-md-6">
                 <?php if (isset($n_notifications) && $n_notifications) { ?>

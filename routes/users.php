@@ -1233,3 +1233,19 @@ Route::post('/crud/users/set-preference', function () {
         'success' => $updateResult->getModifiedCount() > 0
     ]);
 });
+
+
+Route::post('/crud/users/dismiss-announcement', function () {
+    include_once BASEPATH . "/php/init.php";
+
+    $user = $_SESSION['username'];
+    $datetime = new DateTime();
+    $updateResult = $osiris->persons->updateOne(
+        ['username' => $user],
+        ['$set' => ['dismissed_announcement_at' => $datetime->format('Y-m-d H:i:s')]]
+    );
+    echo json_encode([
+        'updated' => $updateResult->getModifiedCount(),
+        'success' => $updateResult->getModifiedCount() > 0
+    ]);
+});

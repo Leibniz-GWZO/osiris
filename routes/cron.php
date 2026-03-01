@@ -18,7 +18,6 @@
 Route::get('/cron/digest', function () {
     include_once BASEPATH . "/php/init.php";
     include_once BASEPATH . "/php/MailSender.php";
-    date_default_timezone_set('Europe/Berlin');
 
     // --- Admin Default ---
     $digestDefault = $Settings->get('mail-digest', 'none'); // none|daily|weekly|monthly

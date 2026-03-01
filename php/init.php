@@ -1,4 +1,5 @@
 <?php
+date_default_timezone_set('Europe/Berlin');
 
 require_once BASEPATH . '/php/Settings.php';
 include_once BASEPATH . "/php/_config.php";

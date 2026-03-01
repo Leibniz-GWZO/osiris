@@ -59,7 +59,7 @@ Auf der Übersichtsseite steht eine ausführliche Infobox zur Verfügung.
 
 Zusätzlich zur Anzahl der Publikationen werden nun auch Zitationsdaten (OpenAlex) integriert. Auf den Schwerpunkt-Seiten werden die durchschnittlichen Zitationszahlen pro Publikation dargestellt. In Publikationen mit Zitationsdaten wird die Anzahl der Zitationen angezeigt.
 
-### <i class="ph-duotone ph-activity"></i> Neue Aktivitätsansicht
+### <i class="ph-duotone ph-sparkle"></i> Neue Aktivitätsansicht
 
 Die Aktivitätsseite wurde vollständig neu strukturiert.
 
@@ -112,8 +112,9 @@ Für berechtigte Personen wurde eine neue Funktion eingeführt:
 
 Aktivitäten können nun vom Berichtswesen ausgeschlossen werden, ohne sie zu löschen.
 - Die Aktivität bleibt sichtbar und editierbar.
-- Sie erscheint jedoch nicht mehr in Berichten und statistischen Auswertungen.
-- Der Status ist im Meta-Bereich der Aktivität sichtbar.
+- Sie erscheint jedoch nicht mehr in automatisch generierten Berichten.
+- Der Status ist nur für berechtigte Personen sichtbar, die Aktivität wird weiterhin in allen Listen und Suchen angezeigt.
+- Es gibt in der erweiterten Suche einen Filter, um Aktivitäten mit diesem Status zu finden oder auszuschließen. Für Berichte muss dieser Filter jedoch nicht manuell gesetzt werden, da er automatisch berücksichtigt wird.
 - Die Entscheidung ist jederzeit reversibel.
 
 Diese Funktion ermöglicht eine differenziertere Steuerung ohne Datenverlust. Dazu wurde auch ein neues Recht eingeführt, ihr findet es in Rollen und Rechte unter "Metriken und Berichte".
@@ -160,6 +161,27 @@ In den Benutzereinstellungen können bis zu fünf Navigationselemente ausgewähl
 - Keine Duplikate in der Navigation
 
 Damit kombiniert OSIRIS eine stabile Grundstruktur mit persönlicher Anpassbarkeit.
+
+
+### <i class="ph-duotone ph-megaphone"></i> Ankündigungen im Profil
+
+Mit Version 2.0 können Administrator:innen zentrale Ankündigungen erstellen, die im News-Bereich der persönlichen Profile aller Nutzer:innen erscheinen.
+
+Die Ankündigungen eignen sich z. B. für:
+- Hinweise auf Wartungsarbeiten
+- Informationen zu neuen Funktionen
+- organisatorische Mitteilungen
+
+Funktionen im Überblick:
+- Freitext-Ankündigung auf Deutsch und Englisch
+- Optionales Ablaufdatum
+- Manuelles Aktivieren und Deaktivieren
+- Automatisches Ausblenden nach Ablauf
+
+Nutzer:innen können Ankündigungen vorübergehend schließen oder dauerhaft für sich ausblenden.
+Wird der Inhalt einer Ankündigung aktualisiert, erscheint sie erneut – so wird sichergestellt, dass wichtige Änderungen nicht übersehen werden.
+
+Damit steht eine einfache, zentrale Möglichkeit zur Verfügung, alle Nutzer:innen direkt innerhalb von OSIRIS zu informieren.
 
 
 ### <i class="ph-duotone ph-feather"></i> Sophie – Die Hüterin eurer Daten
