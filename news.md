@@ -57,7 +57,7 @@ Auf der Übersichtsseite steht eine ausführliche Infobox zur Verfügung.
 
 ### <i class="ph-duotone ph-quotes"></i> Integration von Zitationsdaten
 
-Zusätzlich zur Anzahl der Publikationen werden nun auch Zitationsdaten (OpenAlex) integriert. Auf den Schwerpunkt-Seiten werden die durchschnittlichen Zitationszahlen pro Publikation dargestellt. In Publikationen mit Zitationsdaten wird die Anzahl der Zitationen angezeigt.
+Zusätzlich zur Anzahl der Publikationen werden nun auch Zitationsdaten (OpenAlex) integriert. Auf den Schwerpunkt-Seiten werden die durchschnittlichen Zitationszahlen pro Publikation dargestellt. In Publikationen mit Zitationsdaten wird die Anzahl der Zitationen angezeigt, zusammen mit einem Zeitstempel der letzten Aktualisierung.
 
 ### <i class="ph-duotone ph-sparkle"></i> Neue Aktivitätsansicht
 
