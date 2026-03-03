@@ -79,20 +79,6 @@ include_once BASEPATH . "/header-editor.php";
             initQuill(document.getElementById('title-editor'));
         </script>
 
-        <div class="form-group">
-            <label class="required element-author" for="username">
-                <?= lang('Contact person in the institution', 'Ansprechperson in der Einrichtung') ?>
-            </label>
-            <select class="form-control" id="username" name="values[contact_person]" required autocomplete="off">
-                <?php
-                $userlist = $osiris->persons->find([], ['sort' => ['is_active' => -1, 'last' => 1]]);
-                $selected = val('contact_person', $_SESSION['username']);
-                foreach ($userlist as $j) { ?>
-                    <option value="<?= $j['username'] ?>" <?= $j['username'] == $selected ? 'selected' : '' ?>><?= $j['last'] ?>, <?= $j['first'] ?></option>
-                <?php } ?>
-            </select>
-        </div>
-
         <?php
         $org_id = val('organization', null);
         $rand_id = rand(1000, 9999);

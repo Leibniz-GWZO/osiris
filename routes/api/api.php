@@ -799,7 +799,6 @@ Route::get('/api/teaching', function () {
             'title' => $doc['title'] ?? '',
             'module' => $doc['module'] ?? '',
             'semester' => $doc['semester'] ?? '',
-            'contact_person' => $DB->getNameFromId($doc['contact_person'] ?? '') ?? '',
             'affiliation' => $aff
         ];
         $teaching[] = $t;

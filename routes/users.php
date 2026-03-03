@@ -872,12 +872,6 @@ Route::post('/crud/users/delete/(.*)', function ($user) {
         ['$pull' => ["persons" => ["user" => $user]]]
     );
 
-    // remove user from teaching
-    $osiris->teaching->updateMany(
-        ['contact_person' => $user],
-        ['$set' => ['contact_person' => null]]
-    );
-
     $osiris->accounts->deleteOne(
         ['username' => $user]
     );

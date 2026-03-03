@@ -549,7 +549,6 @@ if ($Settings->featureEnabled('spectrum') && $count_spectrum > 0) {
                     <tr>
                         <th><?= lang('Module No.', 'Modulnummer') ?></th>
                         <th><?= lang('Title', 'Titel') ?></th>
-                        <th><?= lang('Contact person', 'Ansprechperson') ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -565,13 +564,6 @@ if ($Settings->featureEnabled('spectrum') && $count_spectrum > 0) {
                             </td>
                             <td>
                                 <?= e($module['title']) ?>
-                            </td>
-                            <td>
-                                <?php if (isset($module['contact_person'])) { ?>
-                                    <a href="<?= ROOTPATH ?>/profile/<?= $module['contact_person'] ?>">
-                                        <?= $DB->getNameFromId($module['contact_person'] ?? null) ?>
-                                    </a>
-                                <?php } ?>
                             </td>
                         </tr>
                     <?php } ?>

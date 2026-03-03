@@ -59,7 +59,6 @@ $teaching = $osiris->teaching->aggregate([
                 <th><?= lang('Module No.', 'Modulnummer') ?></th>
                 <th><?= lang('Title', 'Titel') ?></th>
                 <th><?= lang('Teaching venue / University', 'Lehrort / Hochschule') ?></th>
-                <th><?= lang('Contact Person', 'Ansprechpartner') ?></th>
                 <th><?= lang('Number of Activities', 'Anzahl der Aktivitäten') ?></th>
             </tr>
         </thead>
@@ -90,13 +89,6 @@ $teaching = $osiris->teaching->aggregate([
                     </td>
                     <td>
                         <?= $affiliation ?>
-                    </td>
-                    <td>
-                        <?php if (isset($module['contact_person'])) { ?>
-                            <a href="<?= ROOTPATH ?>/profile/<?= $module['contact_person'] ?>">
-                                <?= $DB->getNameFromId($module['contact_person'] ?? null) ?>
-                            </a>
-                        <?php } ?>
                     </td>
                     <td>
                         <?= intval($module['activity_count'] ?? 0) ?>

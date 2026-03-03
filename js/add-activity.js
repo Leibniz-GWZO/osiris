@@ -422,7 +422,6 @@ function getTeaching(name) {
                 teaching.push({
                     title: j.title,
                     affiliation: j.affiliation,
-                    contact_person: j.contact_person,
                     module: j.module,
                     id: j.id
                 })
@@ -445,7 +444,6 @@ function getTeaching(name) {
 
                     var data = $('<td>')
                     data.append(`<h5 class="m-0"><span class="highlight-text" >${j.module}</span> ${j.title}</h5>`)
-                    data.append(`<span class="float-right">${j.contact_person}</span>`)
                     data.append(`<span class="text-muted">${j.affiliation}</span>`)
                     row.append(data)
 

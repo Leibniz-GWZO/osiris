@@ -142,15 +142,6 @@
                         <?= $n ?>
                     </td>
                 </tr>
-            <?php
-            $n = $osiris->teaching->count(['contact_person' => $user]);
-            ?>
-                <tr>
-                    <th><?= lang('Teaching', 'Lehre') ?></th>
-                    <td>
-                        <?= $n ?>
-                    </td>
-                </tr>
         </tbody>
     </table>
     <br>
