@@ -59,6 +59,7 @@ if ($level == 'topic') {
         --primary-color: var(--spectrum-<?= e($spectrum['domain_id']) ?>-color);
         --primary-color-dark: var(--spectrum-<?= e($spectrum['domain_id']) ?>-color);
         --primary-color-20: var(--spectrum-<?= e($spectrum['domain_id']) ?>-color-20);
+        --primary-color-30: var(--spectrum-<?= e($spectrum['domain_id']) ?>-color-20);
     }
 </style>
 <div id="spectrum">
@@ -330,6 +331,17 @@ if ($level == 'topic') {
                     'count' => ['$sum' => 1]
                 ]],
                 ['$sort' => ['count' => -1]],
+                // lookup user names and is_active status
+                [
+                    '$lookup' => [
+                        'from' => 'persons',
+                        'localField' => '_id',
+                        'foreignField' => 'username',
+                        'as' => 'user'
+                    ]
+                ],
+                ['$unwind' => '$user'],
+                ['$match' => ['user.is_active' => ['$ne' => false]]],
                 ['$limit' => 10],
                 ['$sort' => ['_id' => 1]] // sort alphabetically by name
             ])->toArray();
@@ -337,21 +349,25 @@ if ($level == 'topic') {
             <h2 id="top-researchers"><?= lang('Researchers', 'Forschende') ?></h2>
 
             <p>
-                <?= lang('This section shows researchers who have publications in OSIRIS that are associated with this topic. For better overview, only a selection is shown.',
-                'Hier werden Forschende angezeigt, die in OSIRIS Publikationen haben, die diesem Schwerpunkt zugeordnet sind. Zur besseren Übersicht wird nur eine Auswahl angezeigt.') ?>
+                <?= lang(
+                    'This section shows researchers who have publications in OSIRIS that are associated with this topic. For better overview, only a selection is shown.',
+                    'Hier werden Forschende angezeigt, die in OSIRIS Publikationen haben, die diesem Schwerpunkt zugeordnet sind. Zur besseren Übersicht wird nur eine Auswahl angezeigt.'
+                ) ?>
             </p>
 
             <p class="font-size-16">
                 <?php foreach ($researchers as $r): ?>
-                <a class="badge primary mr-5 mb-5" href="<?= ROOTPATH ?>/profile/<?= e($r['_id']) ?>">
-                    <?= $DB->getNameFromId($r['_id']) ?>
-                </a>
-            <?php endforeach; ?>
+                    <a class="badge primary mr-5 mb-5" href="<?= ROOTPATH ?>/profile/<?= e($r['_id']) ?>">
+                        <?= e($r['user']['displayname'] ?? $r['user']['username'] ?? $r['user']) ?>
+                    </a>
+                <?php endforeach; ?>
             </p>
 
             <p class="font-size-12 text-muted">
-                <?=lang('Only up to ten researchers are shown. The list is alphabetically ordered. If a person does not appear in the list does not mean that they cannot have contributed to the topic. This list is for orientation purposes only.', 
-                'Diese Liste dient nur zur Orientierung. Es werden nur bis zu zehn Forschende angezeigt und die Liste ist alphabetisch sortiert. Wenn eine Person nicht in der Liste erscheint, bedeutet das nicht, dass sie nicht zum Thema beigetragen haben kann. ') ?>
+                <?= lang(
+                    'Only up to ten researchers are shown. The list is alphabetically ordered. If a person does not appear in the list does not mean that they cannot have contributed to the topic. This list is for orientation purposes only.',
+                    'Diese Liste dient nur zur Orientierung. Es werden nur bis zu zehn Forschende angezeigt und die Liste ist alphabetisch sortiert. Wenn eine Person nicht in der Liste erscheint, bedeutet das nicht, dass sie nicht zum Thema beigetragen haben kann. '
+                ) ?>
             </p>
 
 
