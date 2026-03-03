@@ -665,7 +665,6 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
     $teaching = $osiris->activities->aggregate([
         ['$match' => [
             'rendered.users' => $user,
-            'type' => 'teaching',
             'module_id' => ['$ne' => null]
         ]],
         [
@@ -1845,49 +1844,52 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
         <h2><?= lang('Teaching activities', 'Lehrtätigkeiten') ?></h2>
 
-        <div class="row row-eq-spacing">
+        <div class="collapse-group">
             <?php foreach ($teaching as $t) {
                 $module = $osiris->teaching->findOne(['_id' => DB::to_ObjectID($t['_id'])]);
+                $aff = $module['affiliation'] ?? '';
+                if (DB::is_ObjectID($aff)) {
+                    $aff = $osiris->organizations->findOne(['_id' => DB::to_ObjectID($aff)], ['projection' => ['name' => 1]]);
+                    $aff = $aff['name'] ?? '';
+                }
+                $activities = $t['doc'] ?? [];
             ?>
-                <div class="col-md-6">
-                    <div class="box mb-0" id="<?= $t['_id'] ?>">
-                        <div class="content">
-                            <h5 class="mt-0">
-                                <span class="highlight-text"><?= $module['module'] ?></span>
-                                <?= $module['title'] ?>
-                            </h5>
+                <details class="collapse-panel" id="<?= $t['_id'] ?>">
+                    <summary class="collapse-header">
+                        <h5 class="mt-0">
+                            <strong class="text-primary"><?= $module['module'] ?></strong>:
+                            <?= $module['title'] ?>
+                            <span class="index-pill"><?= count($activities) ?></span>
+                        </h5>
 
-                            <em><?= $module['affiliation'] ?></em>
-                        </div>
+                        <em><?= $aff ?></em>
+                    </summary>
 
-                        <hr>
-                        <div class="content">
-                            <?php
-                            $activities = $t['doc'] ?? [];
-                            if (count($activities) != 0) {
-                            ?>
-                                <table class="w-full">
-                                    <?php foreach ($activities as $n => $doc) :
-                                        if (!isset($doc['rendered'])) renderActivities(['_id' => $doc['_id']]);
-                                    ?>
-                                        <tr>
-                                            <td class="pb-5">
-                                                <?= $doc['rendered']['icon'] ?>
-                                                <?= $doc['rendered']['web'] ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                </table>
+                    <div class="collapse-content p-0">
+                        <?php
+                        if (count($activities) != 0) {
+                        ?>
+                            <table class="table simple">
+                                <?php foreach ($activities as $n => $doc) :
+                                    if (!isset($doc['rendered'])) renderActivities(['_id' => $doc['_id']]);
+                                ?>
+                                    <tr>
+                                        <td style="padding-left: 4rem;">
+                                            <?= $doc['rendered']['icon'] ?>
+                                            <?= $doc['rendered']['web'] ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </table>
 
 
-                            <?php } else { ?>
+                        <?php } else { ?>
 
-                                <?= lang('No activities connected.', 'Keine Aktivitäten verknüpft.') ?>
+                            <?= lang('No activities connected.', 'Keine Aktivitäten verknüpft.') ?>
 
-                            <?php } ?>
-                        </div>
+                        <?php } ?>
                     </div>
-                </div>
+                </details>
             <?php } ?>
 
     </section>
