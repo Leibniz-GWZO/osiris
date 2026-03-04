@@ -20,12 +20,19 @@ Route::get('/admin', function () {
         abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
     }
 
+
     $breadcrumb = [
-        ['name' => lang("Manage Content", "Inhalte verwalten")],
+        ['name' => lang("Settings", "Einstellungen")],
     ];
     include BASEPATH . "/header.php";
-    include BASEPATH . "/pages/admin/content.php";
+    include BASEPATH . "/pages/admin/admin.php";
     include BASEPATH . "/footer.php";
+    // $breadcrumb = [
+    //     ['name' => lang("Manage Content", "Inhalte verwalten")],
+    // ];
+    // include BASEPATH . "/header.php";
+    // include BASEPATH . "/pages/admin/content.php";
+    // include BASEPATH . "/footer.php";
 }, 'login');
 
 
@@ -39,7 +46,7 @@ Route::get('/admin/users', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Users", "Nutzer:innen")]
     ];
     $page = 'users';
@@ -60,7 +67,7 @@ Route::get('/admin/guest-account', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Users", "Nutzer:innen"), 'path' => '/admin/users'],
         ['name' => lang("Guest Account", "Gast-Account"), 'path' => '/admin/guest-account']
     ];
@@ -82,7 +89,7 @@ Route::get('/admin/guest-account/add', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Users", "Nutzer:innen"), 'path' => '/admin/users'],
         ['name' => lang("Guest Account", "Gast-Account"), 'path' => '/admin/guest-account'],
         ['name' => lang("Add", "Hinzufügen")]
@@ -99,23 +106,6 @@ Route::get('/admin/guest-account/add', function () {
 }, 'login');
 
 
-Route::get('/admin/(general|roles|features|tags)', function ($page) {
-    include_once BASEPATH . "/php/init.php";
-    if (!$Settings->hasPermission('admin.see')) {
-        abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
-    }
-
-    $breadcrumb = [
-        ['name' => lang('Admin'), 'path' => '/admin'],
-        ['name' => ucfirst($page)]
-    ];
-
-    include BASEPATH . "/header.php";
-    include BASEPATH . "/pages/admin/$page.php";
-    include BASEPATH . "/footer.php";
-}, 'login');
-
-
 Route::get('/admin/roles/distribute', function () {
     include_once BASEPATH . "/php/init.php";
     $page = 'admin/roles';
@@ -124,7 +114,7 @@ Route::get('/admin/roles/distribute', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Roles", "Rollen"), 'path' => '/admin/roles'],
         ['name' => lang("Distribute roles", "Rollen verteilen")]
     ];
@@ -192,7 +182,7 @@ Route::get('/admin/types/(.*)/fields', function ($id) {
     $submember = $osiris->activities->count(['type' => $t, 'subtype' => $st]);
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang($parent['name'], $parent['name_de']), 'path' => "/admin/categories/" . $t],
         ['name' => $name, 'path' => "/admin/types/" . $id],
         ['name' => lang("Data fields", "Datenfelder")]
@@ -214,7 +204,7 @@ Route::get('/admin/doi-mappings', function () {
 
     $user = $_SESSION['username'];
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Activities", "Aktivitäten"), 'path' => "/admin/categories"],
         ['name' => lang("DOI Mappings", "DOI Zuordnungen")]
     ];
@@ -231,7 +221,7 @@ Route::get('/admin/categories', function () {
 
     $user = $_SESSION['username'];
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Activities", "Aktivitäten")]
     ];
     include BASEPATH . "/header.php";
@@ -247,7 +237,7 @@ Route::get('/admin/categories/new', function () {
 
     $user = $_SESSION['username'];
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Activities", "Aktivitäten"), 'path' => "/admin/categories"],
         ['name' => lang("New", "Neu")]
     ];
@@ -275,7 +265,7 @@ Route::get('/admin/categories/(.*)', function ($id) {
     }
     $name = lang($category['name'], $category['name_de']);
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Activities", "Aktivitäten"), 'path' => "/admin/categories"],
         ['name' => $name]
     ];
@@ -299,7 +289,7 @@ Route::get('/admin/types/new', function () {
     $user = $_SESSION['username'];
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Activities", "Aktivitäten"), 'path' => "/admin/categories"],
         ['name' => lang("New Type", "Neuer Typ")]
     ];
@@ -354,7 +344,7 @@ Route::get('/admin/types/(.*)', function ($id) {
     $submember = $osiris->activities->count(['type' => $t, 'subtype' => $st]);
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Activities", "Aktivitäten"), 'path' => "/admin/categories"],
         ['name' => lang($parent['name'], $parent['name_de']), 'path' => "/admin/categories/" . $t],
         ['name' => $name]
@@ -397,7 +387,7 @@ Route::get('/admin/vocabulary', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Vocabulary", "Vokabular")]
     ];
     include BASEPATH . "/header.php";
@@ -438,7 +428,7 @@ Route::get('/admin/persons', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Persons", "Personen")]
     ];
     include BASEPATH . "/header.php";
@@ -453,7 +443,7 @@ Route::get('/admin/infrastructures', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Infrastructures", "Infrastrukturen")]
     ];
     include BASEPATH . "/header.php";
@@ -470,7 +460,7 @@ Route::get('/admin/projects', function () {
     }
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Projects", "Projekte")]
     ];
     include BASEPATH . "/header.php";
@@ -499,7 +489,7 @@ Route::get('/admin/projects/([123])/(.*)', function ($stage, $id) {
     $type = $project['id'];
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Projects", "Projekte"), 'path' => '/admin/projects'],
         ['name' => $type . ' - ' . $stage . '/2']
     ];
@@ -521,7 +511,7 @@ Route::get('/admin/projects/new', function () {
     $type = null;
 
     $breadcrumb = [
-        ['name' => lang('Content', 'Inhalte'), 'path' => '/admin'],
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
         ['name' => lang("Projects", "Projekte"), 'path' => '/admin/projects'],
         ['name' => lang('New project type', 'Neuer Projekttyp') . ' - ' . $stage . '/2']
     ];
@@ -530,6 +520,29 @@ Route::get('/admin/projects/new', function () {
     include BASEPATH . "/footer.php";
 }, 'login');
 
+
+
+
+Route::get('/admin/(.*)', function ($path) {
+    include_once BASEPATH . "/php/init.php";
+    if (!$Settings->hasPermission('admin.see')) {
+        abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
+    }
+    $breadcrumb = [
+        ['name' => lang("Settings", "Einstellungen"), 'path' => '/admin'],
+        ['name' => lang(ucfirst($path), ucfirst($path))]
+    ];
+    if (!file_exists(BASEPATH . "/pages/admin/$path.php")) {
+        abortwith(404, lang("Settings", "Einstellungen"), "/admin");
+    }
+    include BASEPATH . "/header.php";
+    $affiliation = $Settings->get('affiliation_details');
+    include_once BASEPATH . '/header-editor.php';
+
+    echo '<script src="' . ROOTPATH . '/js/general-settings.js"></script>';
+    include BASEPATH . "/pages/admin/$path.php";
+    include BASEPATH . "/footer.php";
+}, 'login');
 
 
 /**
@@ -557,6 +570,19 @@ Route::post('/crud/admin/general', function () {
             ]);
         }
     }
+
+    if (isset($_POST['features'])) {
+        $features = $_POST['features'];
+        foreach ($features as $feature => $enabled) {
+            $osiris->adminFeatures->deleteOne(['feature' => $feature]);
+            $r = [
+                'feature' => $feature,
+                'enabled' => boolval($enabled)
+            ];
+            $osiris->adminFeatures->insertOne($r);
+        }
+    }
+
     if (isset($_POST['mail'])) {
 
         $osiris->adminGeneral->deleteOne(['key' => 'mail']);
@@ -739,42 +765,42 @@ Route::post('/crud/admin/update-user-roles', function () {
 }, 'login');
 
 
-Route::post('/crud/admin/features', function () {
-    include_once BASEPATH . "/php/init.php";
-    if (!$Settings->hasPermission('admin.see')) {
-        abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
-    }
+// Route::post('/crud/admin/features', function () {
+//     include_once BASEPATH . "/php/init.php";
+//     if (!$Settings->hasPermission('admin.see')) {
+//         abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
+//     }
 
 
-    if (isset($_POST['values'])) {
-        $features = $_POST['values'];
-        foreach ($features as $feature => $enabled) {
-            $osiris->adminFeatures->deleteOne(['feature' => $feature]);
-            $r = [
-                'feature' => $feature,
-                'enabled' => boolval($enabled)
-            ];
-            $osiris->adminFeatures->insertOne($r);
-        }
-    }
+//     if (isset($_POST['values'])) {
+//         $features = $_POST['values'];
+//         foreach ($features as $feature => $enabled) {
+//             $osiris->adminFeatures->deleteOne(['feature' => $feature]);
+//             $r = [
+//                 'feature' => $feature,
+//                 'enabled' => boolval($enabled)
+//             ];
+//             $osiris->adminFeatures->insertOne($r);
+//         }
+//     }
 
-    if (isset($_POST['general'])) {
-        foreach ($_POST['general'] as $key => $value) {
-            if (isset($value['en']) && $value['de'] == '') {
-                $value['de'] = $value['en'];
-            }
-            $osiris->adminGeneral->deleteOne(['key' => $key]);
-            $osiris->adminGeneral->insertOne([
-                'key' => $key,
-                'value' => $value
-            ]);
-        }
-    }
+//     if (isset($_POST['general'])) {
+//         foreach ($_POST['general'] as $key => $value) {
+//             if (isset($value['en']) && $value['de'] == '') {
+//                 $value['de'] = $value['en'];
+//             }
+//             $osiris->adminGeneral->deleteOne(['key' => $key]);
+//             $osiris->adminGeneral->insertOne([
+//                 'key' => $key,
+//                 'value' => $value
+//             ]);
+//         }
+//     }
 
-    $_SESSION['msg'] = lang('Settings saved successfully.', 'Einstellungen erfolgreich gespeichert.');
-    $_SESSION['msg_type'] = 'success';
-    header("Location: " . ROOTPATH . "/admin/general#features");
-}, 'login');
+//     $_SESSION['msg'] = lang('Settings saved successfully.', 'Einstellungen erfolgreich gespeichert.');
+//     $_SESSION['msg_type'] = 'success';
+//     header("Location: " . ROOTPATH . "/admin/general#features");
+// }, 'login');
 
 
 Route::post('/crud/(categories|types)/create', function ($col) {

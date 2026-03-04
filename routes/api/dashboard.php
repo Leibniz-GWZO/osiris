@@ -890,7 +890,7 @@ Route::get('/api/dashboard/author-network', function () {
         die;
     }
 
-    $scientist = $_GET['user'] ?? '';
+    $scientist = $_GET['user'] ?? $_SESSION['username'] ?? '';
     $selectedUser = $osiris->persons->findone(['username' => $scientist]);
     $userUnits = array_column(DB::doc2Arr($selectedUser['units']), 'unit');
     // generate graph json

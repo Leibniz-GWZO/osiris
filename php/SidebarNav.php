@@ -368,63 +368,63 @@ class SidebarNav
                     [
                         'id' => 'settings',
                         'label' => lang('Settings', 'Einstellungen'),
-                        'icon' => 'gear',
-                        'url' => '/admin/general',
-                        'active' => ['^/admin/general($|/)'],
-                        'feature' => null,
-                        'default' => false,
-                        'permission' => 'admin.see',
-                        'favoritable' => false,
-                        'hasSearch' => false
-                    ],
-                    [
-                        'id' => 'contents',
-                        'label' => lang('Contents', 'Inhalte'),
-                        'icon' => 'treasure-chest',
+                        'icon' => 'faders',
                         'url' => '/admin',
-                        'active' => ['^/admin($|/)(?!general|roles|reports|users)'],
+                        'active' => ['^/admin($|/)'],
                         'feature' => null,
                         'default' => false,
                         'permission' => 'admin.see',
                         'favoritable' => false,
                         'hasSearch' => false
                     ],
-                    [
-                        'id' => 'roles',
-                        'label' => lang('Roles &amp; Rights', 'Rollen &amp; Rechte'),
-                        'icon' => 'shield-check',
-                        'url' => '/admin/roles',
-                        'active' => ['^/admin/roles($|/)'],
-                        'feature' => null,
-                        'default' => false,
-                        'permission' => 'admin.see',
-                        'favoritable' => false,
-                        'hasSearch' => false
-                    ],
-                    [
-                        'id' => 'report-templates',
-                        'label' => lang('Report Templates', 'Berichtsvorlagen'),
-                        'icon' => 'clipboard-text',
-                        'url' => '/admin/reports',
-                        'active' => ['^/admin/reports($|/)'],
-                        'feature' => null,
-                        'default' => false,
-                        'permission' => 'report.templates',
-                        'favoritable' => false,
-                        'hasSearch' => false
-                    ],
-                    [
-                        'id' => 'users-admin',
-                        'label' => lang('User Management', 'Benutzerverwaltung'),
-                        'icon' => 'user-gear',
-                        'url' => '/admin/users',
-                        'active' => ['^/admin/users($|/)'],
-                        'feature' => null,
-                        'default' => false,
-                        'permission' => 'user.synchronize',
-                        'favoritable' => false,
-                        'hasSearch' => false
-                    ]
+                //     [
+                //         'id' => 'contents',
+                //         'label' => lang('Contents', 'Inhalte'),
+                //         'icon' => 'treasure-chest',
+                //         'url' => '/admin',
+                //         'active' => ['^/admin($|/)(?!general|roles|reports|users)'],
+                //         'feature' => null,
+                //         'default' => false,
+                //         'permission' => 'admin.see',
+                //         'favoritable' => false,
+                //         'hasSearch' => false
+                //     ],
+                //     [
+                //         'id' => 'roles',
+                //         'label' => lang('Roles &amp; Rights', 'Rollen &amp; Rechte'),
+                //         'icon' => 'shield-check',
+                //         'url' => '/admin/roles',
+                //         'active' => ['^/admin/roles($|/)'],
+                //         'feature' => null,
+                //         'default' => false,
+                //         'permission' => 'admin.see',
+                //         'favoritable' => false,
+                //         'hasSearch' => false
+                //     ],
+                //     [
+                //         'id' => 'report-templates',
+                //         'label' => lang('Report Templates', 'Berichtsvorlagen'),
+                //         'icon' => 'clipboard-text',
+                //         'url' => '/admin/reports',
+                //         'active' => ['^/admin/reports($|/)'],
+                //         'feature' => null,
+                //         'default' => false,
+                //         'permission' => 'report.templates',
+                //         'favoritable' => false,
+                //         'hasSearch' => false
+                //     ],
+                //     [
+                //         'id' => 'users-admin',
+                //         'label' => lang('User Management', 'Benutzerverwaltung'),
+                //         'icon' => 'user-gear',
+                //         'url' => '/admin/users',
+                //         'active' => ['^/admin/users($|/)'],
+                //         'feature' => null,
+                //         'default' => false,
+                //         'permission' => 'user.synchronize',
+                //         'favoritable' => false,
+                //         'hasSearch' => false
+                //     ]
                 ]
             ]
         ];
