@@ -586,7 +586,7 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
         ],
     ])->toArray();
     $count_coauthors = count($coauthors) - 1;
-    if ($count_coauthors > 0) { ?>
+    if ($count_coauthors > 3) { ?>
         <a onclick="navigate('coauthors')" id="btn-coauthors" class="btn">
             <i class="ph ph-users" aria-hidden="true"></i>
             <?= lang('Coauthors', 'Koautoren')  ?>
