@@ -183,6 +183,25 @@ Wird der Inhalt einer Ankündigung aktualisiert, erscheint sie erneut – so wir
 
 Damit steht eine einfache, zentrale Möglichkeit zur Verfügung, alle Nutzer:innen direkt innerhalb von OSIRIS zu informieren.
 
+### <i class="ph-duotone ph-flag"></i> Deadlines
+
+Zusätzlich zu den bereits vorhandenen Events können nun auch zentral Deadlines angelegt werden. Damit können wichtige Fristen zentral verwaltet und auf der Startseite für relevante Nutzer:innen sichtbar gemacht werden – zum Beispiel Einreichungsfristen für Förderanträge, Evaluierungen oder interne Berichte.
+
+- Deadlines werden auf der Startseite nicht als lange Liste dargestellt, sondern als **kompakte Timeline**. Dadurch lässt sich auf einen Blick erkennen, welche Fristen bald anstehen und welche noch weiter in der Zukunft liegen. Je näher eine Deadline rückt, desto stärker verändert sich ihre Farbe von Blau/Türkis in Richtung Rot.
+- Deadlines können gezielt **für bestimmte Rollen** sichtbar gemacht werden. So lassen sich beispielsweise Fristen nur für Editor:innen, Projektleitungen oder bestimmte interne Gruppen anzeigen. Wird **keine Rolle ausgewählt**, ist die Deadline für alle Nutzer:innen sichtbar.
+- Neben Titel und Datum können Deadlines zusätzliche Informationen enthalten:
+  - **Beschreibung** mit Rich-Text-Editor
+  - **Weiterführende Links** (z. B. zur Einreichungsplattform oder Dokumentation)
+  - **Typen** zur Kategorisierung der Deadline; diese können wie gewohnt im **Vokabular** verwaltet werden
+
+Das Deadlines-Feature kann in den **Feature-Einstellungen** ein- oder ausgeschaltet werden. Bitte beachtet, dass zum Anlegen und Löschen von Deadlines auch neue Berechtigungen erforderlich sind (Deadlines erstellen, Deadlines löschen), die standardmäßig nicht zugewiesen sind.
+
+
+### <i class="ph-duotone ph-sliders"></i> Das neue Admin-Interface
+Das Admin-Interface wurde vollständig überarbeitet und bietet nun eine deutlich verbesserte Übersicht und Benutzerfreundlichkeit.
+
+- Alle Einstellungen sind jetzt in einer einzigen, übersichtlichen Seite organisiert, anstatt auf mehreren Unterseiten verteilt zu sein. Dabei wurden viele Einstellungen neu strukturiert und in logischere Kategorien gruppiert. Außerdem wurde das visuelle Design vieler Einstellungen angeglichen, um ein konsistentes Nutzererlebnis zu schaffen.
+
 
 ### <i class="ph-duotone ph-feather"></i> Sophie – Die Hüterin eurer Daten
 

@@ -807,21 +807,19 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
 
         ?>
 
-
+        <style>
+            .dashboard {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+        </style>
         <div class="row row-eq-spacing my-0">
             <div class="col-md-6">
                 <?php if (isset($n_notifications) && $n_notifications) { ?>
-                    <!-- <div class="box padded">
-                        <p class="lead cursor-pointer" onclick="openNotifications()">
-                            <i class="ph ph-bell-ringing ph-fw text-danger mr-5"></i>
-                            <?= lang('You have <strong class="text-danger">' . $n_notifications . '</strong> new notifications.', 'Du hast <strong class="text-danger">' . $n_notifications . '</strong> neue Benachrichtigungen.') ?>
-                        </p>
-                    </div> -->
                     <?php if ($Settings->featureEnabled('quarterly-reporting', true) && isset($notifications['approval'])) {
                     ?>
                         <div class="box padded d-flex align-items-center">
-                            <!-- <i class="ph ph-calendar-check ph-fw text-success mr-10" style="font-size: 2.7rem;"></i> -->
-
                             <div>
                                 <b>
                                     <?= lang("You can now approve the past quarter", "Du kannst jetzt das vergangene Quartal freigeben") ?>
@@ -847,78 +845,6 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                         }
                     </script>
                 <?php } ?>
-
-                <?php if ($Settings->featureEnabled('new-publications', true)) { ?>
-                    <div class="box">
-                        <div class="content">
-                            <h4 class="title">
-                                <?= lang('Newest publications', 'Neuste Publikationen') ?>
-                            </h4>
-                            <p class="text-muted">
-                                <?= lang('Here you can find the latest publications from your institute.', 'Hier findest du die neusten Publikationen deines Instituts.') ?>
-                            </p>
-
-                            <?php
-                            $pubs = $osiris->activities->find(
-                                ['authors.aoi' => true, 'type' => 'publication'],
-                                [
-                                    'sort' => ['start_date' => -1],
-                                    'limit' => 5,
-                                    'projection' => ['html' => '$rendered.web', 'date' => '$start_date']
-                                ]
-                            )->toArray();
-                            ?>
-                            <table class="table simple">
-                                <?php foreach ($pubs as $doc) { ?>
-                                    <tr>
-                                        <td>
-                                            <small class="badge primary font-weight-bold"><?= format_date($doc['date']) ?></small><br>
-                                            <?= $doc['html'] ?>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-
-                            </table>
-
-                            <a href="<?= ROOTPATH ?>/activities" class="btn primary">
-                                <?= lang('All activities', 'Zeige alle Aktivitäten') ?>
-                            </a>
-                        </div>
-                    </div>
-                <?php } ?>
-            </div>
-            <div class="col-md-6 h-full">
-
-
-                <?php if (($Settings->featureEnabled('quarterly-reporting', true) && $Settings->hasPermission('report.dashboard')) && $currentuser) {
-                    $n_scientists = $osiris->persons->count(["roles" => 'scientist', "is_active" => true]);
-                    $n_approved = $osiris->persons->count(["roles" => 'scientist', "is_active" => true, "approved" => $lastquarter]);
-                    $progress = ($n_scientists > 0) ? ($n_approved / $n_scientists) * 100 : 0;
-                ?>
-                    <div class="box">
-                        <div class="content">
-                            <div class="d-flex justify-content-between align-items-center mb-10">
-                                <h5 class="title m-0"><?= lang('Last quarter', 'Vergangenes Quartal') ?></h5>
-                                <button class="btn small" onclick="loadModal('components/controlling-approved', {q: '<?= $Q ?>', y: '<?= $Y ?>'})">
-                                    <i class="ph ph-magnifying-glass-plus"></i> <?= lang('Details') ?>
-                                </button>
-                            </div>
-                            <div class="progress">
-                                <div class="progress-bar" role="progressbar" style="width: <?= $progress ?>%" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center mt-10 font-size-12">
-                                <span class="text-muted">
-                                    <?= lang(
-                                        "$n_approved of $n_scientists scientists have approved their activities.",
-                                        "$n_approved von $n_scientists Wissenschaftler:innen haben ihre Aktivitäten freigegeben."
-                                    ) ?>
-                                </span>
-                                <b class="badge success"><?= $lastquarter ?></b>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
-
 
                 <?php if ($Settings->featureEnabled('new-colleagues')) { ?>
                     <!-- Show new users -->
@@ -962,12 +888,158 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                     </div>
                 <?php } ?>
 
+                <?php if ($Settings->featureEnabled('new-publications', true)) { ?>
+                    <div class="box">
+                        <div class="content">
+                            <h4 class="title">
+                                <?= lang('Newest publications', 'Neuste Publikationen') ?>
+                            </h4>
+                            <p class="text-muted">
+                                <?= lang('Here you can find the latest publications from your institute.', 'Hier findest du die neusten Publikationen deines Instituts.') ?>
+                            </p>
+
+                            <?php
+                            $pubs = $osiris->activities->find(
+                                ['authors.aoi' => true, 'type' => 'publication'],
+                                [
+                                    'sort' => ['start_date' => -1],
+                                    'limit' => 5,
+                                    'projection' => ['html' => '$rendered.web', 'date' => '$start_date']
+                                ]
+                            )->toArray();
+                            ?>
+                            <table class="table simple">
+                                <?php foreach ($pubs as $doc) { ?>
+                                    <tr>
+                                        <td>
+                                            <small class="badge primary font-weight-bold"><?= format_date($doc['date']) ?></small><br>
+                                            <?= $doc['html'] ?>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+
+                            </table>
+
+                            <a href="<?= ROOTPATH ?>/activities" class="btn primary">
+                                <?= lang('All activities', 'Zeige alle Aktivitäten') ?>
+                            </a>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+
+            <div class="col-md-6 h-full">
+
+                <?php if (($Settings->featureEnabled('quarterly-reporting', true) && $Settings->hasPermission('report.dashboard')) && $currentuser) {
+                    $n_scientists = $osiris->persons->count(["roles" => 'scientist', "is_active" => true]);
+                    $n_approved = $osiris->persons->count(["roles" => 'scientist', "is_active" => true, "approved" => $lastquarter]);
+                    $progress = ($n_scientists > 0) ? ($n_approved / $n_scientists) * 100 : 0;
+                ?>
+                    <div class="box">
+                        <div class="content">
+                            <div class="d-flex justify-content-between align-items-center mb-10">
+                                <h5 class="title m-0"><?= lang('Last quarter', 'Vergangenes Quartal') ?></h5>
+                                <button class="btn small" onclick="loadModal('components/controlling-approved', {q: '<?= $Q ?>', y: '<?= $Y ?>'})">
+                                    <i class="ph ph-magnifying-glass-plus"></i> <?= lang('Details') ?>
+                                </button>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: <?= $progress ?>%" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-10 font-size-12">
+                                <span class="text-muted">
+                                    <?= lang(
+                                        "$n_approved of $n_scientists scientists have approved their activities.",
+                                        "$n_approved von $n_scientists Wissenschaftler:innen haben ihre Aktivitäten freigegeben."
+                                    ) ?>
+                                </span>
+                                <b class="badge success"><?= $lastquarter ?></b>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+
 
                 <?php if ($Settings->featureEnabled('events', true)) { ?>
+
+                    <?php if ($Settings->featureEnabled('deadlines', false)) {
+                        include_once BASEPATH . '/php/Vocabulary.php';
+                        $Vocabulary = new Vocabulary();
+                    ?>
+                        <div class="box mb-20">
+                            <div class="content">
+                                <?php if ($Settings->hasPermission('deadlines.edit')) { ?>
+                                    <a href="<?= ROOTPATH ?>/deadlines/new" class="float-md-right btn small">
+                                        <i class="ph ph-plus"></i>
+                                        <?= lang('Add', 'Hinzufügen') ?>
+                                    </a>
+                                <?php } ?>
+                                <h4 class="title">
+                                    <a href="<?= ROOTPATH ?>/deadlines" class="link">
+                                        <?= lang('Deadlines') ?>
+                                    </a>
+                                </h4>
+                                <?php
+                                $deadlines = $osiris->deadlines->find(
+                                    [
+                                        '$and' => [
+                                            ['date' => ['$gte' => date('Y-m-d', strtotime('-3 days'))]],
+                                            ['date' => ['$lte' => date('Y-m-d', strtotime('+12 month'))]]
+                                        ],
+                                        // 'dismissed' => ['$ne' => $user],
+                                        'roles' => ['$in' => $Settings->roles]
+                                    ],
+                                    ['sort' => ['date' => 1], 'projection' => [
+                                        '_id' => 0,
+                                        'id' => ['$toString' => '$_id'],
+                                        'date' => 1,
+                                        'type' => 1,
+                                        'title' => 1
+                                    ]]
+                                )->toArray();
+                                $deadlineTypes = $Vocabulary->getValues('deadline-type');
+                                $deadlineTypes = array_column($deadlineTypes, null, 'id');
+                                ?>
+                                <div id="deadline-timeline" class="mt-20 mb-10"></div>
+                                <style>
+                                    #deadline-timeline {
+                                        position: relative;
+                                    }
+
+                                    #deadline-timeline svg {
+                                        width: 100%;
+                                        height: auto;
+                                        display: block;
+                                    }
+
+                                    #deadline-timeline .deadline-dot {
+                                        transition: transform .15s ease;
+                                    }
+                                </style>
+                                <script>
+                                    $(document).ready(function() {
+
+                                        deadlineTimeline({
+                                            divSelector: '#deadline-timeline',
+                                            monthsAhead: 12,
+                                            startLabel: lang('Today', 'Heute'),
+                                            endLabel: lang('+12 months', '+12 Monate'),
+                                            typeInfo: <?= json_encode($deadlineTypes) ?>,
+                                            deadlines: <?= json_encode($deadlines) ?>
+                                        });
+                                        // deadlineTimeline(options);
+                                    });
+                                </script>
+                            </div>
+                        </div>
+
+                    <?php } ?>
+
                     <div class="box">
                         <div class="content">
                             <?php if ($Settings->hasPermission('conferences.edit')) { ?>
-                                <a href="<?= ROOTPATH ?>/conferences/new" class="float-md-right btn primary">
+                                <a href="<?= ROOTPATH ?>/conferences/new" class="float-md-right btn small">
                                     <i class="ph ph-plus"></i>
                                     <?= lang('Add', 'Hinzufügen') ?>
                                 </a>
@@ -978,7 +1050,7 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                                     <?= lang('Events') ?>
                                 </a>
                             </h4>
-                            <p class="text-muted">
+                            <p class="text-muted font-size-12">
                                 <?= lang('Shown are approaching events in the next 6 month and events you attended within the past six month.', 'Gezeigt sind zukünftige Events in den nächsten 6 Monaten und vergangene, an denen du in den letzten sechs Monaten teilgenommen hast.') ?>
                             </p>
 
@@ -1081,7 +1153,6 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                                 <?php } ?>
 
                             </table>
-                            <small class="text-muted"> <?= lang('Events were added by users of the OSIRIS system.', 'Events wurden von Nutzenden des OSIRIS-Systems angelegt.') ?></small>
 
                         </div>
                     </div>

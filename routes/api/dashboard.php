@@ -135,6 +135,64 @@ Route::get('/api/dashboard/event-timeline', function () {
     echo return_rest($result, count($events));
 });
 
+Route::get('/api/dashboard/deadline-timeline', function () {
+    error_reporting(E_ERROR | E_PARSE);
+    include(BASEPATH . '/php/init.php');
+
+    $filter = ['year' => CURRENTYEAR];
+    if (isset($_GET['filter'])) {
+        $filter = $_GET['filter'];
+    } elseif (isset($_GET['json'])) {
+        $filter = json_decode($_GET['json'], true);
+    } elseif ($_GET['year'] ?? null) {
+        $filter['year'] = intval($_GET['year']);
+    } else {
+        $filter['year'] = ['$gte' => $Settings->get('startyear')];
+    }
+
+    $roles = $Settings->roles;
+    $filter['$or'] = [
+        ['roles' => ['$in' => $roles]],
+        ['created_by' => $_SESSION['username']]
+    ];
+
+    $result = [
+        'info' => [],
+        'events' => [],
+        'types' => []
+    ];
+
+    $events = $osiris->deadlines->find(
+        $filter,
+        [
+            'sort' => ['date' => 1],
+            'projection' => [
+                'title' => '$title',
+                'date_time' => '$date',
+                'type' => 1,
+                'id' => ['$toString' => '$_id']
+            ]
+        ]
+    )->toArray();
+
+    // Convert ISO date string to timestamp in PHP if needed
+    foreach ($events as &$event) {
+        if (!empty($event['date_time'])) {
+            $event['starting_time'] = strtotime($event['date_time']);
+        }
+    }
+
+    $result['events'] = $events;
+
+    if (!empty($events)) {
+        $types = array_column($events, 'type');
+        $types = array_unique($types);
+        $result['types'] = array_values($types);
+    }
+
+    echo return_rest($result, count($events));
+});
+
 
 Route::get('/api/dashboard/oa-status', function () {
     error_reporting(E_ERROR | E_PARSE);

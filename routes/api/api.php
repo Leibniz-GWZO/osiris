@@ -462,7 +462,7 @@ Route::get('/api/spectrum-activities', function () {
 });
 
 
-Route::get('/api/(conferences|events)', function ($type) {
+Route::get('/api/(conferences|events|deadlines)', function ($type) {
     error_reporting(E_ERROR | E_PARSE);
     include_once BASEPATH . "/php/init.php";
 
@@ -470,9 +470,21 @@ Route::get('/api/(conferences|events)', function ($type) {
         echo return_permission_denied();
         die;
     }
+    $collection = 'conferences';
+    $filter = [];
 
-    $events = $osiris->conferences->find(
-        [],
+    if ($type === 'deadlines') {
+        $collection = 'deadlines';
+
+        $roles = $Settings->roles;
+        $filter['$or'] = [
+            ['roles' => ['$in' => $roles]],
+            ['created_by' => $_SESSION['username']]
+        ];
+        // echo "Filter: " . json_encode($filter);
+    }
+    $events = $osiris->$collection->find(
+        $filter,
         ['sort' => ['start' => -1]]
     )->toArray();
 
@@ -1512,7 +1524,8 @@ Route::post('/api/openalex/enrich', function () {
     }
 
     // helper function to get only the ID from an OpenAlex entity URL
-    function extractOpenAlexId($url) {
+    function extractOpenAlexId($url)
+    {
         $parts = explode('/', rtrim($url, '/'));
         return end($parts);
     }
@@ -1559,7 +1572,7 @@ Route::post('/api/openalex/enrich', function () {
             'source' => 'openalex'
         ];
     }
-// echo json_encode($openalex);
+    // echo json_encode($openalex);
     // Update all matching activities
     foreach ($activityIds as $id) {
         $osiris->activities->updateOne(
