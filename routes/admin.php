@@ -385,6 +385,9 @@ Route::get('/admin/vocabulary', function () {
     if (!$Settings->hasPermission('admin.see')) {
         abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
     }
+    include_once BASEPATH . "/php/Vocabulary.php";
+    $Vocabulary = new Vocabulary();
+    $vocabularies = $Vocabulary->getVocabularies();
 
     $breadcrumb = [
         ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
@@ -392,6 +395,28 @@ Route::get('/admin/vocabulary', function () {
     ];
     include BASEPATH . "/header.php";
     include BASEPATH . "/pages/admin/vocabulary.php";
+    include BASEPATH . "/footer.php";
+}, 'login');
+
+Route::get('/admin/vocabulary/([a-z\-_]*)', function ($id) {
+    include_once BASEPATH . "/php/init.php";
+    if (!$Settings->hasPermission('admin.see')) {
+        abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
+    }
+    include_once BASEPATH . "/php/Vocabulary.php";
+    $Vocabulary = new Vocabulary();
+    $vocab = $Vocabulary->getVocabulary($id);
+    if (empty($vocab)) {
+        abortwith(404, lang("Vocabulary", "Vokabular"), "/admin/vocabulary");
+    }
+
+    $breadcrumb = [
+        ['name' => lang('Settings', 'Einstellungen'), 'path' => '/admin'],
+        ['name' => lang("Vocabulary", "Vokabular"), 'path' => '/admin/vocabulary'],
+        ['name' => lang($vocab['name'], $vocab['name_de'] ?? null)]
+    ];
+    include BASEPATH . "/header.php";
+    include BASEPATH . "/pages/admin/vocabulary-edit.php";
     include BASEPATH . "/footer.php";
 }, 'login');
 
@@ -1411,7 +1436,7 @@ Route::post('/crud/admin/projects/delete/([A-Za-z0-9]*)', function ($id) {
     die();
 });
 
-Route::post('/crud/admin/vocabularies/([a-z\-]*)', function ($id) {
+Route::post('/crud/admin/vocabularies/([a-z\-_]*)', function ($id) {
     include_once BASEPATH . "/php/init.php";
     if (!$Settings->hasPermission('admin.see')) {
         abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
@@ -1433,6 +1458,6 @@ Route::post('/crud/admin/vocabularies/([a-z\-]*)', function ($id) {
         "Vokabular <q>$id</q> erfolgreich gespeichert."
     );
 
-    $red = ROOTPATH . "/admin/vocabulary#vocabulary-$id";
+    $red = ROOTPATH . "/admin/vocabulary/$id";
     header("Location: " . $red);
 });

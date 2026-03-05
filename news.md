@@ -201,6 +201,7 @@ Das Deadlines-Feature kann in den **Feature-Einstellungen** ein- oder ausgeschal
 Das Admin-Interface wurde vollständig überarbeitet und bietet nun eine deutlich verbesserte Übersicht und Benutzerfreundlichkeit.
 
 - Alle Einstellungen sind jetzt in einer einzigen, übersichtlichen Seite organisiert, anstatt auf mehreren Unterseiten verteilt zu sein. Dabei wurden viele Einstellungen neu strukturiert und in logischere Kategorien gruppiert. Außerdem wurde das visuelle Design vieler Einstellungen angeglichen, um ein konsistentes Nutzererlebnis zu schaffen.
+- Das Vokabular-Management wurde ebenfalls komplett überarbeitet und bietet nun eine deutlich verbesserte Übersicht. Die Übersichtsseite wurde verbessert und ist jetzt durchsuchbar. Die Bearbeitung der Vokabulare erfolgt nun auf einzelnen Unterseiten.
 
 
 ### <i class="ph-duotone ph-feather"></i> Sophie – Die Hüterin eurer Daten

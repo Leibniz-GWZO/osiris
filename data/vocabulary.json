@@ -625,10 +625,35 @@
     ]
   },
   {
+    "id": "event-type",
+    "category": "Event",
+    "name": "Event Type",
+    "name_de": "Eventtyp",
+    "description": "The type of an event.",
+    "description_de": "Der Typ eines Events.",
+    "values": [
+      {
+        "id": "local",
+        "en": "Local",
+        "de": "Lokal"
+      },
+      {
+        "id": "national",
+        "en": "National",
+        "de": "National"
+      },
+      {
+        "id": "international",
+        "en": "International",
+        "de": "International"
+      }
+    ]
+  },
+  {
     "id": "deadline-type",
     "category": "Event",
     "name": "Deadline Type",
-    "name_de": "Fristart",
+    "name_de": "Deadline-Typ",
     "description": "The type of a deadline.",
     "description_de": "Die Art einer Frist.",
     "values": [
@@ -656,31 +681,6 @@
         "id": "other",
         "en": "Other deadline",
         "de": "Sonstige Frist"
-      }
-    ]
-  },
-  {
-    "id": "event-type",
-    "category": "Event",
-    "name": "Event Type",
-    "name_de": "Eventtyp",
-    "description": "The type of an event.",
-    "description_de": "Der Typ eines Events.",
-    "values": [
-      {
-        "id": "local",
-        "en": "Local",
-        "de": "Lokal"
-      },
-      {
-        "id": "national",
-        "en": "National",
-        "de": "National"
-      },
-      {
-        "id": "international",
-        "en": "International",
-        "de": "International"
       }
     ]
   },

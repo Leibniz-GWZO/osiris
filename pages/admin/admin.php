@@ -219,75 +219,38 @@
 </div>
 
 <style>
-    a.card {
-        display: block;
-        align-items: center;
-        padding: 1rem;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        text-decoration: none;
-        color: inherit;
-        transition: box-shadow 0.2s ease, border-color 0.2s ease;
-        margin-bottom: 2rem;
-    }
-
-    a.card:hover {
-        border-color: var(--primary-color);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        background: linear-gradient(135deg, var(--primary-color-light) 0%, var(--primary-color-very-light) 100%);
-    }
-
-
-    a.card p {
-        margin: 0;
-        color: var(--muted-color);
-    }
-
-    a.card b {
-        font-size: 1.6rem;
-        margin-top: 0.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--text-color);
-    }
-
-    a.card i {
-        font-size: 2.4rem;
-        margin-right: .5rem;
-        width: 4rem;
-        color: var(--primary-color);
-    }
-
-    #system-settings {
+   
+    #system-settings a.card {
         --primary-color: #1E5FAF;
         --primary-color-light: #1E5FAF33;
         --primary-color-very-light: #1E5FAF1A;
     }
 
-    #design-settings {
+    #design-settings a.card {
         --primary-color: #5B4DB2;
         --primary-color-light: #5B4DB233;
         --primary-color-very-light: #5B4DB21A;
     }
 
-    #user-settings {
+    #user-settings a.card {
         --primary-color: #16616b;
         --primary-color-light: #16616b33;
         --primary-color-very-light: #16616b1A;
     }
 
-    #content-settings {
+    #content-settings a.card {
         --primary-color: #C75B12;
         --primary-color-light: #C75B1233;
         --primary-color-very-light: #C75B121A;
     }
 
-    #custom-data-settings {
+    #custom-data-settings a.card {
         --primary-color: #475569;
         --primary-color-light: #47556933;
         --primary-color-very-light: #4755691A;
     }
 
-    #reporting-settings {
+    #reporting-settings a.card {
         --primary-color: #2F855A;
         --primary-color-light: #2F855A33;
         --primary-color-very-light: #2F855A1A;
