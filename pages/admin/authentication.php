@@ -4,7 +4,7 @@
         <?= lang('Authentication', 'Authentifizierung') ?>
     </h1>
     <form action="<?= ROOTPATH ?>/crud/admin/general" method="post">
-        <input type="hidden" name="redirect" value="<?= ROOTPATH ?>/admin/persons">
+        <input type="hidden" name="redirect" value="<?= ROOTPATH ?>/admin/authentication">
 
         <h5>
             <?= lang('Self-registration', 'Selbstregistrierung') ?>

@@ -254,6 +254,14 @@
                         ?>
                     </div>
                     <div class="form-group">
+                        <label for="events" class="label">
+                            <?= lang('Add deadlines to central event management', 'Füge Deadlines zum zentralen Event-Management hinzu') ?>
+                        </label>
+                        <?php
+                        renderCheckbox('deadlines', true);
+                        ?>
+                    </div>
+                    <div class="form-group">
                         <label for="" class="label">
                             <?= lang('Show the calendar in Sidebar', 'Zeige den Kalender in der Seitennavigation') ?>
                         </label>

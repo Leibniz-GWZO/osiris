@@ -683,7 +683,7 @@ Route::post('/crud/admin/general', function () {
         die();
     }
 
-    header("Location: " . ROOTPATH . "/admin/general");
+    header("Location: " . ROOTPATH . "/admin");
 }, 'login');
 
 
