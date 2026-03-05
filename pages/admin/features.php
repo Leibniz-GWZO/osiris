@@ -258,7 +258,7 @@
                             <?= lang('Add deadlines to central event management', 'Füge Deadlines zum zentralen Event-Management hinzu') ?>
                         </label>
                         <?php
-                        renderCheckbox('deadlines', true);
+                        renderCheckbox('deadlines', false);
                         ?>
                     </div>
                     <div class="form-group">
