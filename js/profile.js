@@ -186,6 +186,17 @@ function deadlineTimeline(options) {
         .map(d => ({ ...d, _date: new Date(d.date) }))
         .sort((a, b) => a._date - b._date);
 
+        if (items.length === 0) {
+            // No deadlines - show a placeholder text
+            g.append('text')
+                .attr('x', innerW / 2)
+                .attr('y', y-5)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', 12)
+                .attr('opacity', 0.5)
+                .text('No upcoming deadlines');
+            return;
+        }
 
     // Optional: small "collision" offset when multiple points are very close.
     // This keeps "all on the line", but alternates a tiny vertical offset.
