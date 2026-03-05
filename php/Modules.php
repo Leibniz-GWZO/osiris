@@ -1559,11 +1559,10 @@ class Modules
             case 'countries':
                 $countries = $this->val('countries', []);
             ?>
-
-                <div class="data-module floating-form col-sm-<?= $width ?>" data-module="countries">
-                    <b>
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="countries">
+                    <label for="country-select" class="<?= $labelClass ?> floating-title">
                         <?= $label ?>
-                    </b>
+                    </label>
                     <div class="author-widget">
                         <div class="author-list p-10" id="country-list">
                             <?php
@@ -3386,7 +3385,7 @@ class Modules
             case "organizations":
                 $organizations = $this->val('organizations', []);
             ?>
-                <div class="data-module col-sm-<?= $width ?>" data-module="organizations">
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="organizations">
                     <label for="organization" class="floating-title <?= $labelClass ?>">
                         <?= $label ?>
                     </label>
@@ -3470,7 +3469,7 @@ class Modules
                 $projects = $this->val('projects', []);
                 $projects = DB::doc2Arr($projects);
             ?>
-                <div class="data-module col-sm-<?= $width ?>" data-module="projects">
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="projects">
                     <label for="project" class="floating-title <?= $labelClass ?>"><?= $label ?></label>
                     <?php
                     $full_permission = $Settings->hasPermission('projects.edit') || $Settings->hasPermission('projects.connect');
@@ -3594,7 +3593,7 @@ class Modules
                 $all_tags = $Settings->get('tags') ?? [];
                 $tags = DB::doc2Arr($this->val('tags', []));
             ?>
-                <div class="data-module col-sm-<?= $width ?>" data-module="tags">
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="tags">
                     <label for="tag-select" class="floating-title <?= $labelClass ?>">
                         <?= $label ?>
                     </label>
@@ -3648,4 +3647,3 @@ class Modules
         }
     }
 }
-

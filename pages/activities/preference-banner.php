@@ -6,7 +6,7 @@
         gap: 1rem;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 2rem;
+        margin-bottom: 0;
         background-color: var(--gray-color-very-light);
     }
 
