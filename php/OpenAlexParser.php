@@ -76,12 +76,12 @@ class OpenAlexParser
     private function getUserId($name, $orcid = null)
     {
         if ($orcid) {
-            $user = $this->osiris->users->findOne(['orcid' => $orcid]);
+            $user = $this->osiris->persons->findOne(['orcid' => $orcid]);
             if ($user) {
                 return $user->_id;
             }
         }
-        $user = $this->osiris->users->findOne([
+        $user = $this->osiris->persons->findOne([
             'last' => $name['lname'],
             'first' => ['$regex' => '^' . $name['fname'] . '.*']
         ]);
