@@ -889,6 +889,37 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
             </div>
             <div class="col-md-6 h-full">
 
+
+                <?php if (($Settings->featureEnabled('quarterly-reporting', true) && $Settings->hasPermission('report.dashboard')) && $currentuser) {
+                    $n_scientists = $osiris->persons->count(["roles" => 'scientist', "is_active" => true]);
+                    $n_approved = $osiris->persons->count(["roles" => 'scientist', "is_active" => true, "approved" => $lastquarter]);
+                    $progress = ($n_scientists > 0) ? ($n_approved / $n_scientists) * 100 : 0;
+                ?>
+                    <div class="box">
+                        <div class="content">
+                            <div class="d-flex justify-content-between align-items-center mb-10">
+                                <h5 class="title m-0"><?= lang('Last quarter', 'Vergangenes Quartal') ?></h5>
+                                <button class="btn small" onclick="loadModal('components/controlling-approved', {q: '<?= $Q ?>', y: '<?= $Y ?>'})">
+                                    <i class="ph ph-magnifying-glass-plus"></i> <?= lang('Details') ?>
+                                </button>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: <?= $progress ?>%" aria-valuenow="<?= $progress ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mt-10 font-size-12">
+                                <span class="text-muted">
+                                    <?= lang(
+                                        "$n_approved of $n_scientists scientists have approved their activities.",
+                                        "$n_approved von $n_scientists Wissenschaftler:innen haben ihre Aktivitäten freigegeben."
+                                    ) ?>
+                                </span>
+                                <b class="badge success"><?= $lastquarter ?></b>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+
                 <?php if ($Settings->featureEnabled('new-colleagues')) { ?>
                     <!-- Show new users -->
                     <div class="box">
