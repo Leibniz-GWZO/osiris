@@ -1136,7 +1136,7 @@ if (!empty($user_units)) {
                     if ($sws) {
                         $thirdCol = [
                             'label' => 'SWS',
-                            'value' => fn($a) => (int)($a['sws'] ?? 0),
+                            'value' => fn($a) => ($a['sws'] ?? 0)
                         ];
                     } elseif ($supervisorThesis) {
                         $thirdCol = [

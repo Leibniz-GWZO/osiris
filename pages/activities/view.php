@@ -1099,7 +1099,7 @@ if ($edit_perm) {
                             if ($sws) {
                                 $thirdCol = [
                                     'label' => 'SWS',
-                                    'value' => fn($a) => (int)($a['sws'] ?? 0),
+                                    'value' => fn($a) => 'SWS <b>' . ($a['sws'] ?? 0) . '</b>',
                                 ];
                             } elseif ($supervisorThesis) {
                                 $thirdCol = [
