@@ -769,7 +769,17 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                     <a data-dismiss="modal" class="float-right" role="button" aria-label="Close" onclick="dismissAnnouncementSession()">
                         <i class="ph ph-x"></i>
                     </a>
-                    <?= lang($announcement['en'] ?? '', $announcement['de'] ?? null) ?>
+                    <?php
+                        $en = trim($announcement['en'] ?? null);
+                        $de = trim($announcement['de'] ?? null);
+                        if (!empty(strip_tags($en)) && !empty(strip_tags($de))) {
+                            echo  lang($en, $de);
+                        } elseif (!empty(strip_tags($en))) {
+                            echo $en;
+                        } elseif (!empty(strip_tags($de))) {
+                            echo $de;
+                        }                            
+                    ?>
                     <button class="btn primary small" onclick="dismissAnnouncement()">
                         <i class="ph ph-x-circle"></i>
                         <?= lang('Don’t show again', 'Nicht mehr anzeigen') ?>
