@@ -373,58 +373,10 @@ class SidebarNav
                         'active' => ['^/admin($|/)'],
                         'feature' => null,
                         'default' => false,
-                        'permission' => 'admin.see',
+                        'permission' => 'admin.see|user.synchronize|report.templates',
                         'favoritable' => false,
                         'hasSearch' => false
                     ],
-                //     [
-                //         'id' => 'contents',
-                //         'label' => lang('Contents', 'Inhalte'),
-                //         'icon' => 'treasure-chest',
-                //         'url' => '/admin',
-                //         'active' => ['^/admin($|/)(?!general|roles|reports|users)'],
-                //         'feature' => null,
-                //         'default' => false,
-                //         'permission' => 'admin.see',
-                //         'favoritable' => false,
-                //         'hasSearch' => false
-                //     ],
-                //     [
-                //         'id' => 'roles',
-                //         'label' => lang('Roles &amp; Rights', 'Rollen &amp; Rechte'),
-                //         'icon' => 'shield-check',
-                //         'url' => '/admin/roles',
-                //         'active' => ['^/admin/roles($|/)'],
-                //         'feature' => null,
-                //         'default' => false,
-                //         'permission' => 'admin.see',
-                //         'favoritable' => false,
-                //         'hasSearch' => false
-                //     ],
-                //     [
-                //         'id' => 'report-templates',
-                //         'label' => lang('Report Templates', 'Berichtsvorlagen'),
-                //         'icon' => 'clipboard-text',
-                //         'url' => '/admin/reports',
-                //         'active' => ['^/admin/reports($|/)'],
-                //         'feature' => null,
-                //         'default' => false,
-                //         'permission' => 'report.templates',
-                //         'favoritable' => false,
-                //         'hasSearch' => false
-                //     ],
-                //     [
-                //         'id' => 'users-admin',
-                //         'label' => lang('User Management', 'Benutzerverwaltung'),
-                //         'icon' => 'user-gear',
-                //         'url' => '/admin/users',
-                //         'active' => ['^/admin/users($|/)'],
-                //         'feature' => null,
-                //         'default' => false,
-                //         'permission' => 'user.synchronize',
-                //         'favoritable' => false,
-                //         'hasSearch' => false
-                //     ]
                 ]
             ]
         ];
@@ -477,11 +429,17 @@ class SidebarNav
                     return false;
                 }
 
-                if (
-                    !empty($item['permission']) &&
-                    !$this->settings->hasPermission($item['permission'])
-                ) {
-                    return false;
+                if (!empty($item['permission'])) {
+                    $perms = explode('|', $item['permission']);
+                    $hasPerm = false;
+                    foreach ($perms as $perm) {
+                        if ($this->settings->hasPermission($perm)) {
+                            $hasPerm = true;
+                            break;
+                        }
+                    }
+                    if (!$hasPerm)
+                        return false;
                 }
 
                 return true;
@@ -595,22 +553,22 @@ class SidebarNav
         $html .= $item['label'];
         switch ($item['id']) {
             case 'cart':
-            // Show cart item count
-            $cart = readCart();
-            if (!empty($cart)) {
-                $html .= '<small class="sidebar-index info" id="cart-counter">' . count($cart) . '</small>';
-            } else {
-                $html .= '<small class="sidebar-index info hidden" id="cart-counter">0</small>';
-            }
+                // Show cart item count
+                $cart = readCart();
+                if (!empty($cart)) {
+                    $html .= '<small class="sidebar-index info" id="cart-counter">' . count($cart) . '</small>';
+                } else {
+                    $html .= '<small class="sidebar-index info hidden" id="cart-counter">0</small>';
+                }
                 break;
             case 'queue':
-            // Show queue item count
-            $queueCount = $this->settings->getQueueCount();
-            if ($queueCount > 0) {
-                $html .= '<small class="sidebar-index info" id="queue-counter">' . $queueCount . '</small>';
-            } else {
-                $html .= '<small class="sidebar-index info hidden" id="queue-counter">0</small>';
-            }
+                // Show queue item count
+                $queueCount = $this->settings->getQueueCount();
+                if ($queueCount > 0) {
+                    $html .= '<small class="sidebar-index info" id="queue-counter">' . $queueCount . '</small>';
+                } else {
+                    $html .= '<small class="sidebar-index info hidden" id="queue-counter">0</small>';
+                }
                 break;
         }
 

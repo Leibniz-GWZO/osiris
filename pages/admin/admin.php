@@ -28,6 +28,7 @@
 
 <div class="row row-eq-spacing">
 
+<?php if ($adminPerm) : ?>
     <div class="col-md-6 col-lg-4" id="system-settings">
         <h2><i class="ph-duotone ph-faders"></i> System</h2>
         <a class="card" href="<?= ROOTPATH ?>/admin/general">
@@ -58,6 +59,8 @@
             </a>
         <?php } ?>
     </div>
+    <?php endif; ?>
+    <?php if ($adminPerm) : ?>
     <div class="col-md-6 col-lg-4" id="design-settings">
         <h2><i class="ph-duotone ph-palette"></i> <?= lang('Design & Branding', 'Darstellung & Branding') ?></h2>
         <a class="card" href="<?= ROOTPATH ?>/admin/logo">
@@ -81,6 +84,8 @@
             <p><?= lang('Adjust the imprint and privacy policy and add links to the footer', 'Passe das Impressum und die Datenschutzerklärung an und füge Links zum Footer hinzu') ?></p>
         </a>
     </div>
+    <?php endif; ?>
+    <?php if ($userSyncPerm) : ?>
     <div class="col-md-6 col-lg-4" id="user-settings">
         <h2><i class="ph-duotone ph-users"></i> <?= lang('Users & Roles', 'Benutzer & Rollen') ?></h2>
         <a class="card" href="<?= ROOTPATH ?>/admin/persons">
@@ -133,10 +138,9 @@
             <b><?= lang('Add Users', 'Benutzer hinzufügen') ?></b>
             <p><?= lang('Add new users to the system', 'Füge neue Benutzer zum System hinzu') ?></p>
         </a>
-
-
     </div>
-
+    <?php endif; ?>
+<?php if ($adminPerm) : ?>
     <div class="col-md-6 col-lg-4" id="content-settings">
         <h2><i class="ph-duotone ph-treasure-chest"></i> <?= lang('Data Model & Content', 'Datenmodell & Inhalte') ?></h2>
         <a class="card" href="<?= ROOTPATH ?>/admin/categories">
@@ -164,7 +168,8 @@
                 <p><?= lang('Manage data of infrastructures', 'Verwalte Daten von Infrastrukturen') ?></p>
             </a>
         <?php } ?>
-    </div>
+    </div><?php endif; ?>
+    <?php if ($adminPerm) : ?>
     <div class="col-md-6 col-lg-4" id="custom-data-settings">
         <h2><i class="ph-duotone ph-database"></i> <?= lang('Custom data', 'Benutzerdefinierte Daten') ?></h2>
         <a class="card" href="<?= ROOTPATH ?>/admin/fields">
@@ -190,6 +195,8 @@
             <p><?= lang('Update the list of countries', 'Aktualisiere die Liste der Länder') ?></p>
         </a>
     </div>
+    <?php endif; ?>
+    <?php if ($adminPerm || $reportPerm) : ?>
     <div class="col-md-6 col-lg-4" id="reporting-settings">
         <h2><i class="ph-duotone ph-chart-bar"></i> <?= lang('Reports & Tools', 'Berichte & Werkzeuge') ?></h2>
         <a class="card" href="<?= ROOTPATH ?>/admin/reports">
@@ -197,7 +204,7 @@
             <b><?= lang('Report Templates', 'Berichtsvorlagen') ?></b>
             <p><?= lang('Settings for managing report templates', 'Einstellungen zur Verwaltung von Berichtsvorlagen') ?></p>
         </a>
-        <?php if ($Settings->featureEnabled('quality-workflow')) { ?>
+        <?php if ($Settings->featureEnabled('quality-workflow') && $adminPerm) { ?>
             <a class="card" href="<?= ROOTPATH ?>/admin/workflows">
                 <i class="ph-duotone ph-seal-check" aria-hidden="true"></i>
                 <b><?= lang('Quality workflows', 'Qualitäts-Workflows') ?></b>
@@ -215,41 +222,47 @@
             <p><?= lang('Create templates for exports and reports', 'Erstelle Vorlagen für Exporte und Berichte') ?></p>
         </a>
     </div>
+    <?php endif; ?>
 
 </div>
 
 <style>
-   
+    #system-settings,
     #system-settings a.card {
         --primary-color: #1E5FAF;
         --primary-color-light: #1E5FAF33;
         --primary-color-very-light: #1E5FAF1A;
     }
 
+    #design-settings,
     #design-settings a.card {
         --primary-color: #5B4DB2;
         --primary-color-light: #5B4DB233;
         --primary-color-very-light: #5B4DB21A;
     }
 
+    #user-settings,
     #user-settings a.card {
         --primary-color: #16616b;
         --primary-color-light: #16616b33;
         --primary-color-very-light: #16616b1A;
     }
 
+    #content-settings,
     #content-settings a.card {
         --primary-color: #C75B12;
         --primary-color-light: #C75B1233;
         --primary-color-very-light: #C75B121A;
     }
 
+    #custom-data-settings,
     #custom-data-settings a.card {
         --primary-color: #475569;
         --primary-color-light: #47556933;
         --primary-color-very-light: #4755691A;
     }
 
+    #reporting-settings,
     #reporting-settings a.card {
         --primary-color: #2F855A;
         --primary-color-light: #2F855A33;

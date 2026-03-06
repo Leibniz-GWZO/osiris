@@ -16,23 +16,18 @@
 
 Route::get('/admin', function () {
     include_once BASEPATH . "/php/init.php";
-    if (!$Settings->hasPermission('admin.see')) {
+    $adminPerm = $Settings->hasPermission('admin.see');
+    $userSyncPerm = $Settings->hasPermission('user.synchronize');
+    $reportPerm = $Settings->hasPermission('report.templates');
+    if (!$adminPerm && !$userSyncPerm && !$reportPerm) {
         abortwith(403, lang('You do not have permission to access the admin area.', 'Du hast keine Berechtigung, auf den Admin-Bereich zuzugreifen.'), "/", lang('Go back to homepage', 'Zurück zur Startseite'));
     }
-
-
     $breadcrumb = [
         ['name' => lang("Settings", "Einstellungen")],
     ];
     include BASEPATH . "/header.php";
     include BASEPATH . "/pages/admin/admin.php";
     include BASEPATH . "/footer.php";
-    // $breadcrumb = [
-    //     ['name' => lang("Manage Content", "Inhalte verwalten")],
-    // ];
-    // include BASEPATH . "/header.php";
-    // include BASEPATH . "/pages/admin/content.php";
-    // include BASEPATH . "/footer.php";
 }, 'login');
 
 
