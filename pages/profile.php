@@ -769,7 +769,7 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                     <a data-dismiss="modal" class="float-right" role="button" aria-label="Close" onclick="dismissAnnouncementSession()">
                         <i class="ph ph-x"></i>
                     </a>
-                    <?= lang($announcement['en'] ?? '', $announcement['de'] ?? '') ?>
+                    <?= lang($announcement['en'] ?? '', $announcement['de'] ?? null) ?>
                     <button class="btn primary small" onclick="dismissAnnouncement()">
                         <i class="ph ph-x-circle"></i>
                         <?= lang('Don’t show again', 'Nicht mehr anzeigen') ?>
