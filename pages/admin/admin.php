@@ -1,5 +1,5 @@
 <h1 class="mt-0">
-    <?= lang('General Settings', 'Allgemeine Einstellungen') ?>
+    <?= lang('Settings', 'Einstellungen') ?>
 </h1>
 
 <!-- search -->
