@@ -423,3 +423,10 @@ table.author-table tr.show-more-row td a:hover {
     font-family: var(--header-font);
     color: var(--link-color) !important;
 }
+
+h3.section-title {
+    margin-top: 0;
+    /* padding-top: 1rem; */
+    font-size: 1.6rem;
+    /* border-top: 1px solid var(--border-color); */
+}

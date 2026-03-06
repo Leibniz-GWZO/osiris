@@ -350,96 +350,99 @@ if ($edit_perm) {
             <div class="row row-eq-spacing my-0">
                 <div class="col-md-8">
 
-                    <div class="box padded tab-box">
-
-                        <ul class="breadcrumb category" style="--highlight-color:<?= $Format->typeArr['color'] ?? '' ?>">
-                            <li><?= $Format->activity_type() ?></li>
-                            <li><?= $Format->activity_subtype() ?></li>
-                        </ul>
-
-
-                        <h1 class="title"> <?= $Format->getTitle('web') ?></h1>
-                        <p class="font-size-16"><?= $Format->getSubtitle('web') ?></p>
+                    <div class="box tab-box">
+                        <div class="content">
+                            <ul class="breadcrumb category" style="--highlight-color:<?= $Format->typeArr['color'] ?? '' ?>">
+                                <li><?= $Format->activity_type() ?></li>
+                                <li><?= $Format->activity_subtype() ?></li>
+                            </ul>
 
 
-                        <div class="font-size-16 mt-10 mb-20">
-                            <?php if (!empty($doc['doi'])): ?>
-                                <a href="https://doi.org/<?= $doc['doi']; ?>" target="_blank" class="identifier">
-                                    <span class="label"><?= lang("DOI"); ?></span> <?= $doc['doi']; ?>
-                                </a>
-                            <?php endif; ?>
-                            <?php if (!empty($doc['pubmed'])): ?>
-                                <a href="https://pubmed.ncbi.nlm.nih.gov/<?= $doc['pubmed']; ?>" target="_blank" class="identifier">
-                                    <span class="label"><?= lang("PubMed"); ?></span> <?= $doc['pubmed']; ?>
-                                </a>
-                            <?php endif; ?>
-                            <?php if (!empty($doc['isbn'])): ?>
-                                <span class="identifier">
-                                    <span class="label"><?= lang("ISBN"); ?></span> <?= $doc['isbn']; ?>
-                                </span>
-                            <?php endif; ?>
-                        </div>
+                            <h1 class="title"> <?= $Format->getTitle('web') ?></h1>
+                            <p class="font-size-16"><?= $Format->getSubtitle('web') ?></p>
 
-                        <?php if ($count_authors > 0): ?>
-                            <h3>
-                                <?= lang("Contributors", "Mitwirkende") ?>
-                                <span class="data-index"><?= $count_authors ?></span>
-                                <a onclick="navigate('coauthors')">
-                                    <i class="ph ph-arrow-square-right ml-5" title="<?= lang('View all contributors', 'Alle Mitwirkenden anzeigen') ?>"></i>
-                                </a>
-                            </h3>
-                        <?php else: ?>
-                            <div class="alert danger mb-20">
-                                <h4 class="title">
-                                    <?= lang('No authors or editors', 'Keine Autoren oder Herausgeber') ?>
-                                </h4>
-                                <p>
-                                    <?= lang(
-                                        'This activity has no authors or editors assigned. Please add at least one author or editor to this activity, otherwise it cannot be linked to persons.',
-                                        'Diese Aktivität hat keine Autoren oder Herausgeber zugeordnet. Bitte füge mindestens einen Autor, Herausgeber oder Betreuenden zu dieser Aktivität hinzu, ansonsten lässt sie sich nicht mit Personen verknüpfen.'
-                                    ) ?>
-                                </p>
-                            </div>
-                        <?php endif; ?>
 
-                        <?php foreach ($author_keys as $role) : ?>
-                            <?php if (!empty($doc[$role] ?? null)) : ?>
-                                <ul class="authors">
-                                    <?php foreach ($doc[$role] as $i => $author):
-                                        if ($i > 9) break;
-                                    ?>
-                                        <li>
-                                            <?php if (!empty($author['user'])): ?>
-                                                <a href="<?= ROOTPATH ?>/profile/<?= $author['user'] ?>">
-                                                    <?= $author['first'] ?> <?= $author['last'] ?>
-                                                </a>
-                                            <?php else: ?>
-                                                <?= $author['first'] ?> <?= $author['last'] ?>
-                                            <?php endif; ?>
-                                        </li>
-                                    <?php endforeach; ?>
-                                    <?php if (count($doc[$role]) > 10): ?>
-                                        <li class="more-authors">
-                                            <a onclick="navigate('coauthors');">
-                                                <?= lang("and " . (count($doc[$role]) - 10) . " more", "und " . (count($doc[$role]) - 10) . " weitere"); ?>
-                                            </a>
-                                        </li>
-                                    <?php endif; ?>
-                                </ul>
-                            <?php endif; ?>
-
-                        <?php endforeach; ?>
-
-                        <?php if (!empty($departments)): ?>
-                            <p>
-                                <?php foreach ($departments as $deptId => $d): ?>
-                                    <a href="<?= ROOTPATH ?>/groups/view/<?= $deptId; ?>" class="badge primary mr-5 mb-5">
-                                        <?= lang($d['en'], $d['de'] ?? null); ?>
+                            <div class="font-size-16 mt-10 mb-20">
+                                <?php if (!empty($doc['doi'])): ?>
+                                    <a href="https://doi.org/<?= $doc['doi']; ?>" target="_blank" class="identifier">
+                                        <span class="label"><?= lang("DOI"); ?></span> <?= $doc['doi']; ?>
                                     </a>
-                                <?php endforeach; ?>
-                            </p>
-                        <?php endif; ?>
+                                <?php endif; ?>
+                                <?php if (!empty($doc['pubmed'])): ?>
+                                    <a href="https://pubmed.ncbi.nlm.nih.gov/<?= $doc['pubmed']; ?>" target="_blank" class="identifier">
+                                        <span class="label"><?= lang("PubMed"); ?></span> <?= $doc['pubmed']; ?>
+                                    </a>
+                                <?php endif; ?>
+                                <?php if (!empty($doc['isbn'])): ?>
+                                    <span class="identifier">
+                                        <span class="label"><?= lang("ISBN"); ?></span> <?= $doc['isbn']; ?>
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="content">
+                            <?php if ($count_authors > 0): ?>
+                                <h3 class="section-title">
+                                    <?= lang("Contributors", "Mitwirkende") ?>
+                                    <span class="data-index"><?= $count_authors ?></span>
+                                    <a onclick="navigate('coauthors')">
+                                        <i class="ph ph-arrow-square-right ml-5" title="<?= lang('View all contributors', 'Alle Mitwirkenden anzeigen') ?>"></i>
+                                    </a>
+                                </h3>
+                            <?php else: ?>
+                                <div class="alert danger mb-20">
+                                    <h4 class="title">
+                                        <?= lang('No authors or editors', 'Keine Autoren oder Herausgeber') ?>
+                                    </h4>
+                                    <p>
+                                        <?= lang(
+                                            'This activity has no authors or editors assigned. Please add at least one author or editor to this activity, otherwise it cannot be linked to persons.',
+                                            'Diese Aktivität hat keine Autoren oder Herausgeber zugeordnet. Bitte füge mindestens einen Autor, Herausgeber oder Betreuenden zu dieser Aktivität hinzu, ansonsten lässt sie sich nicht mit Personen verknüpfen.'
+                                        ) ?>
+                                    </p>
+                                </div>
+                            <?php endif; ?>
 
+                            <?php foreach ($author_keys as $role) : ?>
+                                <?php if (!empty($doc[$role] ?? null)) : ?>
+                                    <ul class="authors">
+                                        <?php foreach ($doc[$role] as $i => $author):
+                                            if ($i > 9) break;
+                                        ?>
+                                            <li>
+                                                <?php if (!empty($author['user'])): ?>
+                                                    <a href="<?= ROOTPATH ?>/profile/<?= $author['user'] ?>">
+                                                        <?= $author['first'] ?> <?= $author['last'] ?>
+                                                    </a>
+                                                <?php else: ?>
+                                                    <?= $author['first'] ?> <?= $author['last'] ?>
+                                                <?php endif; ?>
+                                            </li>
+                                        <?php endforeach; ?>
+                                        <?php if (count($doc[$role]) > 10): ?>
+                                            <li class="more-authors">
+                                                <a onclick="navigate('coauthors');">
+                                                    <?= lang("and " . (count($doc[$role]) - 10) . " more", "und " . (count($doc[$role]) - 10) . " weitere"); ?>
+                                                </a>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
+                                <?php endif; ?>
+
+                            <?php endforeach; ?>
+
+                            <?php if (!empty($departments)): ?>
+                                <p>
+                                    <?php foreach ($departments as $deptId => $d): ?>
+                                        <a href="<?= ROOTPATH ?>/groups/view/<?= $deptId; ?>" class="badge primary mr-5 mb-5">
+                                            <?= lang($d['en'], $d['de'] ?? null); ?>
+                                        </a>
+                                    <?php endforeach; ?>
+                                </p>
+                            <?php endif; ?>
+
+                        </div>
                         <?php
                         $displayAltmetric = true;
                         if ($Settings->featureEnabled('altmetrics')) {
@@ -461,233 +464,245 @@ if ($edit_perm) {
                             $displayAltmetric = false;
                         }
                         if (!empty($doc['abstract']) || ($displayAltmetric)): ?>
+                            <hr>
+                            <div class="content">
 
-                            <h4><?= lang("Abstract", "Zusammenfassung"); ?></h4>
-                            <!-- floating container for altmetric badge -->
-                            <?php if ($displayAltmetric) { ?>
-                                <div id="altmetric-container" class="float-right ml-20">
-                                    <?php
-                                    $detailsAttr = '';
-                                    foreach ($details as $k => $v) {
-                                        $detailsAttr .= " $k='$v' ";
-                                    }
-                                    ?>
-                                    <script type='text/javascript' src='https://embed.altmetric.com/assets/embed.js'></script>
-                                    <div class='altmetric-embed' <?= $detailsAttr ?>></div>
-                                </div>
-                            <?php
-                            } ?>
-                            <?php if (!empty($doc['abstract'])) { ?>
-                                <div id="abstract" class="text-justify">
-                                    <?php
-                                    // show only first 400 characters of abstract if it is longer, with option to show more
-                                    if (strlen($doc['abstract']) > 400) {
-                                        echo '<div id="short-abstract">' . get_preview($doc['abstract'], 400) .
-                                            '<a id="show-more-abstract" class="ml-20">' . lang('Read more', 'Mehr lesen') . '</a>' . '</div>';
+                                <h3 class="section-title"><?= lang("Abstract", "Zusammenfassung"); ?></h3>
+                                <!-- floating container for altmetric badge -->
+                                <?php if ($displayAltmetric) { ?>
+                                    <div id="altmetric-container" class="float-right ml-20">
+                                        <?php
+                                        $detailsAttr = '';
+                                        foreach ($details as $k => $v) {
+                                            $detailsAttr .= " $k='$v' ";
+                                        }
+                                        ?>
+                                        <script type='text/javascript' src='https://embed.altmetric.com/assets/embed.js'></script>
+                                        <div class='altmetric-embed' <?= $detailsAttr ?>></div>
+                                    </div>
+                                <?php
+                                } ?>
+                                <?php if (!empty($doc['abstract'])) { ?>
+                                    <div id="abstract" class="text-justify">
+                                        <?php
+                                        // show only first 400 characters of abstract if it is longer, with option to show more
+                                        if (strlen($doc['abstract']) > 400) {
+                                            echo '<div id="short-abstract">' . get_preview($doc['abstract'], 400) .
+                                                '<a id="show-more-abstract" class="ml-20">' . lang('Read more', 'Mehr lesen') . '</a>' . '</div>';
 
-                                        echo '<div id="full-abstract" style="display:none;">' . $doc['abstract'] . '</div>';
-                                    } else {
-                                        echo $doc['abstract'];
-                                    }
-                                    ?>
-                                </div>
-                            <?php } else { ?>
-                                <p><?= lang('No abstract available.', 'Keine Zusammenfassung verfügbar.') ?></p>
-                            <?php } ?>
+                                            echo '<div id="full-abstract" style="display:none;">' . $doc['abstract'] . '</div>';
+                                        } else {
+                                            echo $doc['abstract'];
+                                        }
+                                        ?>
+                                    </div>
+                                <?php } else { ?>
+                                    <p><?= lang('No abstract available.', 'Keine Zusammenfassung verfügbar.') ?></p>
+                                <?php } ?>
 
-                            <!-- </div> -->
+                                <!-- </div> -->
 
-                            <script>
-                                $('#show-more-abstract').click(function() {
-                                    $('#short-abstract').hide();
-                                    $('#full-abstract').show();
-                                });
-                            </script>
+                                <script>
+                                    $('#show-more-abstract').click(function() {
+                                        $('#short-abstract').hide();
+                                        $('#full-abstract').show();
+                                    });
+                                </script>
+                            </div>
                         <?php endif; ?>
 
 
                         <?php if ($Settings->featureEnabled('tags')) : ?>
-                            <h4>
-                                <?= $tagLabel ?>
-                                <span class="data-index"><?= count($tags) ?></span>
-                                <?php if ($edit_perm && $Settings->hasPermission('activities.tags')) { ?>
-                                    <a href="#edit-tags" class="ml-10">
-                                        <i class="ph ph-edit"></i>
-                                        <span class="sr-only"><?= lang('Edit', 'Bearbeiten') ?></span>
-                                    </a>
-                                <?php } ?>
-                            </h4>
-                            <p id="tag-list" class="m-0">
-                                <?php
-                                $tags = $doc['tags'] ?? [];
-                                if (count($tags)) {
-                                    foreach ($tags as $tag) {
-                                ?>
-                                        <a class="badge primary" href="<?= ROOTPATH ?>/activities#tags=<?= urlencode($tag) ?>">
-                                            <i class="ph ph-tag"></i>
-                                            <?= $tag ?>
+                            <hr>
+                            <div class="content">
+                                <h3 class="section-title">
+                                    <?= $tagLabel ?>
+                                    <span class="data-index"><?= count($tags) ?></span>
+                                    <?php if ($edit_perm && $Settings->hasPermission('activities.tags')) { ?>
+                                        <a href="#edit-tags" class="ml-10">
+                                            <i class="ph ph-edit"></i>
+                                            <span class="sr-only"><?= lang('Edit', 'Bearbeiten') ?></span>
                                         </a>
-                                <?php }
-                                } else {
-                                    echo lang('No ' . $tagLabel . ' assigned yet.', 'Noch keine ' . $tagLabel . ' vergeben.');
-                                }
-                                ?>
-                            </p>
+                                    <?php } ?>
+                                </h3>
+                                <div id="tag-list">
+                                    <?php
+                                    $tags = $doc['tags'] ?? [];
+                                    if (count($tags)) {
+                                        foreach ($tags as $tag) {
+                                    ?>
+                                            <a class="badge primary" href="<?= ROOTPATH ?>/activities#tags=<?= urlencode($tag) ?>">
+                                                <i class="ph ph-tag"></i>
+                                                <?= $tag ?>
+                                            </a>
+                                        <?php }
+                                    } else { ?>
+                                        <p class="text-muted"><?= lang('No ' . $tagLabel . ' assigned yet.', 'Noch keine ' . $tagLabel . ' vergeben.'); ?></p>
+                                    <?php } ?>
+                                </div>
+                            </div>
                         <?php endif; ?>
 
 
                         <?php if ($upload_possible): ?>
-                            <h4>
-                                <?= lang("Files", "Dateien"); ?>
-                                <span class="data-index"><?= count($files) ?></span>
-                                <?php if ($canEdit): ?>
-                                    <a href="#edit-files" class="ml-10">
-                                        <i class="ph ph-edit"></i>
-                                        <span class="sr-only"><?= lang("Edit", "Bearbeiten") ?></span>
-                                    </a>
-                                <?php endif; ?>
-                            </h4>
-
-                            <?php if (empty($files)): ?>
-                                <p class="text-muted"><?= lang('No files uploaded yet.', 'Noch keine Dateien hochgeladen.') ?></p>
-                            <?php else: ?>
-                                <div id="files" class="files">
-                                    <?php foreach ($files as $file) {
-                                        $file_url = ROOTPATH . '/uploads/' . $file['_id'] . '.' . $file['extension'];
-                                        $file_size = formatBytes($file['size']);
-                                    ?>
-                                        <a href="<?= $file_url ?>" target="_blank" rel="noopener" class="file-item">
-                                            <div class="file-icon">
-                                                <i class='ph ph-file ph-<?= getFileIcon($file['extension'] ?? '') ?>'></i>
-                                            </div>
-                                            <div>
-                                                <h5>
-                                                    <?= $file['filename'] ?>
-                                                </h5>
-                                                <small class="badge muted"><?= $Vocabulary->getValue('activity-document-types', $file['name'] ?? '', lang('Other', 'Sonstiges')); ?></small>
-                                                <p>
-                                                    <?= $file['description'] ?? '' ?>
-                                                </p>
-
-                                                <ul class="horizontal">
-                                                    <li><?= $file_size ?></li>
-                                                    <li><?= lang('Uploaded by', 'Hochgeladen von') ?> <?= $DB->getNameFromId($file['uploaded_by']) ?></li>
-                                                    <li><?= lang('on', 'am') ?> <?= date('d.m.Y', strtotime($file['uploaded'])) ?></li>
-                                                </ul>
-                                            </div>
-                                            <div class="ml-auto">
-                                                <span class="btn blue square">
-                                                    <i class="ph ph-download"></i>
-                                                </span>
-                                            </div>
+                            <hr>
+                            <div class="content">
+                                <h3 class="section-title">
+                                    <?= lang("Files", "Dateien"); ?>
+                                    <span class="data-index"><?= count($files) ?></span>
+                                    <?php if ($canEdit): ?>
+                                        <a href="#edit-files" class="ml-10">
+                                            <i class="ph ph-edit"></i>
+                                            <span class="sr-only"><?= lang("Edit", "Bearbeiten") ?></span>
                                         </a>
-                                    <?php } ?>
-                                </div>
-                            <?php endif; ?>
+                                    <?php endif; ?>
+                                </h3>
+
+                                <?php if (empty($files)): ?>
+                                    <p class="text-muted"><?= lang('No files uploaded yet.', 'Noch keine Dateien hochgeladen.') ?></p>
+                                <?php else: ?>
+                                    <div id="files" class="files">
+                                        <?php foreach ($files as $file) {
+                                            $file_url = ROOTPATH . '/uploads/' . $file['_id'] . '.' . $file['extension'];
+                                            $file_size = formatBytes($file['size']);
+                                        ?>
+                                            <a href="<?= $file_url ?>" target="_blank" rel="noopener" class="file-item">
+                                                <div class="file-icon">
+                                                    <i class='ph ph-file ph-<?= getFileIcon($file['extension'] ?? '') ?>'></i>
+                                                </div>
+                                                <div>
+                                                    <h5>
+                                                        <?= $file['filename'] ?>
+                                                    </h5>
+                                                    <small class="badge muted"><?= $Vocabulary->getValue('activity-document-types', $file['name'] ?? '', lang('Other', 'Sonstiges')); ?></small>
+                                                    <p>
+                                                        <?= $file['description'] ?? '' ?>
+                                                    </p>
+
+                                                    <ul class="horizontal">
+                                                        <li><?= $file_size ?></li>
+                                                        <li><?= lang('Uploaded by', 'Hochgeladen von') ?> <?= $DB->getNameFromId($file['uploaded_by']) ?></li>
+                                                        <li><?= lang('on', 'am') ?> <?= date('d.m.Y', strtotime($file['uploaded'])) ?></li>
+                                                    </ul>
+                                                </div>
+                                                <div class="ml-auto">
+                                                    <span class="btn blue square">
+                                                        <i class="ph ph-download"></i>
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        <?php } ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
                         <?php endif; ?>
 
 
-                        <?php
-                        $connections = [];
-                        if ($Settings->featureEnabled('projects')) {
-                            $connections['projects'] = count($projects);
-                        }
-                        if ($Settings->featureEnabled('infrastructures')) {
-                            $connections['infrastructures'] = count($infrastructures);
-                        }
-                        $connections['activities'] = count($connected_activities);
-                        $count_connections = array_sum($connections);
-                        ?>
-                        <h3>
-                            <?= lang('Connections', 'Verknüpfungen') ?>
-                            <span class="data-index"><?= $count_connections ?></span>
-                            <?php if ($edit_perm) { ?>
-                                <a href="<?= ROOTPATH ?>/activities/edit-connections/<?= $id ?>" class="ml-10">
-                                    <i class="ph ph-edit"></i>
-                                    <span class="sr-only"><?= lang("Edit", "Bearbeiten") ?></span>
-                                </a>
-                            <?php } ?>
-                        </h3>
-
-                        <?php if ($count_connections === 0) { ?>
-                            <div>
-                                <?= lang('This activity has no connections to other entities yet.', 'Diese Aktivität hat noch keine Verknüpfungen zu anderen Entitäten.') ?>
+                        <hr>
+                        <div class="content">
+                            <?php
+                            $connections = [];
+                            if ($Settings->featureEnabled('projects')) {
+                                $connections['projects'] = count($projects);
+                            }
+                            if ($Settings->featureEnabled('infrastructures')) {
+                                $connections['infrastructures'] = count($infrastructures);
+                            }
+                            $connections['activities'] = count($connected_activities);
+                            $count_connections = array_sum($connections);
+                            ?>
+                            <h3 class="section-title">
+                                <?= lang('Connections', 'Verknüpfungen') ?>
+                                <span class="data-index"><?= $count_connections ?></span>
                                 <?php if ($edit_perm) { ?>
-                                    <?= lang('You can connect', 'Du kannst folgendes verknüpfen') ?>:
-                                    <ul class="horizontal mb-10">
-                                        <?php if (isset($connections['projects'])) { ?>
-                                            <li><?= lang('Projects', 'Projekte') ?></li>
-                                        <?php } ?>
-                                        <?php if (isset($connections['infrastructures'])) { ?>
-                                            <li><?= lang('Infrastructures', 'Infrastrukturen') ?></li>
-                                        <?php } ?>
-                                        <li><?= lang('Other activities', 'Andere Aktivitäten') ?></li>
-                                    </ul>
-                                    <a href="<?= ROOTPATH ?>/activities/edit-connections/<?= $activity['_id']; ?>" class="btn primary small">
+                                    <a href="<?= ROOTPATH ?>/activities/edit-connections/<?= $id ?>" class="ml-10">
                                         <i class="ph ph-edit"></i>
-                                        <?= lang("Connect now", "Jetzt verknüpfen") ?>
+                                        <span class="sr-only"><?= lang("Edit", "Bearbeiten") ?></span>
                                     </a>
                                 <?php } ?>
-                            </div>
-                        <?php } else { ?>
-                            <p>
-                                <?php if (isset($connections['projects'])) { ?>
-                                    <span class="badge project-badge"><i class="ph ph-tree-structure"></i> <?= lang('Projects', 'Projekte') ?> <b><?= $connections['projects'] ?></b></span>
-                                <?php } ?>
-                                <?php if (isset($connections['infrastructures'])) { ?>
-                                    <span class="badge infrastructure-badge"><i class="ph ph-cube-transparent"></i> <?= lang('Infrastructures', 'Infrastrukturen') ?> <b><?= $connections['infrastructures'] ?></b></span>
-                                <?php } ?>
-                                <span class="badge activity-badge"><i class="ph ph-folder"></i> <?= lang('Activities', 'Aktivitäten') ?> <b><?= $connections['activities'] ?></b></span>
-                            </p>
-                        <?php } ?>
+                            </h3>
 
-
-                        <div class="connections">
-                            <?php if (!empty($projects)): ?>
-                                <?php foreach ($projects as $project): ?>
-                                    <div class="connection">
-                                        <span class="badge project-badge"><i class="ph ph-tree-structure"></i> <?= lang("Project", "Projekt") ?></span>
-                                        <h5>
-                                            <a href="<?= ROOTPATH ?>/project/<?= $project['_id']; ?>"> <?= $project['name']; ?> </a>
-                                        </h5>
-                                        <ul class="horizontal">
-                                            <li><?= $project['funding_organization'] ?? $project['funder'] ?? $project['scholarship'] ?? "" ?></li>
-                                            <li><?= fromToDate($project['start'], $project['end']) ?></li>
+                            <?php if ($count_connections === 0) { ?>
+                                <div class="text-muted">
+                                    <?= lang('This activity has no connections to other entities yet.', 'Diese Aktivität hat noch keine Verknüpfungen zu anderen Entitäten.') ?>
+                                    <?php if ($edit_perm) { ?>
+                                        <?= lang('You can connect', 'Du kannst folgendes verknüpfen') ?>:
+                                        <ul class="horizontal mb-10">
+                                            <?php if (isset($connections['projects'])) { ?>
+                                                <li><?= lang('Projects', 'Projekte') ?></li>
+                                            <?php } ?>
+                                            <?php if (isset($connections['infrastructures'])) { ?>
+                                                <li><?= lang('Infrastructures', 'Infrastrukturen') ?></li>
+                                            <?php } ?>
+                                            <li><?= lang('Other activities', 'Andere Aktivitäten') ?></li>
                                         </ul>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                                        <a href="<?= ROOTPATH ?>/activities/edit-connections/<?= $activity['_id']; ?>" class="btn small">
+                                            <i class="ph ph-edit"></i>
+                                            <?= lang("Connect now", "Jetzt verknüpfen") ?>
+                                        </a>
+                                    <?php } ?>
+                                </div>
+                            <?php } else { ?>
+                                <p>
+                                    <?php if (isset($connections['projects'])) { ?>
+                                        <span class="badge project-badge"><i class="ph ph-tree-structure"></i> <?= lang('Projects', 'Projekte') ?> <b><?= $connections['projects'] ?></b></span>
+                                    <?php } ?>
+                                    <?php if (isset($connections['infrastructures'])) { ?>
+                                        <span class="badge infrastructure-badge"><i class="ph ph-cube-transparent"></i> <?= lang('Infrastructures', 'Infrastrukturen') ?> <b><?= $connections['infrastructures'] ?></b></span>
+                                    <?php } ?>
+                                    <span class="badge activity-badge"><i class="ph ph-folder"></i> <?= lang('Activities', 'Aktivitäten') ?> <b><?= $connections['activities'] ?></b></span>
+                                </p>
+                            <?php } ?>
 
 
-                            <?php if (!empty($infrastructures)): ?>
-                                <?php foreach ($infrastructures as $infrastructure): ?>
-                                    <div class="connection">
-                                        <span class="badge infrastructure-badge"><i class="ph ph-cube-transparent"></i> <?= lang("Infrastructure", "Infrastruktur") ?></span>
-                                        <h5>
-                                            <a href="<?= ROOTPATH ?>/infrastructure/<?= $infrastructure['_id']; ?>"> <?= $infrastructure['name']; ?> </a>
-                                        </h5>
-                                        <p><?= $infrastructure['subtitle'] ?? '' ?></p>
-                                    </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
+                            <div class="connections">
+                                <?php if (!empty($projects)): ?>
+                                    <?php foreach ($projects as $project): ?>
+                                        <div class="connection">
+                                            <span class="badge project-badge"><i class="ph ph-tree-structure"></i> <?= lang("Project", "Projekt") ?></span>
+                                            <h5>
+                                                <a href="<?= ROOTPATH ?>/project/<?= $project['_id']; ?>"> <?= $project['name']; ?> </a>
+                                            </h5>
+                                            <ul class="horizontal">
+                                                <li><?= $project['funding_organization'] ?? $project['funder'] ?? $project['scholarship'] ?? "" ?></li>
+                                                <li><?= fromToDate($project['start'], $project['end']) ?></li>
+                                            </ul>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
 
-                            <?php if (!empty($connected_activities)) : ?>
-                                <?php foreach ($connected_activities as $con) { ?>
-                                    <?php
-                                    // check if activity is target or source
-                                    $reverse = ($con['target_id'] == $id);
-                                    $activity = $osiris->activities->findOne(['_id' => $reverse ? $con['source_id'] : $con['target_id']], ['projection' => [
-                                        'rendered' => 1,
-                                    ]]);
-                                    $conLabel = $Format->getRelationshipLabel($con['relationship'], $reverse);
-                                    ?>
-                                    <div class="connection">
-                                        <span class="badge activity-badge"><?= $activity['rendered']['icon'] ?> <?= lang("Activity", "Aktivität") ?></span>
-                                        <div><?= lang($conLabel['en'], $conLabel['de']) ?></div>
-                                        <?= $activity['rendered']['web'] ?? '' ?>
-                                    </div>
-                                <?php } ?>
-                            <?php endif; ?>
+
+                                <?php if (!empty($infrastructures)): ?>
+                                    <?php foreach ($infrastructures as $infrastructure): ?>
+                                        <div class="connection">
+                                            <span class="badge infrastructure-badge"><i class="ph ph-cube-transparent"></i> <?= lang("Infrastructure", "Infrastruktur") ?></span>
+                                            <h5>
+                                                <a href="<?= ROOTPATH ?>/infrastructure/<?= $infrastructure['_id']; ?>"> <?= $infrastructure['name']; ?> </a>
+                                            </h5>
+                                            <p><?= $infrastructure['subtitle'] ?? '' ?></p>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+
+                                <?php if (!empty($connected_activities)) : ?>
+                                    <?php foreach ($connected_activities as $con) { ?>
+                                        <?php
+                                        // check if activity is target or source
+                                        $reverse = ($con['target_id'] == $id);
+                                        $activity = $osiris->activities->findOne(['_id' => $reverse ? $con['source_id'] : $con['target_id']], ['projection' => [
+                                            'rendered' => 1,
+                                        ]]);
+                                        if (!$activity) continue;
+                                        $conLabel = $Format->getRelationshipLabel($con['relationship'], $reverse);
+                                        ?>
+                                        <div class="connection">
+                                            <span class="badge activity-badge"><?= $activity['rendered']['icon'] ?> <?= lang("Activity", "Aktivität") ?></span>
+                                            <div><?= lang($conLabel['en'], $conLabel['de']) ?></div>
+                                            <?= $activity['rendered']['web'] ?? '' ?>
+                                        </div>
+                                    <?php } ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
                 </div>
