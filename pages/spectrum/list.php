@@ -330,10 +330,17 @@ unset($s);
     </a>
 </p>
 
+<div class="btn-toolbar">
 <a href="<?= ROOTPATH ?>/spectrum/visualize?<?= http_build_query($_GET) ?>" class="btn mb-4">
     <i class="ph ph-chart-donut"></i>
     <?= lang('Visualize spectrum', 'Spektrum visualisieren') ?>
 </a>
+
+<a href="<?= ROOTPATH ?>/spectrum/evolution?<?= http_build_query($_GET) ?>" class="btn mb-4">
+    <i class="ph ph-chart-line"></i>
+    <?= lang('Visualize evolution', 'Entwicklung visualisieren') ?>
+</a>
+</div>
 
 <form method="get" class="box padded">
 

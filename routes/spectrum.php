@@ -37,6 +37,28 @@ Route::get('/spectrum/visualize', function () {
 }, 'login');
 
 
+Route::get('/spectrum/evolution', function () {
+    include_once BASEPATH . "/php/init.php";
+    $breadcrumb = [
+        ['name' => lang("Research Spectrum", "Forschungs-Spektrum"), 'path' => "/spectrum"],
+        ['name' => lang("Evolution", "Entwicklung")]
+    ];
+    include BASEPATH . "/header.php";
+    include BASEPATH . "/pages/spectrum/evolution.php";
+    include BASEPATH . "/footer.php";
+}, 'login');
+
+Route::get('/spectrum/visualize', function () {
+    include_once BASEPATH . "/php/init.php";
+    $breadcrumb = [
+        ['name' => lang("Research Spectrum", "Forschungs-Spektrum"), 'path' => "/spectrum"],
+        ['name' => lang("Visualize", "Visualisieren")]
+    ];
+    include BASEPATH . "/header.php";
+    include BASEPATH . "/pages/spectrum/visualize.php";
+    include BASEPATH . "/footer.php";
+}, 'login');
+
 Route::get('/spectrum/(domain|field|subfield|topic)/(.*)', function ($level, $id) {
     include_once BASEPATH . "/php/init.php";
 
