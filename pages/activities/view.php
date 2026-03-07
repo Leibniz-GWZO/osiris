@@ -962,45 +962,6 @@ if ($edit_perm) {
                     </table>
 
 
-                    <?php if ($Settings->featureEnabled('spectrum') && isset($doc['doi']) && $doc['type'] == 'publication') : ?>
-                        <h4 class="table-title">
-                            <?= lang('Research Spectrum', 'Forschungs-Spektrum') ?>
-                        </h4>
-                        <?php
-                        if (empty($openalex)) : ?>
-                            <p>
-                                <?= lang(
-                                    'The assignment of topics from OpenAlex is still pending. Please come back later or refresh the page.',
-                                    'Die Zuweisung von Themen aus OpenAlex steht noch aus. Bitte versuche es später erneut oder aktualisiere die Seite.'
-                                ) ?>
-                            </p>
-                        <?php
-                        elseif (!empty($spectrum)) :
-                            include_once BASEPATH . "/php/Spectrum.php";
-                            Spectrum::render($spectrum, $count = null, $class = 'mt-0');
-                        else :
-                            $fetched = $openalex['fetched_at'] ?? null;
-                        ?>
-                            <p>
-                                <?= lang('No topics are assigned to this activity.', 'Zu dieser Aktivität sind keine Themen zugewiesen.') ?>
-                            </p>
-                            <?php if ($fetched) : ?>
-                                <small class="d-block mt-5 text-muted">
-                                    <?= lang('Topic data was last updated on', 'Die Themen wurden zuletzt aktualisiert am') ?> <?= date('d.m.Y', strtotime($fetched)) ?>
-                                </small>
-                            <?php endif; ?>
-                            <!-- if fetched is longer ago, show a button to fetch new data -->
-                            <?php if (!$fetched || strtotime($fetched) < strtotime('-30 days')) : ?>
-                                <button class="btn primary small mt-5" id="openalex-refresh-button" onclick="fetchOpenAlex('<?= $doc['doi'] ?>')">
-                                    <i class="ph ph-arrows-clockwise"></i>
-                                    <?= lang('Fetch latest topics', 'Neueste Themen abrufen') ?>
-                                </button>
-                            <?php endif; ?>
-                        <?php endif; ?>
-
-                    <?php endif; ?>
-
-
                     <?php
                     $Format->usecase = "list";
                     foreach (
@@ -1045,6 +1006,46 @@ if ($edit_perm) {
                         </p>
                     <?php } ?>
                     </table>
+
+
+                    <?php if ($Settings->featureEnabled('spectrum') && isset($doc['doi']) && $doc['type'] == 'publication') : ?>
+                        <h4 class="table-title">
+                            <?= lang('Research Spectrum', 'Forschungs-Spektrum') ?>
+                        </h4>
+                        <?php
+                        if (empty($openalex)) : ?>
+                            <p>
+                                <?= lang(
+                                    'The assignment of topics from OpenAlex is still pending. Please come back later or refresh the page.',
+                                    'Die Zuweisung von Themen aus OpenAlex steht noch aus. Bitte versuche es später erneut oder aktualisiere die Seite.'
+                                ) ?>
+                            </p>
+                        <?php
+                        elseif (!empty($spectrum)) :
+                            include_once BASEPATH . "/php/Spectrum.php";
+                            Spectrum::render($spectrum, $count = null, $class = 'mt-0');
+                        else :
+                            $fetched = $openalex['fetched_at'] ?? null;
+                        ?>
+                            <p>
+                                <?= lang('No topics are assigned to this activity.', 'Zu dieser Aktivität sind keine Themen zugewiesen.') ?>
+                            </p>
+                            <?php if ($fetched) : ?>
+                                <small class="d-block mt-5 text-muted">
+                                    <?= lang('Topic data was last updated on', 'Die Themen wurden zuletzt aktualisiert am') ?> <?= date('d.m.Y', strtotime($fetched)) ?>
+                                </small>
+                            <?php endif; ?>
+                            <!-- if fetched is longer ago, show a button to fetch new data -->
+                            <?php if (!$fetched || strtotime($fetched) < strtotime('-30 days')) : ?>
+                                <button class="btn primary small mt-5" id="openalex-refresh-button" onclick="fetchOpenAlex('<?= $doc['doi'] ?>')">
+                                    <i class="ph ph-arrows-clockwise"></i>
+                                    <?= lang('Fetch latest topics', 'Neueste Themen abrufen') ?>
+                                </button>
+                            <?php endif; ?>
+                        <?php endif; ?>
+
+                    <?php endif; ?>
+
 
                 </div>
             </div>
