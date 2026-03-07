@@ -20,10 +20,13 @@ Für jede Publikation werden automatisch die bis zu drei dominantesten thematisc
 - Filter nach Zeitraum und Domain
 - Relative Stärke: zeigt die strukturelle Ausprägung eines Schwerpunkts im Vergleich zum stärksten Schwerpunkt innerhalb der aktuellen Auswahl
 - Eigene Detailseiten für jeden Schwerpunkt mit:
-- Publikationsentwicklung
-- Beteiligten Personen
-- Beteiligten Organisationseinheiten
-- Vollständiger Publikationsliste
+  - Publikationsentwicklung
+  - Beteiligten Personen
+  - Beteiligten Organisationseinheiten
+  - Vollständiger Publikationsliste
+- Außerdem gibt es zwei mächtige Visualisierungstools:
+  - Ein Sunburst-Diagramm, das die hierarchische Struktur der Themen zeigt und die relative Verteilung der Publikationen innerhalb der Themenbereiche visualisiert. Hier lässt sich auch nach Zeitraum filtern und die verschiedenen Ebenen lassen sich interaktiv erkunden.
+  - Ein Evolution-Chart, das zeigt, wie sich die thematische Struktur der Publikationen im Zeitverlauf verändert. Es werden nur die 20 häufigsten Themen gezeigt, um die Übersicht zu bewahren. Hier ist die Visualisierung als Stacked Area Chart umgesetzt, um die Entwicklung der Themenanteile über die Zeit hinweg zu verdeutlichen. Außerdem gibt es eine Heatmap, die die Stärke der einzelnen Themen in den verschiedenen Jahren zeigt.
 
 Das Forschungs-Spektrum kann für verschiedene Objekte berechnet werden:
 - gesamtes Institut
