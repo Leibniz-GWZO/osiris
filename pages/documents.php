@@ -77,6 +77,9 @@
                         default:
                             continue 2;
                     }
+                    if (!$con) {
+                        continue;
+                    }
 
                     $label = $Vocabulary->getValue($vocabs[$doc['type']], $doc['name'] ?? '', lang('Other', 'Sonstiges'));
 
