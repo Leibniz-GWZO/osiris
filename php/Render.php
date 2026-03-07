@@ -59,6 +59,8 @@ function renderActivities($filter = [], $return_updated = false)
             $if = $DB->get_impact($doc);
             if (!empty($if)) {
                 $values['impact'] = $if;
+            } else {
+                $values['impact'] = null;
             }
             $values['metrics'] = $DB->get_metrics($doc);
             $values['quartile'] = $values['metrics']['quartile'] ?? null;

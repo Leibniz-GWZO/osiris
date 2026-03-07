@@ -659,33 +659,6 @@ class DB
     }
 
     /**
-     * Get journal impact factor for a specific year (minus one)
-     *
-     * @param array $journal Journal document.
-     * @param int $year Optional. year, defaults to current year.
-     * @return float impact factor.
-     */
-    public function impact_from_year($journal, $year = null)
-    {
-        if (empty($year)) $year = CURRENTYEAR;
-        $if = 0;
-        if (!isset($journal['impact']) || empty($journal['impact'])) return 0;
-
-        // get impact factors from journal
-        $impact = DB::doc2Arr($journal['impact']);
-        // sort ascending by year
-        usort($impact, function ($a, $b) {
-            return $a['year'] - $b['year'];
-        });
-
-        foreach ($impact as $i) {
-            if ($i['year'] >= $year) break;
-            $if = $i['impact'];
-        }
-        return $if;
-    }
-
-    /**
      * Get latest journal impact factor
      *
      * @param array $journal Journal document.
@@ -724,19 +697,19 @@ class DB
      * Get document impact factor
      *
      * @param array $doc Activity document.
-     * @param int $year Optional. Year. Defaults to document year
      * @return float impact factor.
      */
-    public function get_impact($doc, $year = null)
+    public function get_impact($doc)
     {
-        $journal = $this->getJournal($doc);
-
-        if (empty($journal)) return null;
-
-        if ($year == null) {
-            $year = intval($doc['year'] ?? 1);
-        }
-        return $this->impact_from_year($journal, $year);
+        if (!isset($doc['journal_id']) || empty($doc['journal_id'])) return null;
+        $impact = $this->db->journals->aggregate([
+            ['$match' => ['_id' => $this->to_ObjectID($doc['journal_id'] ?? null)]],
+            ['$unwind' => '$impact'],
+            ['$match' => ['impact.year' => intval($doc['year'] ?? 1) - 1]],
+            ['$project' => ['impact_factor' => '$impact.impact', '_id' => 0]]
+        ])->toArray();
+        if (empty($impact)) return null;
+        return $impact[0]['impact_factor'] ?? null;
     }
     /**
      * Get document quartile
