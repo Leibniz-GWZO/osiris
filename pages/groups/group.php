@@ -72,9 +72,9 @@ if ($Settings->featureEnabled('projects')) {
             ['persons.user' => ['$in' => $users]]
         ),
     ];
+    $count_projects = $osiris->projects->count($project_filter);
 }
 
-$count_projects = $osiris->projects->count($project_filter);
 
 if ($Settings->featureEnabled('wordcloud')) {
     $count_wordcloud = $osiris->activities->count([

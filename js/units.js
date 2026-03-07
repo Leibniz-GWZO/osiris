@@ -76,6 +76,7 @@ function navigate(key) {
                     'units': DEPT_TREE,
                     is_active: { '$ne': false }
                 },
+                unit: DEPT,
                 subtitle: 'position',
             })
             break;

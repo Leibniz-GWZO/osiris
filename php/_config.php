@@ -588,7 +588,14 @@ function format_date($date, $format = "d.m.Y")
     if ($d === null) return '';
     return date_format($d, $format);
 }
-
+function rawdump($element)
+{
+    echo json_encode($element, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    if (!empty(json_last_error())) {
+        var_dump(json_last_error_msg()) . PHP_EOL;
+        var_export($element);
+    }
+}
 function dump($element, $as_json = true)
 {
     echo '<pre class="code">';

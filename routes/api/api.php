@@ -519,7 +519,11 @@ Route::get('/api/users', function () {
             $filter = json_decode($filter, true);
         }
         if (isset($filter['is_active'])) {
-            $filter['is_active'] = boolval($filter['is_active']);
+            if (boolval($filter['is_active']) === true) {
+                $filter['is_active'] = ['$ne' => false];
+            } else {
+                $filter['is_active'] = false;
+            }
         }
     }
     if (isset($_GET['json'])) {
