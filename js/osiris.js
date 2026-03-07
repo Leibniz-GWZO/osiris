@@ -862,6 +862,7 @@ function initActivities(selector, data = {}, highlights = []) {
                 },
                 className: 'btn small',
                 text: `<i class="ph ph-clipboard"></i> ${lang('Copy', 'Kopieren')}`,
+                title: null
             },
             {
                 extend: 'excelHtml5',
@@ -883,10 +884,10 @@ function initActivities(selector, data = {}, highlights = []) {
                         }
                     }
                 },
-                title: TITLE,
                 className: 'btn small',
                 title: 'OSIRIS_activities',
                 text: `<i class="ph ph-file-xls"></i> ${lang('Excel', 'Excel')}`,
+                title: null
             },
             {
                 extend: 'print',
@@ -895,7 +896,7 @@ function initActivities(selector, data = {}, highlights = []) {
                     // do not strip HTML tags in the links column
                     stripHtml: false
                 },
-                title: TITLE,
+                title: null,
                 className: 'btn small',
                 text: `<i class="ph ph-printer"></i> ${lang('Print', 'Drucken')}`,
                 customize: function (win) {

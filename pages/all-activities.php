@@ -470,6 +470,7 @@ $cart = readCart();
                     extend: 'colvis',
                     className: 'btn small',
                     text: '<i class="ph ph-columns"></i> <?= lang('Columns', 'Spalten') ?>',
+                    title: null,
                     columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15]
                 },
                 {
@@ -479,6 +480,7 @@ $cart = readCart();
                     },
                     className: 'btn small',
                     text: '<i class="ph ph-clipboard"></i> <?= lang('Copy', 'Kopieren') ?>',
+                    title: null,
                 },
                 {
                     extend: 'excelHtml5',
@@ -495,6 +497,7 @@ $cart = readCart();
                         return 'OSIRIS ' + filters.join('_')
                     },
                     text: '<i class="ph ph-file-xls"></i> <?= lang('Excel', 'Excel') ?>',
+                    title: null,
                 },
                 {
                     extend: 'csvHtml5',
@@ -512,6 +515,7 @@ $cart = readCart();
                         return 'OSIRIS ' + filters.join('_')
                     },
                     text: '<i class="ph ph-file-csv"></i> <?= lang('CSV', 'CSV') ?>',
+                    title: null,
                 },
                 // {
                 //     extend: 'pdfHtml5',

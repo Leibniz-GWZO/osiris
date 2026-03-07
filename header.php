@@ -137,6 +137,7 @@ $pageactive = function ($p) use ($page) {
                 },
                 className: 'btn small',
                 text: `<i class="ph ph-file-xls"></i> Excel`,
+                title: null
             }],
             language: {
                 url: lang(
