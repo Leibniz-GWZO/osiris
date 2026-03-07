@@ -25,14 +25,14 @@ Route::get('/spectrum', function () {
     include BASEPATH . "/footer.php";
 }, 'login');
 
-Route::get('/spectrum-structure', function () {
+Route::get('/spectrum/visualize', function () {
     include_once BASEPATH . "/php/init.php";
     $breadcrumb = [
         ['name' => lang("Research Spectrum", "Forschungs-Spektrum"), 'path' => "/spectrum"],
-        ['name' => lang("Structure", "Struktur")]
+        ['name' => lang("Visualize", "Visualisieren")]
     ];
     include BASEPATH . "/header.php";
-    include BASEPATH . "/pages/spectrum/structure.php";
+    include BASEPATH . "/pages/spectrum/visualize.php";
     include BASEPATH . "/footer.php";
 }, 'login');
 

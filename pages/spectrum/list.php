@@ -157,8 +157,10 @@ unset($s);
     }
 
     .level-buttons .btn {
-        text-transform: uppercase;
+        text-transform: capitalize;
     }
+
+    
 </style>
 <div class="modal" id="what-is-spectrum" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
@@ -322,19 +324,25 @@ unset($s);
 
 <p class="text-muted">
     <?= lang('Data-driven thematic analysis of scholarly publications based on OpenAlex.', 'Datenbasierte thematische Analyse wissenschaftlicher Publikationen auf Basis von OpenAlex.') ?>
-
-<a href="#what-is-spectrum" class="" role="button">
-    <i class="ph ph-info"></i>
-    <?= lang('What is the Research Spectrum?', 'Was ist das Forschungs-Spektrum?') ?>
-</a>
+    <a href="#what-is-spectrum" class="" role="button">
+        <i class="ph ph-info"></i>
+        <?= lang('What is the Research Spectrum?', 'Was ist das Forschungs-Spektrum?') ?>
+    </a>
 </p>
+
+<a href="<?= ROOTPATH ?>/spectrum/visualize?<?= http_build_query($_GET) ?>" class="btn mb-4">
+    <i class="ph ph-chart-donut"></i>
+    <?= lang('Visualize spectrum', 'Spektrum visualisieren') ?>
+</a>
+
 <form method="get" class="box padded">
 
     <div class="btn-toolbar level-buttons">
-        <input type="submit" name="level" class="btn primary level-domain <?= $level == 'domain' ? 'active' : '' ?>" value="domain">
-        <input type="submit" name="level" class="btn primary level-field <?= $level == 'field' ? 'active' : '' ?>" value="field">
-        <input type="submit" name="level" class="btn primary level-subfield <?= $level == 'subfield' ? 'active' : '' ?>" value="subfield">
-        <input type="submit" name="level" class="btn primary level-topic <?= $level == 'topic' ? 'active' : '' ?>" value="topic">
+        <b class="mr-20"><?= lang('Hierarchy level:', 'Hierarchieebene:') ?></b>
+        <input type="submit" name="level" class="btn level-domain <?= $level == 'domain' ? 'primary active' : '' ?>" value="domain">
+        <input type="submit" name="level" class="btn level-field <?= $level == 'field' ? 'primary active' : '' ?>" value="field">
+        <input type="submit" name="level" class="btn level-subfield <?= $level == 'subfield' ? 'primary active' : '' ?>" value="subfield">
+        <input type="submit" name="level" class="btn level-topic <?= $level == 'topic' ? 'primary active' : '' ?>" value="topic">
     </div>
 
     <div class="row row-eq-spacing align-items-end">
