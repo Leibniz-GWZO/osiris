@@ -342,8 +342,8 @@ Route::post('/crud/journal/create', function () {
     $values['created'] = date('Y-m-d');
     $values['created_by'] = $_SESSION['username'];
 
-    if (isset($values['oa']) && $values['oa'] == 0) {
-        $values['oa'] = true;
+    if (isset($values['oa']) && !is_bool($values['oa']) && is_numeric($values['oa_since'] ?? null)) {
+        $values['oa'] = intval($values['oa_since']);
     }
 
     // check if issn already exists:
@@ -588,13 +588,9 @@ Route::post('/crud/journal/update/([A-Za-z0-9]*)', function ($id) {
         $values['updated'] = date('Y-m-d');
         $values['updated_by'] = $_SESSION['username'];
 
-        if (isset($values['oa']) && $values['oa'] !== false) {
-            $updateResult = $osiris->activities->updateMany(
-                ['journal_id' => $id, 'year' => ['$gt' => $values['oa']]],
-                ['$set' => ['open_access' => true]]
-            );
+        if (isset($values['oa']) && !is_bool($values['oa']) && is_numeric($values['oa_since'] ?? null)) {
+            $values['oa'] = intval($values['oa_since']);
         }
-
 
         $updateResult = $collection->updateOne(
             ['_id' => $mongoid],
