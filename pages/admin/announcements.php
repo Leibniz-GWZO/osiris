@@ -1,3 +1,22 @@
+<?php
+
+/**
+ * Admin page for managing announcements
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /admin/announcements
+ *
+ * @package     OSIRIS
+ * @since       2.0.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+?>
+
 <form action="<?= ROOTPATH ?>/crud/admin/general" method="post">
     <div class="container w-800 mw-full">
         <?php

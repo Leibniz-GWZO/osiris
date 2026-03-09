@@ -1,3 +1,22 @@
+<?php
+
+/**
+ * Admin page for managing countries
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /admin/countries
+ *
+ * @package     OSIRIS
+ * @since       1.6.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+?>
+
 <div class="container w-800 mw-full">
 
     <a href="<?= ROOTPATH ?>/migrate/countries" class="btn primary">

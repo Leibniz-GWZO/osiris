@@ -1,3 +1,21 @@
+<?php
+
+/**
+ * Admin page for managing authentication settings
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /admin/authentication
+ *
+ * @package     OSIRIS
+ * @since       2.0.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+?>
 <div class="container w-800 mw-full" id="custom-authentication">
     <h1>
         <i class="ph-duotone ph-lock" aria-hidden="true"></i>

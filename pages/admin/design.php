@@ -1,4 +1,21 @@
 <?php
+
+/**
+ * Admin page for managing design settings
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /admin/design
+ *
+ * @package     OSIRIS
+ * @since       1.8.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
 $colors = $Settings->get('colors');
 $design = $Settings->get('design');
 ?>

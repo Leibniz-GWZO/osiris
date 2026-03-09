@@ -1,5 +1,22 @@
 <?php
 
+/**
+ * Page to view a single topic of the research spectrum.
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /spectrum/<type>/<id>
+ *
+ * @package     OSIRIS
+ * @since       2.0.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
+
 $path = [];
 $child = 'field';
 $childIdField = 'field_id';

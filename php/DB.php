@@ -5,7 +5,7 @@
  *
  * This file is part of the OSIRIS package 
  * 
- * @copyright	Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  * @link		https://github.com/JKoblitz/osiris
  * @version		1.2
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
@@ -852,32 +852,6 @@ class DB
         return $result;
     }
 
-
-    /**
-     * Convert list of authors into unique list of departments
-     *
-     * @param array $authors List of activity authors.
-     * @return array unique list of departments.
-     * 
-     * @deprecated 1.3.0
-     */
-    public function getDeptFromAuthors($authors)
-    {
-        $result = [];
-        $authors = $this->doc2Arr($authors);
-        $authors = array_filter($authors, function ($a) {
-            return boolval($a['aoi'] ?? false);
-        });
-        if (empty($authors)) return [];
-        $users = array_filter(array_column($authors, 'user'));
-        foreach ($users as $user) {
-            $user = $this->getPerson($user);
-            if (empty($user) || empty($user['dept'])) continue;
-            if (in_array($user['dept'], $result)) continue;
-            $result[] = $user['dept'];
-        }
-        return $result;
-    }
 
     private function featureEnabled($feature, $default = false)
     {

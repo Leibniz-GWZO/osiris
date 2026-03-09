@@ -1,5 +1,22 @@
 <?php
 
+/**
+ * Page to add or edit category of activity types
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /admin/types/new
+ * @link        /admin/types/<type_id>
+ *
+ * @package     OSIRIS
+ * @since       1.3.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
 include_once BASEPATH . '/php/Modules.php';
 $Modules = new Modules();
 

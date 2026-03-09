@@ -1,70 +1,85 @@
+<?php
+
+/**
+ * Manage LDAP attribute synchronization
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ *
+ * @package     OSIRIS
+ * @since       1.4.1
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
+$attributeMappings = [
+    'first' => '',
+    'last' => '',
+    'academic_title' => '',
+    'mail' => '',
+    'telephone' => '',
+    'mobile' => '',
+    'position' => '',
+    'department' => '',
+    'is_active' => '',
+    'room' => '',
+    'internal_id' => '',
+];
+
+$config = $osiris->adminGeneral->findOne(['key' => 'ldap_mappings']);
+$availableLdapFields = DB::doc2Arr($config['value'] ?? []);
+$attributeMappings = array_merge($attributeMappings, $availableLdapFields ?? []);
+
+$fields = [
+    'first' => [
+        'name' => lang('First Name', 'Vorname'),
+        'example' => 'givenname', // Beispiel: "John"
+    ],
+    'last' => [
+        'name' => lang('Last Name', 'Nachname'),
+        'example' => 'sn', // Beispiel: "Doe"
+    ],
+    'academic_title' => [
+        'name' => lang('Academic Title', 'Akademischer Titel'),
+        'example' => 'personalTitle', // Beispiel: "Dr."
+    ],
+    'mail' => [
+        'name' => lang('Email', 'E-Mail'),
+        'example' => 'mail', // Beispiel: "john.doe@example.com"
+    ],
+    'telephone' => [
+        'name' => lang('Telephone', 'Telefon'),
+        'example' => 'telephonenumber', // Beispiel: "+1 555 123 456"
+    ],
+    'mobile' => [
+        'name' => lang('Mobile', 'Mobil'),
+        'example' => 'mobile', // Beispiel: "+1 555 987 654"
+    ],
+    'position' => [
+        'name' => lang('Position', 'Position'),
+        'example' => 'title', // Beispiel: "Software Engineer"
+    ],
+    'department' => [
+        'name' => lang('Department', 'Abteilung'),
+        'example' => 'department', // Beispiel: "IT Department"
+    ], //description
+    'is_active' => [
+        'name' => lang('Active', 'Aktiv'),
+        'example' => 'useraccountcontrol', // Beispiel: "512" (Aktiv) oder "514" (Deaktiviert)
+    ],
+    'room' => [
+        'name' => lang('Room', 'Raum'),
+        'example' => 'physicaldeliveryofficename', // Beispiel: "Room 101"
+    ],
+    'internal_id' => [
+        'name' => lang('Internal ID', 'Interne ID'),
+        'example' => 'objectsid', // Beispiel: "12345"
+    ],
+];
+?>
 <div class="container w-800 mw-full" id="custom-footer">
-    <?php
-    $attributeMappings = [
-        'first' => '',
-        'last' => '',
-        'academic_title' => '',
-        'mail' => '',
-        'telephone' => '',
-        'mobile' => '',
-        'position' => '',
-        'department' => '',
-        'is_active' => '',
-        'room' => '',
-        'internal_id' => '',
-    ];
-
-    $config = $osiris->adminGeneral->findOne(['key' => 'ldap_mappings']);
-    $availableLdapFields = DB::doc2Arr($config['value'] ?? []);
-    $attributeMappings = array_merge($attributeMappings, $availableLdapFields ?? []);
-
-    $fields = [
-        'first' => [
-            'name' => lang('First Name', 'Vorname'),
-            'example' => 'givenname', // Beispiel: "John"
-        ],
-        'last' => [
-            'name' => lang('Last Name', 'Nachname'),
-            'example' => 'sn', // Beispiel: "Doe"
-        ],
-        'academic_title' => [
-            'name' => lang('Academic Title', 'Akademischer Titel'),
-            'example' => 'personalTitle', // Beispiel: "Dr."
-        ],
-        'mail' => [
-            'name' => lang('Email', 'E-Mail'),
-            'example' => 'mail', // Beispiel: "john.doe@example.com"
-        ],
-        'telephone' => [
-            'name' => lang('Telephone', 'Telefon'),
-            'example' => 'telephonenumber', // Beispiel: "+1 555 123 456"
-        ],
-        'mobile' => [
-            'name' => lang('Mobile', 'Mobil'),
-            'example' => 'mobile', // Beispiel: "+1 555 987 654"
-        ],
-        'position' => [
-            'name' => lang('Position', 'Position'),
-            'example' => 'title', // Beispiel: "Software Engineer"
-        ],
-        'department' => [
-            'name' => lang('Department', 'Abteilung'),
-            'example' => 'department', // Beispiel: "IT Department"
-        ], //description
-        'is_active' => [
-            'name' => lang('Active', 'Aktiv'),
-            'example' => 'useraccountcontrol', // Beispiel: "512" (Aktiv) oder "514" (Deaktiviert)
-        ],
-        'room' => [
-            'name' => lang('Room', 'Raum'),
-            'example' => 'physicaldeliveryofficename', // Beispiel: "Room 101"
-        ],
-        'internal_id' => [
-            'name' => lang('Internal ID', 'Interne ID'),
-            'example' => 'objectsid', // Beispiel: "12345"
-        ],
-    ];
-    ?>
     <form action="<?= ROOTPATH ?>/synchronize-attributes" method="post">
 
         <h1>

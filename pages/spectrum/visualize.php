@@ -1,3 +1,22 @@
+<?php
+
+/**
+ * Page to visualize the research spectrum of the institution as an interactive sunburst chart.
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /spectrum/visualize
+ *
+ * @package     OSIRIS
+ * @since       2.0.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
+?>
 <script src="<?= ROOTPATH ?>/js/d3.v7.min.js"></script>
 <script src="<?= ROOTPATH ?>/js/popover.js"></script>
 

@@ -1,4 +1,19 @@
 <?php
+
+/**
+ * List of teaching modules
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ *
+ * @package     OSIRIS
+ * @since       1.8.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
 include_once BASEPATH . "/php/Vocabulary.php";
 $Vocabulary = new Vocabulary();
 

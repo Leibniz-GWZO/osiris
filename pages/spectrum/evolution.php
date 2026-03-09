@@ -1,5 +1,23 @@
-<style>
+<?php
 
+/**
+ * Page to see the evolution of the research spectrum of the institution over time.
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /spectrum/evolution
+ *
+ * @package     OSIRIS
+ * @since       2.0.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+
+?>
+<style>
     .sunburst-tooltip {
         position: absolute;
         z-index: 1000;
@@ -180,7 +198,7 @@ foreach ($chartData as $row) {
 
 <form method="get" class="box mb-4">
     <div class="px-20">
-    <div class="row row-eq-spacing align-items-end">
+        <div class="row row-eq-spacing align-items-end">
             <div class="col-md-3">
                 <label class="form-label"><?= lang('Level', 'Ebene') ?></label>
                 <select class="form-control" name="level">
@@ -209,8 +227,8 @@ foreach ($chartData as $row) {
                 <input type="number" class="form-control" name="year_to" value="<?= e($yearTo) ?>">
             </div>
 
-        <div class="col-md-2">
-            <button class="btn primary block"><?= lang('Apply filter', 'Filter anwenden') ?></button>
+            <div class="col-md-2">
+                <button class="btn primary block"><?= lang('Apply filter', 'Filter anwenden') ?></button>
             </div>
         </div>
     </div>
@@ -494,9 +512,9 @@ Da OpenAlex pro Publikation bis zu drei Themen zuordnet, handelt es sich um Them
                     return shortenLabel(s ? s.name : id, 30);
                 })
             );
-g.selectAll(".tick text")
-    .style("text-anchor", "end")
-    .attr("dx", "-1.3em");
+        g.selectAll(".tick text")
+            .style("text-anchor", "end")
+            .attr("dx", "-1.3em");
         // Tooltip
         const tooltip = d3.select("body")
             .append("div")

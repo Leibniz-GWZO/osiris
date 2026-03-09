@@ -1,3 +1,21 @@
+<?php 
+
+/**
+ * Admin page for managing footer contents such as legal notice, privacy policy and custom links
+ * 
+ * This file is part of the OSIRIS package.
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * 
+ * @link        /admin/footer
+ *
+ * @package     OSIRIS
+ * @since       1.5.0
+ * 
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
+ * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
+ * @license     MIT
+ */
+?>
 <style>
     #custom-footer .ql-editor p,
     #custom-footer .ql-editor ol,
