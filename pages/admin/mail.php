@@ -25,54 +25,53 @@ $mail = $Settings->get('mail');
 
     <!-- Email settings -->
     <form action="<?= ROOTPATH ?>/crud/admin/general" method="post">
+        <input type="hidden" name="redirect" value="<?= ROOTPATH ?>/admin/mail">
 
         <div class="form-group">
             <label for="email"><?= lang('Sender address', 'Absender-Adresse') ?></label>
             <input type="email" class="form-control" name="mail[email]" value="<?= $mail['email'] ?? 'no-reply@osiris-app.de' ?>">
             <span class="text-muted">
                 <?= lang(
-                    'This email address is used for sending notifications and as the default sender address. Defaults to no-reply@osiris-app.de',
-                    'Diese E-Mail-Adresse wird für Benachrichtigungen und als Standard-Absenderadresse verwendet. Standardeinstellung ist no-reply@osiris-app.de'
+                    'This email address is used as the default sender address.',
+                    'Diese E-Mail-Adresse wird als Standard-Absenderadresse verwendet.'
                 ) ?>
             </span>
         </div>
 
-        <div class="form-group">
-            <label for="email"><?= lang('SMTP Server', 'SMTP-Server') ?></label>
-            <input type="text" class="form-control" name="mail[smtp_server]" value="<?= $mail['smtp_server'] ?? '' ?>">
-            <span class="text-muted">
-                <?= lang(
-                    'The SMTP server is used to send emails. If you do not provide a server, the default PHP mail function will be used.',
-                    'Der SMTP-Server wird verwendet, um E-Mails zu senden. Falls kein Server angegeben wird, wird die Standard-PHP-Mail-Funktion verwendet.'
-                ) ?>
-            </span>
+        <div class="row row-eq-spacing">
+            <div class="col-sm">
+                <label for="email"><?= lang('SMTP Server', 'SMTP-Server') ?></label>
+                <input type="text" class="form-control" name="mail[smtp_server]" value="<?= $mail['smtp_server'] ?? '' ?>">
+                <span class="text-muted">
+                    <?= lang(
+                        'If set, SMTP will be used. If empty, OSIRIS will use the default PHP mail function.',
+                        'Wenn gesetzt, wird SMTP verwendet. Wenn leer, nutzt OSIRIS die Standard-PHP-Mail-Funktion.'
+                    ) ?>
+                </span>
+            </div>
+
+            <div class="col-sm-2">
+                <label for="email"><?= lang('Port', 'Port') ?></label>
+                <input type="number" class="form-control" name="mail[smtp_port]" value="<?= $mail['smtp_port'] ?? '25' ?>">
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="email"><?= lang('Port', 'Port') ?></label>
-            <input type="number" class="form-control" name="mail[smtp_port]" value="<?= $mail['smtp_port'] ?? '' ?>">
-        </div>
+        <h5>
+            <?= lang('SMTP Authentication', 'SMTP-Authentifizierung') ?>
+        </h5>
+        <p class="text-muted m-0">
+            <?= lang('If your SMTP server requires authentication, please provide the username and password here.', 'Wenn dein SMTP-Server eine Authentifizierung erfordert, gib hier bitte den Benutzernamen und das Passwort ein.') ?>
+        </p>
+        <div class="row row-eq-spacing">
+            <div class="col-sm">
+                <label for="email"><?= lang('Username', 'Benutzername') ?></label>
+                <input type="text" class="form-control" name="mail[smtp_user]" value="<?= $mail['smtp_user'] ?? '' ?>">
+            </div>
 
-        <div class="form-group">
-            <label for="email"><?= lang('Username', 'Benutzername') ?></label>
-            <input type="text" class="form-control" name="mail[smtp_user]" value="<?= $mail['smtp_user'] ?? '' ?>">
-            <span class="text-muted">
-                <?= lang(
-                    'The SMTP user is used to authenticate the SMTP server. If you do not provide a user, the default PHP mail function will be used.',
-                    'Der Benutzername wird verwendet, um den SMTP-Server zu authentifizieren. Falls kein Benutzername angegeben wird, wird die Standard-PHP-Mail-Funktion verwendet.'
-                ) ?>
-            </span>
-        </div>
-
-        <div class="form-group">
-            <label for="email"><?= lang('Password', 'Passwort') ?></label>
-            <input type="password" class="form-control" name="mail[smtp_password]" value="<?= $mail['smtp_password'] ?? '' ?>">
-            <span class="text-muted">
-                <?= lang(
-                    'The password is used to authenticate the SMTP server. If you do not provide a password, the default PHP mail function will be used.',
-                    'Das Passwort wird verwendet, um den SMTP-Server zu authentifizieren. Falls kein Passwort angegeben wird, wird die Standard-PHP-Mail-Funktion verwendet.'
-                ) ?>
-            </span>
+            <div class="col-sm">
+                <label for="email"><?= lang('Password', 'Passwort') ?></label>
+                <input type="password" class="form-control" name="mail[smtp_password]" value="<?= $mail['smtp_password'] ?? '' ?>">
+            </div>
         </div>
 
         <div class="form-group">
@@ -84,8 +83,8 @@ $mail = $Settings->get('mail');
             </select>
             <span class="text-muted">
                 <?= lang(
-                    'The security protocol is used to encrypt the connection to the server.',
-                    'Das Sicherheitsprotokoll wird verwendet, um die Verbindung zum Server zu verschlüsseln.'
+                    'Choose None if your internal SMTP relay does not use encryption.',
+                    'Wähle None, wenn der interne SMTP-Relay keine Verschlüsselung verwendet.'
                 ) ?>
             </span>
         </div>
@@ -139,8 +138,6 @@ $mail = $Settings->get('mail');
             </small>
         </div>
 
-
-
         <div class="bottom-buttons mb-20">
             <button class="btn success">
                 <i class="ph ph-floppy-disk"></i>
@@ -170,7 +167,7 @@ $mail = $Settings->get('mail');
                 </span>
             </div>
 
-            <button class="btn info">
+            <button class="btn blue">
                 <i class="ph ph-paper-plane-tilt"></i>
                 <?= lang('Send Test Email', 'Test-E-Mail senden') ?>
             </button>

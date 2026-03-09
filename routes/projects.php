@@ -553,22 +553,22 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
             $mails = $DB->getMessageGroup($type['notification_created'], 'mail');
             if (!empty($mails)) foreach ($mails as $mail) {
                 if ($collection == 'projects') {
-                    $subject = '[OSIRIS] Neues Projekt erstellt';
-                    $title = 'Neues Projekt erstellt';
-                    $linkText = 'Projekt anzeigen';
+                    $subject = '[OSIRIS] New project created';
+                    $title = 'New project created';
+                    $linkText = 'View project';
                 } else {
-                    $subject = '[OSIRIS] Neuer Projektantrag erstellt';
-                    $title = 'Neuer Projektantrag erstellt';
-                    $linkText = 'Projektantrag anzeigen';
+                    $subject = '[OSIRIS] New project proposal created';
+                    $title = 'New project proposal created';
+                    $linkText = 'View project proposal';
                 }
                 $linkUrl = '/' . $collection . '/view/' . $id;
                 $html = '
                 <h3>Details:</h3>
                 <ul>
-                    <li><b>Kurztitel:</b> ' . $values['name'] . '</li>
-                    <li><b>Voller Titel:</b> ' . $values['title'] . '</li>
-                    <li><b>Erstellt von:</b> ' . $creator . '</li>
-                    <li><b>Erstellt am:</b> ' . date('d.m.Y') . '</li>
+                    <li><b>Short title:</b> ' . $values['name'] . '</li>
+                    <li><b>Full title:</b> ' . $values['title'] . '</li>
+                    <li><b>Created by:</b> ' . $creator . '</li>
+                    <li><b>Created on:</b> ' . date('d.m.Y') . '</li>
                 </ul>
                 ';
                 sendMail(
@@ -812,22 +812,22 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
             $mails = $DB->getMessageGroup($type['notification_changed'], 'mail');
             if (!empty($mails)) foreach ($mails as $mail) {
                 if ($collection == 'projects') {
-                    $subject = '[OSIRIS] Projekt bearbeitet';
-                    $title = 'Projekt bearbeitet';
-                    $linkText = 'Projekt anzeigen';
+                    $subject = '[OSIRIS] Project edited';
+                    $title = 'Project edited';
+                    $linkText = 'View project';
                 } else {
-                    $subject = '[OSIRIS] Projektantrag bearbeitet';
-                    $title = 'Projektantrag bearbeitet';
-                    $linkText = 'Projektantrag anzeigen';
+                    $subject = '[OSIRIS] Project proposal edited';
+                    $title = 'Project proposal edited';
+                    $linkText = 'View project proposal';
                 }
                 $linkUrl = '/' . $collection . '/view/' . $id . '#section-history';
                 $html = '
                 <h3>Details:</h3>
                 <ul>
-                    <li><b>Kurztitel:</b> ' . $values['name'] . '</li>
-                    <li><b>Voller Titel:</b> ' . $values['title'] . '</li>
-                    <li><b>Bearbeitet von:</b> ' . $creator . '</li>
-                    <li><b>Bearbeitet am:</b> ' . date('d.m.Y') . '</li>
+                    <li><b>Short title:</b> ' . $values['name'] . '</li>
+                    <li><b>Full title:</b> ' . $values['title'] . '</li>
+                    <li><b>Edited by:</b> ' . $creator . '</li>
+                    <li><b>Edited on:</b> ' . date('d.m.Y') . '</li>
                     <li><b>Status:</b> ' . ($values['status'] ?? 'proposed') . '</li>
                 </ul>
                 ';
@@ -989,22 +989,22 @@ Route::post('/crud/(projects|proposals)/update-persons/([A-Za-z0-9]*)', function
             $mails = $DB->getMessageGroup($type['notification_changed'], 'mail');
             if (!empty($mails)) {
                 if ($collection == 'projects') {
-                    $subject = '[OSIRIS] Projekt bearbeitet';
-                    $title = 'Personen des Projekts bearbeitet';
-                    $linkText = 'Projekt anzeigen';
+                    $subject = '[OSIRIS] Project edited';
+                    $title = 'Persons of the project edited';
+                    $linkText = 'View project';
                 } else {
-                    $subject = '[OSIRIS] Projektantrag bearbeitet';
-                    $title = 'Personen des Projektantrags bearbeitet';
-                    $linkText = 'Projektantrag anzeigen';
+                    $subject = '[OSIRIS] Project proposal edited';
+                    $title = 'Persons of the project proposal edited';
+                    $linkText = 'View project proposal';
                 }
                 $linkUrl = '/' . $collection . '/view/' . $id . '#section-history';
                 $html = '
                 <h3>Details:</h3>
                 <ul>
-                    <li><b>Kurztitel:</b> ' . $project['name'] . '</li>
-                    <li><b>Voller Titel:</b> ' . $project['title'] . '</li>
-                    <li><b>Bearbeitet von:</b> ' . $creator . '</li>
-                    <li><b>Bearbeitet am:</b> ' . date('d.m.Y') . '</li>
+                    <li><b>Short title:</b> ' . $project['name'] . '</li>
+                    <li><b>Full title:</b> ' . $project['title'] . '</li>
+                    <li><b>Edited by:</b> ' . $creator . '</li>
+                    <li><b>Edited on:</b> ' . date('d.m.Y') . '</li>
                 </ul>
                 ';
                 foreach ($mails as $mail) {

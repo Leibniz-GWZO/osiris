@@ -250,6 +250,7 @@ Diese Überarbeitung sorgt für mehr Sicherheit, Klarheit und Konsistenz in der 
 
 ### Weitere Verbesserungen
 - Die `Updated` und `Updated_by` Felder sind zurück! In Aktivitäten werden nun wieder die letzten Aktualisierungen und die verantwortlichen Personen angezeigt und sind auch wieder filterbar. Bei der Migration wurden die Daten aus der History zurückübertragen, sodass diese Informationen auch für ältere Aktivitäten wieder verfügbar sind.
+- Die Email-Einstellungen wurden leicht überarbeitet und das Backend komplett neu strukturiert. Die Einstellungen aus dem User Interface werden nun korrekt in der MailSender-Funktion umgesetzt und ein paar irreführende Formulierungen in Hilfetexten wurden angepasst.
 - Allen Icons wurden sogenannte "Aria Labels" hinzugefügt, um die Barrierefreiheit zu verbessern.
 - Die Optionen für die Barrierefreiheit wurden für ein konsistentes Nutzererlebnis in den Footer in den Bereich "Hilfe" verschoben
 - Die Farbe von Links wurde vereinheitlicht und ist nun nicht mehr abhängig von der Primärfarbe des Instituts, um die Lesbarkeit zu verbessern.
