@@ -236,6 +236,19 @@ if (!empty($form) && isset($form['_id'])) {
                 <?php
                 $available = [];
                 $all_fields = $Modules->all_modules;
+                include_once BASEPATH . '/php/Document.php';
+                $Format = new Document();
+                $templates = $Format->templates;
+                $fields_from_templates = [];
+                foreach ($templates as $template => $template_fields) {
+                    foreach ($template_fields as $f) {
+                        if (isset($fields_from_templates[$f])) {
+                            $fields_from_templates[$f][] = $template;
+                        } else {
+                            $fields_from_templates[$f] = [$template];
+                        }
+                    }
+                }
                 if (isset($type['fields'])) {
                     foreach ($type['fields'] as $field) {
                         $field_type = $field['type'] ?? 'field';
@@ -249,9 +262,9 @@ if (!empty($form) && isset($form['_id'])) {
                                 $name = lang($f['name'] ?? $field['id'], $f['name_de'] ?? null);
                                 $icon = 'ph-database';
 
-                                $mod = $all_fields[$field['id']] ?? array();
-                                if (isset($mod['fields']) && is_array($mod['fields'])) {
-                                    $available = array_merge($available, array_keys($mod['fields']));
+                                $tem = $fields_from_templates[$field['id']] ?? array();
+                                if (!empty($tem)) {
+                                    $available = array_merge($available, $tem);
                                 }
                                 break;
                             case 'custom':
@@ -287,10 +300,12 @@ if (!empty($form) && isset($form['_id'])) {
                         if (str_ends_with($name, '*') || in_array($name, ['title', 'authors', 'date', 'date-range'])) {
                             $name = str_replace('*', '', $name);
                         }
-                        $mod = $all_fields[$name] ?? array();
-                        if (isset($mod['fields']) && is_array($mod['fields'])) {
-                            $available = array_merge($available, array_keys($mod['fields']));
+                        $tem = $fields_from_templates[$name] ?? array();
+                        if (!empty($tem)) {
+                            $available = array_merge($available, $tem);
                         }
+
+                        $mod = $all_fields[$name] ?? array();
                         if (!empty($mod)) {
                             echo "<span class='badge'><i class='ph ph-database'></i> " . lang($mod['name'], $mod['name_de'] ?? null) . "</span>";
                         } else {
@@ -309,23 +324,6 @@ if (!empty($form) && isset($form['_id'])) {
 
         <div class="content">
             <label for="format" class="font-weight-bold">Templates:</label>
-
-            <a href="<?= ROOTPATH ?>/admin/templates?type=<?= $st ?>" target="_blank" rel="noopener noreferrer" class="ml-10 link">
-                <?= lang('Template builder', 'Template-Baukasten') ?>
-            </a>
-
-            <a onclick="$(this).next().toggle();" class="ml-20"><?= lang('Show cheat sheet', 'Zeige die Cheat-Sheet') ?></a>
-            <div style="display: none; font-size: 0.9em;">
-                <strong><?= lang('Available fields:', 'Verfügbare Felder:') ?></strong>
-                <ul class="list">
-                    <?php
-                    $available = array_unique($available);
-                    sort($available);
-                    foreach ($available as $a) { ?>
-                        <li><code>{<?= e($a) ?>}</code></li>
-                    <?php } ?>
-                </ul>
-            </div>
 
             <div class="input-group mb-10">
                 <div class="input-group-prepend">
@@ -348,23 +346,41 @@ if (!empty($form) && isset($form['_id'])) {
                 <input type="text" class="form-control" name="values[template][subtitle]" value="<?= e($type['template']['subtitle'] ?? '{authors}') ?>">
             </div>
 
+            <?= lang('How to use templates:', 'Wie man Templates verwendet:') ?>
 
-            <!-- <div class="alert primary ">
-                <h3 class="title text-primary">
-                    <?= lang('Example', 'Beispiel') ?>
-                    <span data-toggle="tooltip" data-title="<?= lang('Will be updated as soon as you save the type.', 'Wird aktualisiert, sobald der Typ gespeichert wird.') ?>">
-                        <i class="ph ph-question"></i>
-                    </span>
-                </h3>
-                <b>Print</b> <br>
-                < $type['example'] ?? '- save current form to generate an example -' ?>
-                <hr>
+            <a href="<?= ROOTPATH ?>/admin/templates?type=<?= $st ?>" target="_blank" rel="noopener noreferrer" class="ml-10 link">
+                <?= lang('Template builder', 'Template-Baukasten') ?>
+            </a>
 
-                <b>Web</b> <br>
-                < $type['example_web'] ?? '- save current form to generate an example -' ?>
-            </div> -->
+            <a href="https://wiki.osiris-app.de/admins/content/templates/" target="_blank" rel="noopener noreferrer" class="ml-10 link">
+                <?= lang('Documentation', 'Dokumentation') ?>
+            </a>
+            <style>
+                .cheat-sheet {
+                    display: none;
+                    font-size: 0.9em;
+                    background: var(--body-color);
+                    padding: 0.5rem 1rem;
+                    border-radius: var(--border-radius);
+                }
+            </style>
+
+            <a onclick="$(this).next().slideToggle();" class="ml-10"><?= lang('Show cheat sheet', 'Zeige die Cheat-Sheet') ?></a>
+            <div class="cheat-sheet">
+                <strong><?= lang('Available fields:', 'Verfügbare Felder:') ?></strong>
+                <ul class="list">
+                    <?php
+                    $available = array_unique($available);
+                    sort($available);
+                    foreach ($available as $a) { ?>
+                        <li><code>{<?= e($a) ?>}</code></li>
+                    <?php } ?>
+                </ul>
+                <p>
+                    <?= lang('Please note that this list is not exhaustive, as some fields (e.g. authors) can be displayed with many different templates.', 'Bitte beachten Sie, dass diese Liste nicht vollständig ist, da einige Felder (z.B. Autoren) mit vielen verschiedenen Templates angezeigt werden können.') ?>
+                </p>
+            </div>
         </div>
-
 
 
         <hr>
