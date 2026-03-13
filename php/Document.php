@@ -1278,17 +1278,18 @@ class Document extends Settings
             case "software-link": // ["link"],
                 $val = $this->getVal('link');
                 if (empty($val) || $val == $default) return $default;
+                $val = e($val);
                 if ($this->usecase == 'list') {
-                    return "<a target='_blank' rel='noopener noreferrer' href='$val' class='short-link' >$val</a>";
+                    return '<a target="_blank" rel="noopener noreferrer" href="' . $val . '" class="short-link" >' . $val . '</a>';
                 }
                 if ($module != 'link-short' || $module == 'link-full' || $this->usecase != 'list') {
-                    return "<a target='_blank' href='$val'>$val</a>";
+                    return '<a target="_blank" href="' . $val . '">' . $val . '</a>';
                 }
                 $short_url = str_replace(['https://', 'http://'], '', $val);
                 if (strlen($short_url) > 50) {
                     $short_url = substr($short_url, 0, 50) . '...';
                 }
-                return "<a target='_blank' href='$val'>$short_url</a>";
+                return '<a target="_blank" href="' . $val . '">' . $short_url . '</a>';
             case "location": // ["location"],
                 return $this->getVal('location');
             case "magazine": // ["magazine"],
@@ -1902,41 +1903,7 @@ class Document extends Settings
 
     private function template($template)
     {
-
         $vars = array();
-
-        $pattern = "/{([^}]*)}/";
-        preg_match_all($pattern, $template, $matches);
-
-        foreach ($matches[1] as $match) {
-            $m = explode('|', $match, 2);
-            $value = $this->get_field($m[0]);
-
-            if (empty($value) && count($m) == 2) {
-                $value = $m[1];
-                // check if value is enquoted
-                if (preg_match('/^["\'](.*)["\']$/', $value, $value_match)) {
-                    $value = $value_match[1];
-                }
-                // check if the value is a field
-                else {
-                    // if (in_array($value, $this->field_ids))
-                    $value = $this->get_field($value, '');
-                }
-            }
-            if ($this->isEmptyValue($value)) {
-                $value = '';
-            } elseif (is_array($value)) {
-                $value = implode(', ', $value);
-            } elseif ($value instanceof MongoDB\Model\BSONArray || $value instanceof MongoDB\Model\BSONDocument) {
-                $value = implode(', ', DB::doc2Arr($value));
-            }
-            if (!is_string($value)) {
-                $value = strval($value);
-            }
-            $vars['{' . $match . '}'] = ($value);
-        }
-        $template = strtr($template, $vars);
 
         $pattern = "/%([^%]*)%/";
         preg_match_all($pattern, $template, $matches);
@@ -2004,6 +1971,39 @@ class Document extends Settings
             $vars['%' . $match . '%'] = $text;
         }
         $line = strtr($template, $vars);
+        
+        $pattern = "/{([^}]*)}/";
+        preg_match_all($pattern, $line, $matches);
+
+        $vars = array();
+        foreach ($matches[1] as $match) {
+            $m = explode('|', $match, 2);
+            $value = $this->get_field($m[0]);
+
+            if (empty($value) && count($m) == 2) {
+                $value = $m[1];
+                // check if value is enquoted
+                if (preg_match('/^["\'](.*)["\']$/', $value, $value_match)) {
+                    $value = $value_match[1];
+                }
+                // check if the value is a field
+                else {
+                    $value = $this->get_field($value, '');
+                }
+            }
+            if ($this->isEmptyValue($value)) {
+                $value = '';
+            } elseif (is_array($value)) {
+                $value = implode(', ', $value);
+            } elseif ($value instanceof MongoDB\Model\BSONArray || $value instanceof MongoDB\Model\BSONDocument) {
+                $value = implode(', ', DB::doc2Arr($value));
+            }
+            if (!is_string($value)) {
+                $value = strval($value);
+            }
+            $vars['{' . $match . '}'] = ($value);
+        }
+        $line = strtr($line, $vars);
 
         $line = preg_replace('/\(\s*\)/', '', $line);
         $line = preg_replace('/\[\s*\]/', '', $line);
