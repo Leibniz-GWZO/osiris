@@ -1075,7 +1075,10 @@ Route::get('/api/search/(projects|proposals|activities|conferences|journals|pers
         $first_part = $group_parts[0];
         if (in_array($first_part, $unwinds)) {
             // preserve null and empty arrays
-            $aggregate[] = ['$unwind' => ['$path' => '$' . $first_part, 'preserveNullAndEmptyArrays' => true]];
+            $aggregate[] = ['$unwind' => [
+                'path' => '$' . $first_part,
+                'preserveNullAndEmptyArrays' => true
+            ]];
         }
         $aggregate[] =
             ['$group' => ['_id' => '$' . $group, 'count' => ['$sum' => 1]]];
