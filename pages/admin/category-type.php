@@ -138,39 +138,39 @@ if (!empty($form) && isset($form['_id'])) {
 
                 <div class="col-sm-2">
                     <label for="id" class="required">ID</label>
-                    <input type="text" class="form-control" name="values[id]" required value="<?= $type['id'] ?>" data-value="<?= $type['id'] ?>" oninput="sanitizeID(this)">
+                    <input type="text" class="form-control" name="values[id]" required value="<?= e($type['id']) ?>" data-value="<?= e($type['id']) ?>" oninput="sanitizeID(this)">
                     <small><a href="#unique"><i class="ph ph-info"></i> <?= lang('Must be unqiue', 'Muss einzigartig sein') ?></a></small>
                 </div>
                 <div class="col-sm-2">
                     <label for="icon" class="required element-time"><a href="https://phosphoricons.com/" class="link" target="_blank" rel="noopener noreferrer">Icon</a> </label>
 
                     <div class="input-group">
-                        <input type="text" class="form-control" name="values[icon]" required value="<?= $type['icon'] ?? 'folder-open' ?>" onchange="iconTest(this.value)">
+                        <input type="text" class="form-control" name="values[icon]" required value="<?= e($type['icon'] ?? 'folder-open') ?>" onchange="iconTest(this.value)">
                         <div class="input-group-append">
                             <span class="input-group-text">
-                                <i class="ph ph-<?= $type['icon'] ?? 'folder-open' ?>" id="test-icon"></i>
+                                <i class="ph ph-<?= e($type['icon'] ?? 'folder-open') ?>" id="test-icon"></i>
                             </span>
                         </div>
                     </div>
                 </div>
                 <div class="col-sm">
                     <label for="name" class="required ">Name (en)</label>
-                    <input type="text" class="form-control" name="values[name]" required value="<?= $type['name'] ?? '' ?>">
+                    <input type="text" class="form-control" name="values[name]" required value="<?= e($type['name'] ?? '') ?>">
                 </div>
                 <div class="col-sm">
                     <label for="name_de" class="">Name (de)</label>
-                    <input type="text" class="form-control" name="values[name_de]" value="<?= $type['name_de'] ?? '' ?>">
+                    <input type="text" class="form-control" name="values[name_de]" value="<?= e($type['name_de'] ?? '') ?>">
                 </div>
             </div>
 
             <div class="row row-eq-spacing">
                 <div class="col-sm">
                     <label for="description"><?= lang('Description', 'Beschreibung') ?> (en)</label>
-                    <textarea class="form-control" name="values[description]"><?= $type['description'] ?? '' ?></textarea>
+                    <textarea class="form-control" name="values[description]"><?= e($type['description'] ?? '') ?></textarea>
                 </div>
                 <div class="col-sm">
                     <label for="description_de" class=""><?= lang('Description', 'Beschreibung') ?> (de)</label>
-                    <textarea class="form-control" name="values[description_de]"><?= $type['description_de'] ?? '' ?></textarea>
+                    <textarea class="form-control" name="values[description_de]"><?= e($type['description_de'] ?? '') ?></textarea>
                 </div>
             </div>
 
@@ -330,21 +330,21 @@ if (!empty($form) && isset($form['_id'])) {
                 <div class="input-group-prepend">
                     <span class="input-group-text w-100">Print</span>
                 </div>
-                <input type="text" class="form-control" name="values[template][print]" value="<?= $type['template']['print'] ?? '{title}' ?>">
+                <input type="text" class="form-control" name="values[template][print]" value="<?= e($type['template']['print'] ?? '{title}') ?>">
             </div>
 
             <div class="input-group mb-10">
                 <div class="input-group-prepend">
                     <span class="input-group-text w-100">Web Title</span>
                 </div>
-                <input type="text" class="form-control" name="values[template][title]" value="<?= $type['template']['title'] ?? '{title}' ?>">
+                <input type="text" class="form-control" name="values[template][title]" value="<?= e($type['template']['title'] ?? '{title}') ?>">
             </div>
 
             <div class="input-group mb-10">
                 <div class="input-group-prepend">
                     <span class="input-group-text w-100">Web Subtitle</span>
                 </div>
-                <input type="text" class="form-control" name="values[template][subtitle]" value="<?= $type['template']['subtitle'] ?? '{authors}' ?>">
+                <input type="text" class="form-control" name="values[template][subtitle]" value="<?= e($type['template']['subtitle'] ?? '{authors}') ?>">
             </div>
 
 
