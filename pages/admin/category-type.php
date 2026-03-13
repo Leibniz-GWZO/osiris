@@ -234,6 +234,8 @@ if (!empty($form) && isset($form['_id'])) {
 
             <div id="data-fields">
                 <?php
+                $available = [];
+                $all_fields = $Modules->all_modules;
                 if (isset($type['fields'])) {
                     foreach ($type['fields'] as $field) {
                         $field_type = $field['type'] ?? 'field';
@@ -246,6 +248,11 @@ if (!empty($form) && isset($form['_id'])) {
                                 $f = $Modules->all_modules[$field['id']] ?? array();
                                 $name = lang($f['name'] ?? $field['id'], $f['name_de'] ?? null);
                                 $icon = 'ph-database';
+
+                                $mod = $all_fields[$field['id']] ?? array();
+                                if (isset($mod['fields']) && is_array($mod['fields'])) {
+                                    $available = array_merge($available, array_keys($mod['fields']));
+                                }
                                 break;
                             case 'custom':
                                 $f = $osiris->adminFields->findOne(['id' => $field['id']]);
@@ -280,9 +287,12 @@ if (!empty($form) && isset($form['_id'])) {
                         if (str_ends_with($name, '*') || in_array($name, ['title', 'authors', 'date', 'date-range'])) {
                             $name = str_replace('*', '', $name);
                         }
-                        $f = $Modules->all_modules[$name] ?? array();
-                        if (!empty($f)) {
-                            echo "<span class='badge'><i class='ph ph-database'></i> " . lang($f['name'], $f['name_de'] ?? null) . "</span>";
+                        $mod = $all_fields[$name] ?? array();
+                        if (isset($mod['fields']) && is_array($mod['fields'])) {
+                            $available = array_merge($available, array_keys($mod['fields']));
+                        }
+                        if (!empty($mod)) {
+                            echo "<span class='badge'><i class='ph ph-database'></i> " . lang($mod['name'], $mod['name_de'] ?? null) . "</span>";
                         } else {
                             echo "<span class='badge'><i class='ph ph-textbox'></i> " . lang($name) . "</span>";
                         }
@@ -300,28 +310,19 @@ if (!empty($form) && isset($form['_id'])) {
         <div class="content">
             <label for="format" class="font-weight-bold">Templates:</label>
 
-            <a href="<?= ROOTPATH ?>/admin/templates?type=<?= $st ?>" target="_blank" rel="noopener noreferrer" class="ml-10">
-                <?= lang('Template builder', 'Template-Baukasten') ?> <i class="ph ph-arrow-square-out ml-5"></i>
+            <a href="<?= ROOTPATH ?>/admin/templates?type=<?= $st ?>" target="_blank" rel="noopener noreferrer" class="ml-10 link">
+                <?= lang('Template builder', 'Template-Baukasten') ?>
             </a>
 
-            <a onclick="$(this).next().toggle();"><?= lang('Show cheat sheet', 'Zeige die Cheat-Sheet') ?></a>
+            <a onclick="$(this).next().toggle();" class="ml-20"><?= lang('Show cheat sheet', 'Zeige die Cheat-Sheet') ?></a>
             <div style="display: none; font-size: 0.9em;">
                 <strong><?= lang('Available fields:', 'Verfügbare Felder:') ?></strong>
                 <ul class="list">
                     <?php
-                    // based on selected modules, show available fields
-                    $available = [];
-                    $all_fields = $Modules->all_modules;
-                    foreach ($type['fields'] ?? array() as $field) {
-                        $mod = $all_fields[$field['id']] ?? array();
-                        if (isset($mod['fields']) && is_array($mod['fields'])) {
-                            $available = array_merge($available, array_keys($mod['fields']));
-                        }
-                    }
                     $available = array_unique($available);
                     sort($available);
                     foreach ($available as $a) { ?>
-                        <li><code>{<?= $a ?>}</code></li>
+                        <li><code>{<?= e($a) ?>}</code></li>
                     <?php } ?>
                 </ul>
             </div>
