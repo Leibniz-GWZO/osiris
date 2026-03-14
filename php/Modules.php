@@ -19,8 +19,8 @@ class Modules
     private $fields = array();
     private $type = '';
 
-   
-public $all_modules = array(
+
+    public $all_modules = array(
         "authors" => [
             "fields" => ["authors" => [
                 [
@@ -117,7 +117,7 @@ public $all_modules = array(
             "description_de" => "Ein Feld für eine Stadt, z.B. für den Verlag eines Buches oder für einen Konferenzort.",
             "width" => 6,
             "tags" => ['general', 'location'],
-            "section" => "locations",
+            "section" => "bibliography",
         ],
         "conference" => [
             "fields" => ["conference" => '1st CRIS Conference'],
@@ -1009,7 +1009,7 @@ public $all_modules = array(
                     'last' => $USER['last'],
                     'first' => $USER['first'],
                     'aoi' => true,
-                    'user' => strtolower($USER['username'])
+                    'user' => $USER['username']
                 ]
             );
 
@@ -1559,11 +1559,10 @@ public $all_modules = array(
             case 'countries':
                 $countries = $this->val('countries', []);
             ?>
-
-                <div class="data-module floating-form col-sm-<?= $width ?>" data-module="countries">
-                    <b>
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="countries">
+                    <label for="country-select" class="<?= $labelClass ?> floating-title">
                         <?= $label ?>
-                    </b>
+                    </label>
                     <div class="author-widget">
                         <div class="author-list p-10" id="country-list">
                             <?php
@@ -3386,7 +3385,7 @@ public $all_modules = array(
             case "organizations":
                 $organizations = $this->val('organizations', []);
             ?>
-                <div class="data-module col-sm-<?= $width ?>" data-module="organizations">
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="organizations">
                     <label for="organization" class="floating-title <?= $labelClass ?>">
                         <?= $label ?>
                     </label>
@@ -3470,7 +3469,7 @@ public $all_modules = array(
                 $projects = $this->val('projects', []);
                 $projects = DB::doc2Arr($projects);
             ?>
-                <div class="data-module col-sm-<?= $width ?>" data-module="projects">
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="projects">
                     <label for="project" class="floating-title <?= $labelClass ?>"><?= $label ?></label>
                     <?php
                     $full_permission = $Settings->hasPermission('projects.edit') || $Settings->hasPermission('projects.connect');
@@ -3594,7 +3593,7 @@ public $all_modules = array(
                 $all_tags = $Settings->get('tags') ?? [];
                 $tags = DB::doc2Arr($this->val('tags', []));
             ?>
-                <div class="data-module col-sm-<?= $width ?>" data-module="tags">
+                <div class="data-module col-sm-<?= $width ?> <?= $req ? 'required' : '' ?>" data-module="tags">
                     <label for="tag-select" class="floating-title <?= $labelClass ?>">
                         <?= $label ?>
                     </label>

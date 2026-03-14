@@ -24,18 +24,6 @@ function timeline(year, quarter, typeInfo, events, clickEvent = false) {
         .domain([new Date(year, 0, 1), new Date(year, 12, 1)])
         .range([0, width]);
 
-    // var types = Object.keys(typeInfo)
-    // let ordinalScale = d3.scaleOrdinal()
-    //     .domain(types.reverse())
-    //     .range(Array.from({
-    //         length: types.length
-    //     }, (x, i) => i * (height / (types.length - 1))));
-
-
-    // let axisLeft = d3.axisLeft(ordinalScale);
-    // svg.append('g').attr('class', 'axes')
-    //     .attr('transform', `translate(${margin.left}, ${margin.top})`)
-    //     .call(axisLeft);
 
     var axisBottom = d3.axisBottom(timescale)
         .ticks(12)
@@ -69,16 +57,6 @@ function timeline(year, quarter, typeInfo, events, clickEvent = false) {
         .each(function (d, i) {
             d3.select(this).style("font-size", "8px");
         });
-
-    // var Tooltip = d3.select(divSelector)
-    //     .append("div")
-    //     .style("opacity", 0)
-    //     .attr("class", "tooltip")
-    //     .style("background-color", "white")
-    //     .style("border", "solid")
-    //     .style("border-width", "2px")
-    //     .style("border-radius", "5px")
-    //     .style("padding", "5px")
 
 
     function mouseover(d, i) {
@@ -196,6 +174,5 @@ function timeline(year, quarter, typeInfo, events, clickEvent = false) {
         .attr('y', (d) => Math.random() * distance - distance / 2)
 
         let svgNode = d3.select(divSelector).select('svg').node();
-        console.log('test');
         registerDownloadHandlers(svgNode, divSelector);
 }

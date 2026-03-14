@@ -4,12 +4,12 @@
  * Core routing file
  * 
  * This file is part of the OSIRIS package.
- * Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  *
  * @package     OSIRIS
  * @since       1.0.0
  * 
- * @copyright	Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
  * @license     MIT
  */
@@ -172,7 +172,7 @@ if (
     include_once BASEPATH . "/routes/visualize.php";
     include_once BASEPATH . "/routes/activities.php";
     include_once BASEPATH . "/routes/reports.php";
-    include_once BASEPATH . "/routes/concepts.php";
+    include_once BASEPATH . "/routes/spectrum.php";
     include_once BASEPATH . "/routes/admin.php";
     include_once BASEPATH . "/routes/events.php";
     require_once BASEPATH . '/routes/guests.php';

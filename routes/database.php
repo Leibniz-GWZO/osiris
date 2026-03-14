@@ -4,12 +4,12 @@
  * Routing file for database manipulations
  * 
  * This file is part of the OSIRIS package.
- * Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  *
  * @package     OSIRIS
  * @since       1.3.0
  * 
- * @copyright	Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
  * @license     MIT
  */
@@ -50,6 +50,15 @@ Route::get('/rerender', function () {
     $filter = [];
     if (isset($_GET['type']) && !empty($_GET['type'])) {
         $filter['type'] = $_GET['type'];
+    }
+    if (isset($_GET['subtype']) && !empty($_GET['subtype'])) {
+        $filter['subtype'] = $_GET['subtype'];
+    }
+    if (isset($_GET['username']) && !empty($_GET['username'])) {
+        $filter['rendered.users'] = $_GET['username'];
+    }
+    if (isset($_GET['unit']) && !empty($_GET['unit'])) {
+        $filter['units'] = $_GET['unit'];
     }
 
     // start rendering process
@@ -204,7 +213,7 @@ Route::post('/data/upload', function () {
     if (!empty($values['redirect'])) {
         $redirectUrl = $values['redirect'];
     } else {
-        $redirectUrl = ROOTPATH . "/" . $values['type'] . "/view/" . $values['id'] . "#section-files";
+        $redirectUrl = ROOTPATH . "/" . $values['type'] . "/view/" . $values['id'] . "?tab=documents";
     }
 
     if (!isset($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK) {

@@ -5,12 +5,12 @@
  * Created in cooperation with DSMZ
  * 
  * This file is part of the OSIRIS package.
- * Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  *
  * @package     OSIRIS
  * @since       1.4.1
  * 
- * @copyright	Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
  * @license     MIT
  */
@@ -21,6 +21,49 @@ $Project = new Project();
 
 $edit_perm = ($organization['created_by'] == $_SESSION['username'] || $Settings->hasPermission('organizations.edit'));
 
+$mongo_id = $organization['_id'];
+$str_id = strval($mongo_id);
+
+
+$activities = $osiris->activities->find([
+    '$or' => [
+        ['organization' => $str_id],
+        ['organizations' => $str_id]
+    ]
+], ['projection' => ['rendered' => 1]])->toArray();
+
+$count_spectrum = 0;
+$spectrum_filter = null;
+$projects = [];
+if ($Settings->featureEnabled('spectrum')) {
+    $spectrum_filter =  [
+        'openalex.topics.id' => ['$exists' => true],
+        'type' => 'publication',
+        '$or' => [['organization' => $str_id], ['organizations' => $str_id]]
+    ];
+    if ($Settings->featureEnabled('projects')) {
+        $projects = $osiris->projects->find([
+            '$or' => [
+                ['collaborators.organization' => $mongo_id],
+                ['funding_organization' => $mongo_id],
+                ['university' => $mongo_id],
+            ]
+        ])->toArray();
+        $project_ids = array_map(function ($project) {
+            return ($project['_id']);
+        }, $projects);
+        $spectrum_filter['$or'][] = ['projects' => ['$in' => $project_ids]];
+    }
+    $count_spectrum = $osiris->activities->count($spectrum_filter);
+}
+$infrastructures = [];
+if ($Settings->featureEnabled('infrastructures')) {
+    $infrastructures = $osiris->infrastructures->find(['collaborators' => $mongo_id])->toArray();
+}
+$teaching_modules = [];
+if ($Settings->featureEnabled('teaching-modules', true)) {
+    $teaching_modules = $osiris->teaching->find(['organization' => $str_id])->toArray();
+}
 ?>
 <style>
     .org-logo {
@@ -75,7 +118,7 @@ if ($edit_perm) { ?>
                     <?= lang('Change organization logo', 'Organisations-Logo ändern') ?>
                 </h2>
 
-                <form action="<?= ROOTPATH ?>/crud/organizations/upload-picture/<?= $organization['_id'] ?>" method="post" enctype="multipart/form-data">
+                <form action="<?= ROOTPATH ?>/crud/organizations/upload-picture/<?= $mongo_id ?>" method="post" enctype="multipart/form-data">
                     <input type="hidden" class="hidden" name="redirect" value="<?= $_SERVER['REDIRECT_URL'] ?? $_SERVER['REQUEST_URI'] ?>">
                     <div class="custom-file mb-20" id="file-input-div">
                         <input type="file" id="profile-input" name="file" data-default-value="<?= lang("No file chosen", "Keine Datei ausgewählt") ?>" accept="image/*" required>
@@ -100,7 +143,7 @@ if ($edit_perm) { ?>
                 </form>
 
                 <hr>
-                <form action="<?= ROOTPATH ?>/crud/organizations/upload-picture/<?= $organization['_id'] ?>" method="post">
+                <form action="<?= ROOTPATH ?>/crud/organizations/upload-picture/<?= $mongo_id ?>" method="post">
                     <input type="hidden" name="delete" value="true">
                     <button class="btn danger">
                         <i class="ph ph-trash"></i>
@@ -131,7 +174,7 @@ if ($edit_perm) { ?>
     </div>
     <div class="btn-toolbar">
         <?php if ($Settings->hasPermission('organizations.edit')) { ?>
-            <a href="<?= ROOTPATH ?>/organizations/edit/<?= $organization['_id'] ?>" class="btn primary">
+            <a href="<?= ROOTPATH ?>/organizations/edit/<?= $mongo_id ?>" class="btn primary">
                 <i class="ph ph-edit"></i>
                 <?= lang('Edit organization', 'Organisation bearbeiten') ?>
             </a>
@@ -204,10 +247,18 @@ if ($edit_perm) { ?>
 
                         <td>
                             <span class="key"><?= lang('URL') ?></span>
-                            <?php if (!empty($organization['url'] ?? '')) { ?>
-                                <a href="<?= $organization['url'] ?>" target="_blank" rel="noopener noreferrer" class="short-link">
+                            <?php if (!empty($organization['url'] ?? '')) {
+                                $url = $organization['url'];
+                                if (isset($url['value'])) {
+                                    $url = $url['value'];
+                                }
+                                if (!str_starts_with($url, 'http')) {
+                                    $url = 'http://' . $url;
+                                }
+                            ?>
+                                <a href="<?= $url ?>" target="_blank" rel="noopener noreferrer" class="short-link">
                                     <i class="ph ph-arrow-square-out"></i>
-                                    <?= $organization['url'] ?>
+                                    <?= $url ?>
                                 </a>
                             <?php } else { ?>
                                 -
@@ -309,216 +360,245 @@ if ($edit_perm) { ?>
     }
 </style>
 
-<h2>
-    <?= lang('Connected activities', 'Verknüpfte Aktivitäten') ?>
-</h2>
-<div class="mt-20 w-full">
-    <table class="table dataTable responsive" id="activities-table">
-        <thead>
-            <tr>
-                <th><?= lang('Type', 'Typ') ?></th>
-                <th><?= lang('Activity', 'Aktivität') ?></th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php
-            $org_id = strval($organization['_id']);
-            $activities = $osiris->activities->find([
-                '$or' => [
-                    ['organization' => $org_id],
-                    ['organizations' => $org_id]
-                ]
-            ], ['projection' => ['rendered' => 1]])->toArray();
-            foreach ($activities as $doc) {
-            ?>
-                <tr>
-                    <td class="w-50">
-                        <?= $doc['rendered']['icon'] ?>
-                    </td>
-                    <td>
-                        <?= $doc['rendered']['web'] ?>
-                    </td>
-                </tr>
-            <?php } ?>
-        </tbody>
-    </table>
-</div>
-<script>
-    $('#activities-table').DataTable({
-        "order": [
-            [0, "asc"]
-        ],
-        "columnDefs": [{
-            "targets": 0,
-            "orderable": false
-        }]
-    });
-</script>
 
-<?php if ($Settings->featureEnabled('projects')) { ?>
-    <h2>
-        <?= lang('Connected projects', 'Verknüpfte Projekte') ?>
-    </h2>
+<?php
+if ($Settings->featureEnabled('spectrum') && $count_spectrum > 0) {
+    $spectrum = $osiris->activities->aggregate([
+        ['$match' => $spectrum_filter],
 
-    <div class="mt-20 w-full">
-        <table class="table dataTable responsive" id="projects-table">
-            <thead>
-                <tr>
-                    <th class="w-100"><?= lang('Type', 'Typ') ?></th>
-                    <th><?= lang('Project', 'Projekt') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $projects = $osiris->projects->find([
-                    '$or' => [
-                        ['collaborators.organization' => $organization['_id']],
-                        ['funding_organization' => $organization['_id']],
-                        ['university' => $organization['_id']],
+        // total number of matched activities
+        ['$unwind' => '$openalex.topics'],
 
-                    ]
-                ])->toArray();
-                foreach ($projects as $project) {
-                    $Project->setProject($project);
-                ?>
-                    <tr>
-                        <td>
-                            <?= $Project->getType('ph-fw ph-2x m-0') ?>
-                        </td>
-                        <td>
-                            <?= $Project->widgetSmall() ?>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    </div>
-    <script>
-        $('#projects-table').DataTable({});
-    </script>
-<?php } ?>
+        // group by topic id
+        ['$group' => [
+            '_id' => '$openalex.topics.id',
+            'count' => ['$sum' => 1],
+            'sumScore' => ['$sum' => '$openalex.topics.score'],
+            'topic' => ['$first' => '$openalex.topics']
+        ]],
 
+        // compute averages + share
+        ['$addFields' => [
+            'avg_score' => ['$divide' => ['$sumScore', '$count']],
+            'share' => ['$divide' => ['$count', $count_spectrum]],
+            // optional combined weight (tweakable)
+            'weight' => ['$multiply' => [
+                ['$divide' => ['$count', $count_spectrum]],
+                ['$divide' => ['$sumScore', $count_spectrum]]
+            ]]
+        ]],
 
+        // filter noise
+        ['$match' => ['share' => ['$gte' => 0.05]]],
 
-<?php if ($Settings->featureEnabled('infrastructures')) { ?>
-    <h2>
-        <?= lang('Connected infrastructures', 'Verknüpfte Infrastrukturen') ?>
-    </h2>
-
-    <div class="mt-20 w-full">
-        <table class="table dataTable responsive" id="infrastructures-table">
-            <thead>
-                <tr>
-                    <th><?= $Settings->infrastructureLabel() ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $infrastructures = $osiris->infrastructures->find(['collaborators' => $organization['_id']])->toArray();
-                foreach ($infrastructures as $infra) {
-                ?>
-                    <tr>
-                        <td>
-                            <h6 class="m-0">
-                                <a href="<?= ROOTPATH ?>/infrastructures/view/<?= $infra['_id'] ?>" class="link">
-                                    <?= lang($infra['name'], $infra['name_de'] ?? null) ?>
-                                </a>
-                                <br>
-                            </h6>
-
-                            <div class="text-muted mb-5">
-                                <?php if (!empty($infra['subtitle'])) { ?>
-                                    <?= lang($infra['subtitle'], $infra['subtitle_de'] ?? null) ?>
-                                <?php } else { ?>
-                                    <?= get_preview(lang($infra['description'], $infra['description_de'] ?? null), 300) ?>
-                                <?php } ?>
-                            </div>
-                            <div>
-                                <?= fromToYear($infra['start_date'], $infra['end_date'] ?? null, true) ?>
-                            </div>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    </div>
-    <script>
-        $('#infrastructures-table').DataTable({});
-    </script>
-<?php } ?>
-
-<?php if ($Settings->featureEnabled('teaching-modules', true)) { ?>
-    <h2>
-        <?= lang('Connected teaching modules', 'Verknüpfte Lehrveranstaltungen') ?>
-    </h2>
-
-    <div class="mt-20 w-full">
-        <table class="table dataTable responsive" id="teaching-modules-table">
-            <thead>
-                <tr>
-                    <th><?= lang('Module No.', 'Modulnummer') ?></th>
-                    <th><?= lang('Title', 'Titel') ?></th>
-                    <th><?= lang('Contact person', 'Ansprechperson') ?></th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $teaching_modules = $osiris->teaching->find([
-                    'organization' => $org_id
-                ])->toArray();
-                foreach ($teaching_modules as $module) {
-
-                ?>
-                    <tr>
-                        <td>
-                            <a href="<?= ROOTPATH ?>/teaching/view/<?= strval($module['_id']) ?>">
-                                <?= e($module['module']) ?>
-                            </a>
-                        </td>
-                        <td>
-                            <?= e($module['title']) ?>
-                        </td>
-                        <td>
-                            <?php if (isset($module['contact_person'])) { ?>
-                                <a href="<?= ROOTPATH ?>/profile/<?= $module['contact_person'] ?>">
-                                    <?= $DB->getNameFromId($module['contact_person'] ?? null) ?>
-                                </a>
-                            <?php } ?>
-                        </td>
-                    </tr>
-                <?php } ?>
-            </tbody>
-        </table>
-    </div>
-    <script>
-        $('#teaching-modules-table').DataTable({});
-    </script>
-<?php } ?>
-
-
-<?php if ($Settings->hasPermission('organizations.delete')) { ?>
-    <button type="button" class="btn danger mt-20" id="delete-organization" onclick="$('#delete-organization-confirm').toggle();$(this).toggle();">
-        <i class="ph ph-trash"></i>
-        <?= lang('Delete organization', 'Organisation löschen') ?>
-    </button>
-
-    <div class="mt-20 alert danger" style="display: none;" id="delete-organization-confirm">
-        <form action="<?= ROOTPATH ?>/crud/organizations/delete/<?= $organization['_id'] ?>" method="post">
-            <h4 class="title">
-                <?= lang('Delete organization', 'Organisation löschen') ?>
-            </h4>
+        ['$sort' => ['weight' => -1]],
+        ['$limit' => 25]
+    ])->toArray();
+?>
+    <div class="col-md">
+        <h3>
+            <?= lang('Associated Research Spectrum', 'Assoziiertes Forschungs-Spektrum') ?>
+        </h3>
+        <?php
+        if (!empty($spectrum)) :
+            include_once BASEPATH . "/php/Spectrum.php";
+            Spectrum::render($spectrum, $count_spectrum);
+        else : ?>
             <p>
-                <?= lang('Are you sure you want to delete this organization?', 'Sind Sie sicher, dass Sie diese Organisation löschen möchten?') ?>
+                <?= lang('No Research Spectrum is assigned to this organization.', 'Zu dieser Organisation ist kein Forschungs-Spektrum zugewiesen.') ?>
             </p>
-            <button type="submit" class="btn danger">
-                <?= lang('Delete', 'Löschen') ?>
-            </button>
-        </form>
-    </div>
-<?php } ?>
+        <?php endif; ?>
+    <?php } ?>
+
+
+    <?php if (!empty($activities)) { ?>
+
+        <h2>
+            <?= lang('Connected activities', 'Verknüpfte Aktivitäten') ?>
+        </h2>
+        <div class="mt-20 w-full">
+            <table class="table dataTable responsive" id="activities-table">
+                <thead>
+                    <tr>
+                        <th><?= lang('Type', 'Typ') ?></th>
+                        <th><?= lang('Activity', 'Aktivität') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($activities as $doc) {
+                    ?>
+                        <tr>
+                            <td class="w-50">
+                                <?= $doc['rendered']['icon'] ?>
+                            </td>
+                            <td>
+                                <?= $doc['rendered']['web'] ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+        <script>
+            $('#activities-table').DataTable({
+                "order": [
+                    [0, "asc"]
+                ],
+                "columnDefs": [{
+                    "targets": 0,
+                    "orderable": false
+                }]
+            });
+        </script>
+    <?php } ?>
 
 
 
-<?php if (isset($_GET['verbose'])) {
-    dump($organization, true);
-} ?>
+    <?php if ($Settings->featureEnabled('projects') && !empty($projects)) { ?>
+        <h2>
+            <?= lang('Connected projects', 'Verknüpfte Projekte') ?>
+        </h2>
+
+        <div class="mt-20 w-full">
+            <table class="table dataTable responsive" id="projects-table">
+                <thead>
+                    <tr>
+                        <th class="w-100"><?= lang('Type', 'Typ') ?></th>
+                        <th><?= lang('Project', 'Projekt') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($projects as $project) {
+                        $Project->setProject($project);
+                    ?>
+                        <tr>
+                            <td>
+                                <?= $Project->getType('ph-fw ph-2x m-0') ?>
+                            </td>
+                            <td>
+                                <?= $Project->widgetSmall() ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+        <script>
+            $('#projects-table').DataTable({});
+        </script>
+    <?php } ?>
+
+
+
+    <?php if ($Settings->featureEnabled('infrastructures') && !empty($infrastructures)) { ?>
+        <h2>
+            <?= lang('Connected infrastructures', 'Verknüpfte Infrastrukturen') ?>
+        </h2>
+
+        <div class="mt-20 w-full">
+            <table class="table dataTable responsive" id="infrastructures-table">
+                <thead>
+                    <tr>
+                        <th><?= $Settings->infrastructureLabel() ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($infrastructures as $infra) {
+                    ?>
+                        <tr>
+                            <td>
+                                <h6 class="m-0">
+                                    <a href="<?= ROOTPATH ?>/infrastructures/view/<?= $infra['_id'] ?>" class="link">
+                                        <?= lang($infra['name'], $infra['name_de'] ?? null) ?>
+                                    </a>
+                                    <br>
+                                </h6>
+
+                                <div class="text-muted mb-5">
+                                    <?php if (!empty($infra['subtitle'])) { ?>
+                                        <?= lang($infra['subtitle'], $infra['subtitle_de'] ?? null) ?>
+                                    <?php } else { ?>
+                                        <?= get_preview(lang($infra['description'], $infra['description_de'] ?? null), 300) ?>
+                                    <?php } ?>
+                                </div>
+                                <div>
+                                    <?= fromToYear($infra['start_date'], $infra['end_date'] ?? null, true) ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+        <script>
+            $('#infrastructures-table').DataTable({});
+        </script>
+    <?php } ?>
+
+    <?php if ($Settings->featureEnabled('teaching-modules', true) && !empty($teaching_modules)) { ?>
+        <h2>
+            <?= lang('Connected teaching modules', 'Verknüpfte Lehrveranstaltungen') ?>
+        </h2>
+
+        <div class="mt-20 w-full">
+            <table class="table dataTable responsive" id="teaching-modules-table">
+                <thead>
+                    <tr>
+                        <th><?= lang('Module No.', 'Modulnummer') ?></th>
+                        <th><?= lang('Title', 'Titel') ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($teaching_modules as $module) {
+
+                    ?>
+                        <tr>
+                            <td>
+                                <a href="<?= ROOTPATH ?>/teaching/view/<?= strval($module['_id']) ?>">
+                                    <?= e($module['module']) ?>
+                                </a>
+                            </td>
+                            <td>
+                                <?= e($module['title']) ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+        <script>
+            $('#teaching-modules-table').DataTable({});
+        </script>
+    <?php } ?>
+
+
+    <?php if ($Settings->hasPermission('organizations.delete')) { ?>
+        <button type="button" class="btn danger mt-20" id="delete-organization" onclick="$('#delete-organization-confirm').toggle();$(this).toggle();">
+            <i class="ph ph-trash"></i>
+            <?= lang('Delete organization', 'Organisation löschen') ?>
+        </button>
+
+        <div class="mt-20 alert danger" style="display: none;" id="delete-organization-confirm">
+            <form action="<?= ROOTPATH ?>/crud/organizations/delete/<?= $str_id ?>" method="post">
+                <h4 class="title">
+                    <?= lang('Delete organization', 'Organisation löschen') ?>
+                </h4>
+                <p>
+                    <?= lang('Are you sure you want to delete this organization?', 'Sind Sie sicher, dass Sie diese Organisation löschen möchten?') ?>
+                </p>
+                <button type="submit" class="btn danger">
+                    <?= lang('Delete', 'Löschen') ?>
+                </button>
+            </form>
+        </div>
+    <?php } ?>
+
+
+
+    <?php if (isset($_GET['verbose'])) {
+        dump($organization, true);
+    } ?>

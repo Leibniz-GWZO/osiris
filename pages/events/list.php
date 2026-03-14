@@ -6,24 +6,49 @@ $user = $_SESSION['username'];
 
 $topicsEnabled = $Settings->featureEnabled('topics') && $osiris->topics->count() > 0;
 $tagsEnabled = $Settings->featureEnabled('tags');
+
+$deadlinesEnabled = $Settings->featureEnabled('deadlines', false);
+
 ?>
 
+<?php if ($deadlinesEnabled) { ?>
+    <h1>
+        <i class="ph-duotone ph-calendar"></i>
+        <?= lang('Schedule', 'Termine') ?>
+    </h1>
 
-<h1>
-    <i class="ph-duotone ph-calendar-dots"></i>
-    <?= lang('Events') ?>
-</h1>
-
-
-<!-- modal for adding conference -->
-<?php if ($Settings->hasPermission('conferences.edit')) { ?>
-    <div class="btn-toolbar">
-        <a href="<?= ROOTPATH ?>/conferences/new" class="">
-            <i class="ph ph-plus"></i>
-            <?= lang('Add event', 'Event hinzufügen') ?>
+    <div class="pills d-inline-block font-size-16">
+        <a href="#" class="btn active font-weight-bold">
+            <i class="ph-duotone ph-calendar-dots"></i>
+            <?= lang('Events', 'Events') ?>
+        </a>
+        <a href="<?= ROOTPATH ?>/deadlines" class="btn">
+            <i class="ph-duotone ph-flag-checkered"></i>
+            <?= lang('Deadlines', 'Deadlines') ?>
         </a>
     </div>
+    <?php if ($Settings->hasPermission('conferences.edit')) { ?>
+        <a href="<?= ROOTPATH ?>/conferences/new" class="ml-20">
+            <i class="ph ph-plus"></i>
+            <?= lang('New event', 'Neues Event') ?>
+        </a>
+    <?php } ?>
+<?php } else { ?>
+    <h1>
+        <i class="ph-duotone ph-calendar-dots"></i>
+        <?= lang('Events', 'Events') ?>
+    </h1>
+    <div class="btn-toolbar">
+        <?php if ($Settings->hasPermission('conferences.edit')) { ?>
+            <a href="<?= ROOTPATH ?>/conferences/new" class="">
+                <i class="ph ph-plus"></i>
+                <?= lang('Add event', 'Event hinzufügen') ?>
+            </a>
+        <?php } ?>
+    </div>
 <?php } ?>
+
+
 
 
 <!-- 
@@ -259,30 +284,28 @@ $conferences = $osiris->conferences->find(
             responsive: true,
             autoWidth: true,
             deferRender: true,
-            buttons: [
-                {
-                    extend: 'excelHtml5',
-                    exportOptions: {
-                        columns: [1, 2, 3, 4, 5, 6],
-                        format: {
-                            header: function(html, index, node) {
-                                return headers[index].title ?? '';
-                            }
+            buttons: [{
+                extend: 'excelHtml5',
+                exportOptions: {
+                    columns: [1, 2, 3, 4, 5, 6],
+                    format: {
+                        header: function(html, index, node) {
+                            return headers[index].title ?? '';
                         }
-                    },
-                    className: 'btn small',
-                    title: function() {
-                        var filters = []
-                        activeFilters.find('.badge').find('span').each(function(i, el) {
-                            filters.push(el.innerHTML)
-                        })
-                        console.log(filters);
-                        if (filters.length == 0) return "OSIRIS All Events";
-                        return 'OSIRIS Events ' + filters.join('_')
-                    },
-                    text: '<i class="ph ph-file-xls"></i> Export'
+                    }
                 },
-            ],
+                className: 'btn small',
+                title: function() {
+                    var filters = []
+                    activeFilters.find('.badge').find('span').each(function(i, el) {
+                        filters.push(el.innerHTML)
+                    })
+                    console.log(filters);
+                    if (filters.length == 0) return "OSIRIS All Events";
+                    return 'OSIRIS Events ' + filters.join('_')
+                },
+                text: '<i class="ph ph-file-xls"></i> Export'
+            }, ],
             dom: 'fBrtip',
             columnDefs: [{
                     targets: 0,

@@ -59,6 +59,46 @@ if (!empty($ops)) {
 echo "<p>Done. Updated documents: {$updated}</p>\n";
 
 
+$activities = $osiris->activities->find(['history' => ['$exists' => true]], ['projection' => ['history' => 1]]);
+$N = 0;
+foreach ($activities as $activity) {
+    // add updated and updated_by based on history entries
+    $history = $activity['history'];
+    // get last history entry with type 'edited'
+    $editDate = null;
+    $editUser = null;
+    foreach ($history as $entry) {
+        if ($entry['type'] == 'edited' && ($editDate == null || $entry['date'] > $editDate)) {
+            $editDate = $entry['date'];
+            $editUser = $entry['user'];
+        }
+    }
+    if ($editDate == null) continue;
+    $osiris->activities->updateOne(
+        ['_id' => $activity['_id']],
+        ['$set' => [
+            'updated' => $editDate,
+            'updated_by' => $editUser
+        ]]
+    );
+    $N++;
+}
+echo "<p>" . lang('Added updated and updated_by to', 'updated und updated_by hinzugefügt zu') . " $N " . lang('activities', 'Aktivitäten') . ".</p>\n";
+
+
+// Migrate OpenAlex IDs from 'openalex' field to 'openalex_id' and create indexes for command palette search
+$activities = $osiris->activities->find(['openalex' => ['$exists' => true]], ['projection' => ['openalex' => 1]]);
+$N = 0;
+foreach ($activities as $activity) {
+    $openalex = $activity['openalex'];
+    $osiris->activities->updateOne(
+        ['_id' => $activity['_id']],
+        ['$set' => ['openalex_id' => $openalex], '$unset' => ['openalex' => '']]
+    );
+    $N++;
+}
+echo "<p>Migrated OpenAlex IDs for $N activities.</p>\n";
+
 /* Create an index if it doesn't already exist. */
 function ensureIndex($collection, array $keys, array $options = [])
 {

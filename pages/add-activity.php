@@ -4,7 +4,7 @@
  * Page to add or edit one activity
  * 
  * This file is part of the OSIRIS package.
- * Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  * 
  * @link /add-activity
  * @link /activities/edit/<activity_id>
@@ -12,7 +12,7 @@
  * @package OSIRIS
  * @since 1.0 
  * 
- * @copyright	Copyright (c) 2024 Julia Koblitz, OSIRIS Solutions GmbH
+ * @copyright	Copyright (c) 2026 Julia Koblitz, OSIRIS Solutions GmbH
  * @author		Julia Koblitz <julia.koblitz@osiris-solutions.de>
  * @license     MIT
  */
@@ -331,6 +331,28 @@ console.log(TYPES);
 </div>
 
 
+<div class="modal" id="teaching-select" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <a data-dismiss="modal" href="#close-modal" class="btn float-right" role="button" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </a>
+
+            <label for="teaching-search"><?= lang('Search Modules by name or module number', 'Suche Module nach Name oder Modulnummer') ?></label>
+            <div class="input-group">
+                <input type="text" class="form-control" onchange="getTeaching(this.value)" list="teaching-list" id="teaching-search" value="<?= $form['module'] ?? '' ?>">
+                <div class="input-group-append">
+                    <button class="btn" onclick="getTeaching($('#teaching-search').val())"><i class="ph ph-magnifying-glass"></i></button>
+                </div>
+            </div>
+            <table class="table simple">
+                <tbody id="teaching-suggest">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 
 <div class="modal" id="sws-calc" tabindex="-1" role="dialog">
