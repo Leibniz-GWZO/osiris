@@ -181,7 +181,7 @@ if ($is_subproject) {
         $project_type = $Project->getProjectType($type);
 
         $subtitle = '';
-        $phase = 'proposed';
+        $phase = 'preparation';
         $status = $form['status'] ?? 'proposed';
         if ($is_subproject && !empty($form['_id'] ?? null)) {
             $formaction = ROOTPATH . "/crud/projects/update/" . $form['_id'];
@@ -278,6 +278,62 @@ if ($is_subproject) {
                 <i class="ph ph-warning"></i>
                 <?= lang('After saving, you will no longer be able to change the status or update the original application information.', 'Nach dem Speichern wirst du nicht mehr in der Lage sein, den Status zu ändern oder die Antragsinformationen des vorherigen Status zu aktualisieren.') ?>
             </p>
+        <?php } else if ($status == 'preparation' && $phase == 'proposed') {
+            if (!$status_perm) {
+                echo '<p class="text-danger"><i class="ph ph-warning"></i>' . lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.') . '</p>';
+                echo '</div>';
+                return;
+            }
+        ?>
+            <?= lang('Status change', 'Statusänderung') ?>:
+            <span class="badge muted"><?= lang('In preparation', 'In Vorbereitung') ?></span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="badge signal"><?= lang('Proposed', 'Beantragt') ?></span>
+        <?php } else if ($status == 'proposed' && $phase == 'review') {
+            if (!$status_perm) {
+                echo '<p class="text-danger"><i class="ph ph-warning"></i>' . lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.') . '</p>';
+                echo '</div>';
+                return;
+            }
+        ?>
+            <?= lang('Status change', 'Statusänderung') ?>:
+            <span class="badge signal"><?= lang('Proposed', 'Beantragt') ?></span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="badge warning"><?= lang('Under review', 'In Begutachtung') ?></span>
+        <?php } else if ($status == 'review' && $phase == 'approved') {
+            if (!$status_perm) {
+                echo '<p class="text-danger"><i class="ph ph-warning"></i>' . lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.') . '</p>';
+                echo '</div>';
+                return;
+            }
+        ?>
+            <?= lang('Status change', 'Statusänderung') ?>:
+            <span class="badge warning"><?= lang('Under review', 'In Begutachtung') ?></span>
+            <i class="ph ph-arrow-right"></i>
+            <span class="badge success"><?= lang('Approved', 'Bewilligt') ?></span>
+            <p class="text-danger">
+                <i class="ph ph-warning"></i>
+                <?= lang('After saving, you will no longer be able to change the status or update the original application information.', 'Nach dem Speichern wirst du nicht mehr in der Lage sein, den Status zu ändern oder die Antragsinformationen des vorherigen Status zu aktualisieren.') ?>
+            </p>
+        <?php } else if ($status == 'review' && ($phase == 'rejected' || $phase == 'withdrawn')) {
+            if (!$status_perm) {
+                echo '<p class="text-danger"><i class="ph ph-warning"></i>' . lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.') . '</p>';
+                echo '</div>';
+                return;
+            }
+        ?>
+            <?= lang('Status change', 'Statusänderung') ?>:
+            <span class="badge warning"><?= lang('Under review', 'In Begutachtung') ?></span>
+            <i class="ph ph-arrow-right"></i>
+            <?php if ($phase == 'rejected') { ?>
+                <span class="badge danger"><?= lang('Rejected', 'Abgelehnt') ?></span>
+            <?php } else if ($phase == 'withdrawn') { ?>
+                <span class="badge muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></span>
+            <?php } ?>
+            <p class="text-danger">
+                <i class="ph ph-warning"></i>
+                <?= lang('After saving, you will no longer be able to change the status or update the original application information.', 'Nach dem Speichern wirst du nicht mehr in der Lage sein, den Status zu ändern oder die Antragsinformationen des vorherigen Status zu aktualisieren.') ?>
+            </p>
         <?php } else if (!$new_project && $status == $phase) {
             if (!$edit_perm) {
                 echo '<p class="text-danger"><i class="ph ph-warning"></i>' . lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.') . '</p>';
@@ -286,6 +342,13 @@ if ($is_subproject) {
             }
             echo lang('You edit the following status', 'Du bearbeitest den folgenden Status') . ': ';
             echo $Project->getStatus($status);
+        } else if (!$new_project && $status != $phase) {
+            if (!$status_perm) {
+                echo '<p class="text-danger"><i class="ph ph-warning"></i>' . lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.') . '</p>';
+                echo '</div>';
+                return;
+            }
+            echo lang('Status change', 'Statusänderung') . ': ' . $Project->getStatus($status) . ' <i class="ph ph-arrow-right"></i> ' . $Project->getStatus($phase);
         } ?>
 
 

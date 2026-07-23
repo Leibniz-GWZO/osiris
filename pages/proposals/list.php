@@ -466,6 +466,8 @@ $tagsEnabled = $Settings->featureEnabled('tags');
 
     function renderStatus(data) {
         switch (data) {
+            case 'preparation':
+                return `<span class='badge muted'>${lang('in preparation', 'in Vorbereitung')}</span>`;
             case 'approved':
                 return `<span class='badge success'>${lang('approved', 'bewilligt')}</span>`;
             case 'finished':
@@ -473,6 +475,8 @@ $tagsEnabled = $Settings->featureEnabled('tags');
             case 'applied':
             case 'proposed':
                 return `<span class='badge signal'>${lang('proposed', 'beantragt')}</span>`;
+            case 'review':
+                return `<span class='badge warning'>${lang('under review', 'in Begutachtung')}</span>`;
             case 'rejected':
                 return `<span class='badge danger'>${lang('rejected', 'abgelehnt')}</span>`;
             case 'withdrawn':

@@ -96,7 +96,9 @@ class ProjectFields extends Fields
                 'values' => $types,
                 "scope" => [
                     "project" => true,
-                    "proposed" => true
+                    "proposed" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -143,7 +145,9 @@ class ProjectFields extends Fields
                 "scope" => [
                     "project" => true,
                     "proposed" => true,
-                    "approved" => true
+                    "approved" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -173,7 +177,9 @@ class ProjectFields extends Fields
                 "scope" => [
                     "project" => true,
                     "proposed" => true,
-                    "approved" => true
+                    "approved" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -198,7 +204,9 @@ class ProjectFields extends Fields
                 'type' => 'string',
                 'input' => 'select',
                 'values' => [
+                    'preparation' => lang('In preparation', 'In Vorbereitung'),
                     'proposed' => lang('Proposed', 'Beantragt'),
+                    'review' => lang('Under review', 'In Begutachtung'),
                     'approved' => lang('Approved', 'Bewilligt'),
                     'rejected' => lang('Rejected', 'Abgelehnt'),
                     'withdrawn' => lang('Withdrawn', 'Zurückgezogen'),
@@ -209,7 +217,9 @@ class ProjectFields extends Fields
                     'columns'
                 ],
                 "scope" => [
+                    "preparation" => true,
                     "proposed" => true,
+                    "review" => true,
                     "approved" => true,
                     "rejected" => true
                 ],
@@ -224,7 +234,9 @@ class ProjectFields extends Fields
                     'columns'
                 ],
                 "scope" => [
-                    "proposed" => true
+                    "proposed" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -239,7 +251,8 @@ class ProjectFields extends Fields
                     'columns'
                 ],
                 "scope" => [
-                    "proposed" => true
+                    "proposed" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -312,7 +325,9 @@ class ProjectFields extends Fields
                     'columns'
                 ],
                 "scope" => [
-                    "proposed" => true
+                    "proposed" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -325,7 +340,9 @@ class ProjectFields extends Fields
                     'columns'
                 ],
                 "scope" => [
-                    "proposed" => true
+                    "proposed" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
@@ -342,7 +359,9 @@ class ProjectFields extends Fields
                 ],
                 "scope" => [
                     "project" => true,
-                    "proposed" => true
+                    "proposed" => true,
+                    "preparation" => true,
+                    "review" => true
                 ],
             ],
             [
