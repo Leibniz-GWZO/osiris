@@ -28,10 +28,24 @@ class Project extends Vocabulary
 
     public const PHASES = [
         [
+            'id' => 'preparation',
+            'name' => 'In preparation',
+            'name_de' => 'In Vorbereitung',
+            'color' => 'muted',
+            'type' => 'proposal'
+        ],
+        [
             'id' => 'proposed',
             'name' => 'Proposed',
             'name_de' => 'Beantragt',
             'color' => 'signal',
+            'type' => 'proposal'
+        ],
+        [
+            'id' => 'review',
+            'name' => 'Under review',
+            'name_de' => 'In Begutachtung',
+            'color' => 'warning',
             'type' => 'proposal'
         ],
         [
@@ -463,9 +477,13 @@ class Project extends Vocabulary
     public function getStatus($status = '')
     {
         switch ($this->project['status'] ?? $status) {
+            case 'preparation':
+                return "<span class='badge muted'>" . lang('in preparation', 'in Vorbereitung') . "</span>";
             case 'applied':
             case 'proposed':
                 return "<span class='badge signal'>" . lang('proposed', 'beantragt') . "</span>";
+            case 'review':
+                return "<span class='badge warning'>" . lang('under review', 'in Begutachtung') . "</span>";
             case 'approved':
             case 'accepted':
                 if ($this->inPast())

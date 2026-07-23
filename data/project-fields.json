@@ -6,7 +6,9 @@
     "kdsf": null,
     "scope": {
       "project": true,
-      "proposed": true
+      "proposed": true,
+      "preparation": true,
+      "review": true
     },
     "order": 1
   },
@@ -30,7 +32,9 @@
     "scope": {
       "project": true,
       "proposed": true,
-      "approved": true
+      "approved": true,
+      "preparation": true,
+      "review": true
     },
     "order": 2
   },
@@ -54,7 +58,9 @@
     "scope": {
       "project": true,
       "proposed": true,
-      "approved": true
+      "approved": true,
+      "preparation": true,
+      "review": true
     },
     "order": 4
   },
@@ -88,7 +94,9 @@
     "scope": {
       "proposed": true,
       "approved": true,
-      "rejected": true
+      "rejected": true,
+      "preparation": true,
+      "review": true
     },
     "order": 6
   },
@@ -98,7 +106,9 @@
     "de": "Antragstellende Personen",
     "kdsf": "KDSF-B-2-15",
     "scope": {
-      "proposed": true
+      "proposed": true,
+      "preparation": true,
+      "review": true
     },
     "order": 7
   },
@@ -108,7 +118,8 @@
     "de": "Einreichungsdatum",
     "kdsf": null,
     "scope": {
-      "proposed": true
+      "proposed": true,
+      "review": true
     },
     "order": 8
   },
@@ -160,7 +171,9 @@
     "de": "Beantragter Projektbeginn",
     "kdsf": null,
     "scope": {
-      "proposed": true
+      "proposed": true,
+      "preparation": true,
+      "review": true
     },
     "order": 13
   },
@@ -170,7 +183,9 @@
     "de": "Beantragtes Projektende",
     "kdsf": null,
     "scope": {
-      "proposed": true
+      "proposed": true,
+      "preparation": true,
+      "review": true
     },
     "order": 14
   },
@@ -181,7 +196,9 @@
     "kdsf": null,
     "scope": {
       "project": true,
-      "proposed": true
+      "proposed": true,
+      "preparation": true,
+      "review": true
     },
     "order": 17
   },

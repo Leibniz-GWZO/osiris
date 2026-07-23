@@ -96,13 +96,36 @@ if ($nagoyaRelevant) {
         </div>
         <div class="status">
             <?php if ($status_perm) { ?>
-                <?php if ($status == 'proposed') { ?>
+                <?php if ($status == 'preparation') { ?>
+                    <div class="dropdown">
+                        <button class="badge status muted text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-preparation" aria-haspopup="true" aria-expanded="false">
+                            <i class="ph ph-edit" aria-hidden="true"></i>
+                            <?= lang('In preparation', 'In Vorbereitung') ?>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-preparation">
+                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=proposed" class="item badge status signal mb-5"><?= lang('Proposed', 'Beantragt') ?></a>
+                        </div>
+                    </div>
+                <?php } else if ($status == 'proposed') { ?>
                     <div class="dropdown">
                         <button class="badge status signal text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-1" aria-haspopup="true" aria-expanded="false">
                             <i class="ph ph-edit" aria-hidden="true"></i>
                             <?= lang('Proposed', 'Beantragt') ?>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-1">
+                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=review" class="item badge status warning mb-5"><?= lang('Under review', 'In Begutachtung') ?></a>
+                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a>
+                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a>
+                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a>
+                        </div>
+                    </div>
+                <?php } else if ($status == 'review') { ?>
+                    <div class="dropdown">
+                        <button class="badge status warning text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-review" aria-haspopup="true" aria-expanded="false">
+                            <i class="ph ph-edit" aria-hidden="true"></i>
+                            <?= lang('Under review', 'In Begutachtung') ?>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-review">
                             <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a>
                             <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a>
                             <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a>
@@ -131,8 +154,14 @@ if ($nagoyaRelevant) {
 
                     <?php
                     switch ($status) {
+                        case 'preparation':
+                            echo "<span class='badge status muted'>" . lang('In preparation', 'In Vorbereitung') . "</span>";
+                            break;
                         case 'proposed':
                             echo "<span class='badge status signal'>" . lang('Proposed', 'Beantragt') . "</span>";
+                            break;
+                        case 'review':
+                            echo "<span class='badge status warning'>" . lang('Under review', 'In Begutachtung') . "</span>";
                             break;
                         case 'approved':
                             echo "<span class='badge status success'>" . lang('Approved', 'Bewilligt') . "</span>";

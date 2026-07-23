@@ -453,7 +453,7 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
             $values['proposal_id'] = $DB->to_ObjectID($values['proposal_id']);
         }
     } else if ($collection == 'proposals') {
-        $values['status'] = 'proposed';
+        $values['status'] = 'preparation';
     } else {
         $values['status'] = 'project';
         if (isset($values['proposal_id'])) {
