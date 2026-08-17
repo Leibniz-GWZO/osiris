@@ -499,7 +499,7 @@ Route::get('/api/users', function () {
         $path = $_GET['path'];
     }
 
-    $filter = ['username' => ['$ne' => null]];
+    $filter = ['username' => ['$ne' => null, '$not' => new MongoDB\BSON\Regex('admin', 'i')]];
     if (isset($_GET['filter'])) {
         $filter = $_GET['filter'];
         if (is_string($filter)) {
