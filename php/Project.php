@@ -132,6 +132,26 @@ class Project extends Vocabulary
             $this->project = $project;
     }
 
+    /**
+     * Normalize external applicants (persons outside the institute) posted from the proposal form.
+     * Stored separately from `applicants`, which holds usernames of institute members only.
+     */
+    public static function cleanExternalApplicants($list): array
+    {
+        $clean = [];
+        foreach ($list ?? [] as $ext) {
+            if (!is_array($ext)) continue;
+            $last = trim(strval($ext['last'] ?? ''));
+            if ($last === '') continue;
+            $clean[] = [
+                'last' => $last,
+                'first' => trim(strval($ext['first'] ?? '')),
+                'affiliation' => trim(strval($ext['affiliation'] ?? '')),
+            ];
+        }
+        return $clean;
+    }
+
     public function initFields()
     {
         // get all fields from file data/project-fields.json
@@ -266,7 +286,10 @@ class Project extends Vocabulary
     public function printField($field, $value, $portfolio = false)
     {
         $DB = new DB();
-        if (empty($value)) return '-';
+        if ($field == 'applicants') {
+            $external = DB::doc2Arr($this->project['applicants_external'] ?? []);
+            if (empty($value) && empty($external)) return '-';
+        } else if (empty($value)) return '-';
         switch ($field) {
             case 'type':
                 return $this->getType('');
@@ -336,7 +359,7 @@ class Project extends Vocabulary
                 $value = DB::doc2Arr($value);
                 return implode(', ', $value);
             case 'applicants':
-                $applicants = DB::doc2Arr($value);
+                $applicants = DB::doc2Arr($value ?? []);
                 $applicantsList = '';
                 foreach ($applicants as $a) {
                     if ($portfolio) {
@@ -344,6 +367,12 @@ class Project extends Vocabulary
                     } else {
                         $applicantsList .= '<li><a href="' . ROOTPATH . '/profile/' . ($a) . '">' . $this->getNameFromId($a) . '</a></li>';
                     }
+                }
+                foreach ($external as $ext) {
+                    $ext = DB::doc2Arr($ext);
+                    $name = e($ext['last'] ?? '') . (!empty($ext['first']) ? ', ' . e($ext['first']) : '');
+                    $affiliation = !empty($ext['affiliation']) ? ' <small class="text-muted">(' . e($ext['affiliation']) . ')</small>' : '';
+                    $applicantsList .= '<li>' . $name . $affiliation . ' <span class="badge muted font-size-10">' . lang('external', 'extern') . '</span></li>';
                 }
                 return '<ul class="list mb-0">' . $applicantsList . '</ul>';
             case 'grant_sum_proposed':

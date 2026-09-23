@@ -321,6 +321,9 @@ Route::post('/proposals/download/(.*)', function ($id) {
     foreach ($project['applicants'] ?? [] as $applicant) {
         $contacts[] = $DB->getNameFromId($applicant);
     }
+    foreach ($project['applicants_external'] ?? [] as $ext) {
+        $contacts[] = trim(($ext['first'] ?? '') . ' ' . ($ext['last'] ?? '')) . (!empty($ext['affiliation']) ? ' (' . $ext['affiliation'] . ')' : '');
+    }
     $contacts = implode(', ', $contacts);
 
     $clean_name = clean_comment_export(strip_tags($project['name'] ?? 'NA'), false);
@@ -389,6 +392,9 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
 
 
     $values = validateValues($_POST['values'], $DB);
+    if (isset($_POST['applicants_external_submitted'])) {
+        $values['applicants_external'] = Project::cleanExternalApplicants($values['applicants_external'] ?? []);
+    }
     if (!isset($values['type']) || !isset($values['name'])) {
         $_SESSION['msg'] = lang("Missing required parameters.", "Fehlende erforderliche Parameter.");
         $_SESSION['msg_type'] = "error";
@@ -704,6 +710,10 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     }
 
     $values = validateValues($_POST['values'], $DB);
+    // form sends a marker so that removing all external applicants clears the field
+    if (isset($_POST['applicants_external_submitted'])) {
+        $values['applicants_external'] = Project::cleanExternalApplicants($values['applicants_external'] ?? []);
+    }
     // add information on creating process
     $values['updated'] = date('Y-m-d');
     $values['updated_by'] = $_SESSION['username'];

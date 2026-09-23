@@ -710,6 +710,66 @@ if ($is_subproject) {
                             author.appendTo(el)
                         }
                     </script>
+
+                    <div class="data-module col-12 mt-10" data-module="applicants_external">
+                        <label class="floating-title">
+                            <?= lang('External applicant(s)', 'Externe antragstellende Person(en)') ?>
+                        </label>
+                        <input type="hidden" name="applicants_external_submitted" value="1">
+                        <div class="author-widget">
+                            <div class="author-list p-10" id="external-applicant-list">
+                                <?php foreach ($form['applicants_external'] ?? [] as $i => $ext) {
+                                    $ext = DB::doc2Arr($ext); ?>
+                                    <div class='author'>
+                                        <?= e($ext['last'] ?? '') ?>, <?= e($ext['first'] ?? '') ?><?= !empty($ext['affiliation']) ? ' (' . e($ext['affiliation']) . ')' : '' ?>
+                                        <input type='hidden' name='values[applicants_external][<?= $i ?>][last]' value='<?= e($ext['last'] ?? '') ?>'>
+                                        <input type='hidden' name='values[applicants_external][<?= $i ?>][first]' value='<?= e($ext['first'] ?? '') ?>'>
+                                        <input type='hidden' name='values[applicants_external][<?= $i ?>][affiliation]' value='<?= e($ext['affiliation'] ?? '') ?>'>
+                                        <a onclick='$(this).closest(".author").remove()'>&times;</a>
+                                    </div>
+                                <?php } ?>
+                            </div>
+                            <div class="footer">
+                                <div class="input-group small d-inline-flex w-auto">
+                                    <input type="text" class="form-control" id="ext-applicant-last" placeholder="<?= lang('Last name', 'Nachname') ?>">
+                                    <input type="text" class="form-control" id="ext-applicant-first" placeholder="<?= lang('First name', 'Vorname') ?>">
+                                    <input type="text" class="form-control" id="ext-applicant-affiliation" placeholder="<?= lang('Institution', 'Einrichtung') ?>">
+                                    <div class="input-group-append">
+                                        <button class="btn secondary h-full" type="button" onclick="addExternalApplicant();">
+                                            <i class="ph ph-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">
+                            <?= lang('Persons outside the institute. Institute members should be added above.', 'Personen außerhalb des Instituts. Institutsangehörige bitte oben auswählen.') ?>
+                        </small>
+                    </div>
+                    <script>
+                        function addExternalApplicant() {
+                            var last = $('#ext-applicant-last').val().trim()
+                            var first = $('#ext-applicant-first').val().trim()
+                            var affiliation = $('#ext-applicant-affiliation').val().trim()
+                            if (last === '') {
+                                toastError(lang('Please enter at least a last name.', 'Bitte gib mindestens einen Nachnamen an.'))
+                                return
+                            }
+                            var i = 'n' + Date.now()
+                            var label = last + (first ? ', ' + first : '') + (affiliation ? ' (' + affiliation + ')' : '')
+                            var author = $('<div class="author">').text(label)
+                            var fields = {last: last, first: first, affiliation: affiliation}
+                            for (var key in fields) {
+                                $('<input type="hidden">')
+                                    .attr('name', 'values[applicants_external][' + i + '][' + key + ']')
+                                    .val(fields[key])
+                                    .appendTo(author)
+                            }
+                            author.append('<a onclick="$(this).closest(\'.author\').remove()">&times;</a>')
+                            author.appendTo('#external-applicant-list')
+                            $('#ext-applicant-last, #ext-applicant-first, #ext-applicant-affiliation').val('')
+                        }
+                    </script>
                 <?php } ?>
 
 
