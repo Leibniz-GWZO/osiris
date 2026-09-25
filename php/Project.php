@@ -358,6 +358,14 @@ class Project extends Vocabulary
             case 'units':
                 $value = DB::doc2Arr($value);
                 return implode(', ', $value);
+            case 'units_manual':
+                global $Groups;
+                $list = '';
+                foreach (DB::doc2Arr($value) as $unit) {
+                    $name = isset($Groups) ? $Groups->getName($unit) : $unit;
+                    $list .= '<li><a href="' . ROOTPATH . '/groups/view/' . urlencode($unit) . '">' . e($name) . '</a></li>';
+                }
+                return '<ul class="list mb-0">' . $list . '</ul>';
             case 'applicants':
                 $applicants = DB::doc2Arr($value ?? []);
                 $applicantsList = '';

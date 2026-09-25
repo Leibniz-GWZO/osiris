@@ -276,12 +276,13 @@ function renderAuthorUnitsProjects($filter = [])
             ['$set' => ['units' => $doc['units'] ?? []]]
         );
     }
-    $cursor = $DB->db->proposals->find($filter, ['projection' => ['persons' => 1, 'units' => 1, 'start_date' => 1]]);
+    $cursor = $DB->db->proposals->find($filter, ['projection' => ['persons' => 1, 'units' => 1, 'start_date' => 1, 'units_manual' => 1]]);
     foreach ($cursor as $doc) {
+        $manual = getManualUnits(DB::doc2Arr($doc));
         $doc = renderAuthorUnits($doc, [], 'persons');
         $DB->db->proposals->updateOne(
             ['_id' => $doc['_id']],
-            ['$set' => ['units' => $doc['units'] ?? []]]
+            ['$set' => ['units' => mergeUnitsWithParents(DB::doc2Arr($doc['units'] ?? []), $manual)]]
         );
     }
 }
@@ -294,7 +295,7 @@ function renderProject($doc, $col = 'projects', $id = null)
     if (isset($id)) {
         $project = $DB->db->$col->findOne(
             ['_id' => $id],
-            ['projection' => ['start' => 1, 'end' => 1, 'start_date' => 1, 'end_date' => 1, 'start_proposed' => 1, 'end_proposed' => 1]]
+            ['projection' => ['start' => 1, 'end' => 1, 'start_date' => 1, 'end_date' => 1, 'start_proposed' => 1, 'end_proposed' => 1, 'persons' => 1, 'units_manual' => 1]]
         );
     }
     if (isset($doc['start'])) {
@@ -339,6 +340,7 @@ function renderProject($doc, $col = 'projects', $id = null)
         } else {
             $units = flatten(array_column($doc['persons'], 'units'));
         }
+        $units = array_merge($units, getManualUnits($doc, $project));
         $units = array_unique($units);
         foreach ($units as $unit) {
             $units = array_merge($units, $Groups->getParents($unit, true));
@@ -346,6 +348,33 @@ function renderProject($doc, $col = 'projects', $id = null)
         $units = array_unique($units);
         $doc['units'] = array_values($units);
         // $doc = renderAuthorUnits($doc, [], 'persons');
+    } elseif (array_key_exists('units_manual', $doc)) {
+        // only the manually selected units changed: keep the units derived from the stored persons
+        $units = [];
+        foreach (DB::doc2Arr($project['persons'] ?? []) as $p) {
+            $units = array_merge($units, DB::doc2Arr($p['units'] ?? []));
+        }
+        $doc['units'] = mergeUnitsWithParents($units, getManualUnits($doc, $project));
     }
     return $doc;
+}
+
+/**
+ * Manually selected co-applicant units of a project/proposal.
+ * Taken from the submitted values if present, otherwise from the stored document.
+ */
+function getManualUnits($doc, $stored = [])
+{
+    $manual = array_key_exists('units_manual', $doc) ? $doc['units_manual'] : ($stored['units_manual'] ?? []);
+    return array_values(array_filter(DB::doc2Arr($manual ?? [])));
+}
+
+function mergeUnitsWithParents($units, $manual = [])
+{
+    global $Groups;
+    $units = array_unique(array_merge($units, $manual));
+    foreach ($units as $unit) {
+        $units = array_merge($units, $Groups->getParents($unit, true));
+    }
+    return array_values(array_unique($units));
 }

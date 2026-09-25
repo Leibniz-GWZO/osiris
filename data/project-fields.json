@@ -113,6 +113,18 @@
     "order": 7
   },
   {
+    "id": "units_manual",
+    "en": "Co-applicant unit(s)",
+    "de": "Mitantragstellende Abteilung(en)",
+    "kdsf": null,
+    "scope": {
+      "proposed": true,
+      "preparation": true,
+      "review": true
+    },
+    "order": 7
+  },
+  {
     "id": "submission_date",
     "en": "Submission date",
     "de": "Einreichungsdatum",
