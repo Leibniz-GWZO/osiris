@@ -395,6 +395,9 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
     if (isset($_POST['applicants_external_submitted'])) {
         $values['applicants_external'] = Project::cleanExternalApplicants($values['applicants_external'] ?? []);
     }
+    if (isset($_POST['units_manual_submitted'])) {
+        $values['units_manual'] = array_values(array_unique(array_filter(array_map('strval', $values['units_manual'] ?? []))));
+    }
     if (!isset($values['type']) || !isset($values['name'])) {
         $_SESSION['msg'] = lang("Missing required parameters.", "Fehlende erforderliche Parameter.");
         $_SESSION['msg_type'] = "error";
@@ -714,6 +717,9 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     if (isset($_POST['applicants_external_submitted'])) {
         $values['applicants_external'] = Project::cleanExternalApplicants($values['applicants_external'] ?? []);
     }
+    if (isset($_POST['units_manual_submitted'])) {
+        $values['units_manual'] = array_values(array_unique(array_filter(array_map('strval', $values['units_manual'] ?? []))));
+    }
     // add information on creating process
     $values['updated'] = date('Y-m-d');
     $values['updated_by'] = $_SESSION['username'];
@@ -881,7 +887,7 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
 
     $id = $DB->to_ObjectID($id);
     include_once BASEPATH . "/php/Render.php";
-    $values = renderProject($values, $id);
+    $values = renderProject($values, $collection, $id);
 
     $updateResult = $osiris->$collection->updateOne(
         ['_id' => $id],

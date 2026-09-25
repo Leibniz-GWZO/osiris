@@ -772,6 +772,31 @@ if ($is_subproject) {
                     </script>
                 <?php } ?>
 
+                <?php if (array_key_exists('units_manual', $fields)) {
+                    $selected_units = DB::doc2Arr($form['units_manual'] ?? []);
+                    $unit_options = $osiris->groups->find(['inactive' => ['$ne' => true], 'level' => ['$gt' => 0]], ['sort' => ['level' => 1, 'name' => 1]]);
+                ?>
+                    <div class="form-group col-12 mt-10">
+                        <label for="units_manual" class="floating-title">
+                            <?= lang('Co-applicant unit(s)', 'Mitantragstellende Abteilung(en)') ?>
+                        </label>
+                        <input type="hidden" name="units_manual_submitted" value="1">
+                        <select class="form-control" name="values[units_manual][]" id="units_manual" multiple size="8">
+                            <?php foreach ($unit_options as $g) { ?>
+                                <option value="<?= e($g['id']) ?>" <?= in_array($g['id'], $selected_units) ? 'selected' : '' ?>>
+                                    <?= str_repeat('&nbsp;&nbsp;', max(0, ($g['level'] ?? 1) - 1)) . e(lang($g['name'] ?? $g['id'], $g['name_de'] ?? null)) ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                        <small class="text-muted">
+                            <?= lang(
+                                'Units that apply jointly, in addition to those of the applicants (Ctrl/Cmd+click for multiple). The applicants\' own units are added automatically.',
+                                'Abteilungen, die gemeinsam beantragen, zusätzlich zu denen der Antragstellenden (Strg/Cmd+Klick für mehrere). Die Abteilungen der Antragstellenden werden automatisch ergänzt.'
+                            ) ?>
+                        </small>
+                    </div>
+                <?php } ?>
+
 
                 <?php if (array_key_exists('scholar', $fields)) { ?>
                     <div class="form-group floating-form">
