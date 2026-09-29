@@ -200,6 +200,50 @@ Route::get('/documents', function () {
 
 
 
+// delivery of uploaded files with permission check
+// (public images in Uploads::PUBLIC_DIRS are delivered directly, see .htaccess)
+Route::get('/uploads/(.+)', function ($path) {
+    include_once BASEPATH . "/php/init.php";
+    include_once BASEPATH . "/php/Uploads.php";
+
+    $base = realpath(BASEPATH . '/uploads');
+    $file = realpath(BASEPATH . '/uploads/' . $path);
+    if ($base === false || $file === false || !str_starts_with($file, $base . DIRECTORY_SEPARATOR) || !is_file($file)) {
+        abortwith(404, lang('Document', 'Dokument'));
+    }
+    $relative = substr($file, strlen($base) + 1);
+    $filename = basename($file);
+
+    if (preg_match('/^([0-9a-f]{24})\.[A-Za-z0-9]+$/', $relative, $match)) {
+        // document registered in collection uploads
+        $document = $osiris->uploads->findOne(['_id' => DB::to_ObjectID($match[1])]);
+        if (!empty($document)) {
+            $allowed = Uploads::canView($document, $Settings);
+            $filename = $document['filename'] ?? $filename;
+        } else {
+            $allowed = $Settings->hasPermission('admin.see');
+        }
+    } else {
+        // public images and older file uploads (uploads/<id>/<file>): all logged-in users
+        $allowed = true;
+    }
+    if (!$allowed) {
+        abortwith(403, lang('You do not have permission to view this document.', 'Du hast keine Berechtigung, dieses Dokument anzusehen.'));
+    }
+
+    $mime = mime_content_type($file) ?: 'application/octet-stream';
+    $filename = str_replace(['"', "\r", "\n"], '', $filename);
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . filesize($file));
+    header('Content-Disposition: inline; filename="' . $filename . '"; filename*=UTF-8\'\'' . rawurlencode($filename));
+    header('X-Content-Type-Options: nosniff');
+    // uploaded HTML or SVG must not run scripts in the context of OSIRIS
+    header('Content-Security-Policy: sandbox');
+    header('Cache-Control: private, no-store');
+    readfile($file);
+    die;
+}, 'login');
+
 // central upload of documents
 Route::post('/data/upload', function () {
     include_once BASEPATH . "/php/init.php";
@@ -210,7 +254,12 @@ Route::post('/data/upload', function () {
         die(lang('Invalid request. Missing type or id.', 'Ungültige Anfrage. Typ oder ID fehlt.'));
     }
 
-    if (!empty($values['redirect'])) {
+    include_once BASEPATH . "/php/Uploads.php";
+    if (!Uploads::canEdit(['type' => $values['type'], 'id' => $values['id']], $Settings)) {
+        abortwith(403, lang('You do not have permission to upload documents here.', 'Du hast keine Berechtigung, hier Dokumente hochzuladen.'));
+    }
+
+    if (!empty($values['redirect']) && !str_contains($values['redirect'], '//')) {
         $redirectUrl = $values['redirect'];
     } else {
         $redirectUrl = ROOTPATH . "/" . $values['type'] . "/view/" . $values['id'] . "?tab=documents";
@@ -322,6 +371,10 @@ Route::post('/data/delete', function () {
     if (empty($document)) {
         die("Dokument nicht gefunden");
     }
+    include_once BASEPATH . "/php/Uploads.php";
+    if (!Uploads::canChange($document, $Settings)) {
+        abortwith(403, lang('You do not have permission to delete this document.', 'Du hast keine Berechtigung, dieses Dokument zu löschen.'));
+    }
 
     // delete the document from the database
     $result = $osiris->uploads->deleteOne(['_id' => DB::to_ObjectID($id)]);
@@ -352,6 +405,10 @@ Route::post('/data/document/update', function () {
     $document = $osiris->uploads->findOne(['_id' => DB::to_ObjectID($id)]);
     if (empty($document)) {
         die("Dokument nicht gefunden");
+    }
+    include_once BASEPATH . "/php/Uploads.php";
+    if (!Uploads::canChange($document, $Settings)) {
+        abortwith(403, lang('You do not have permission to edit this document.', 'Du hast keine Berechtigung, dieses Dokument zu bearbeiten.'));
     }
     $update = [];
     if (isset($_POST['name'])) {

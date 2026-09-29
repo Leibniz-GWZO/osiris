@@ -7,7 +7,11 @@ RewriteEngine on
 RewriteBase /
 
 # Deliver the folder or file directly if it exists on the server
-RewriteRule ^(css|img|js|uploads|settings.json|manifest.json)($|/) - [L]
+RewriteRule ^(css|img|js|settings.json|manifest.json)($|/) - [L]
+
+# Public images (portfolio, website) are delivered directly,
+# all other uploads go through index.php with a permission check (see Uploads::PUBLIC_DIRS)
+RewriteRule ^uploads/(topics|projects|groups)/ - [L]
 
 # Push every request to index.php
 RewriteRule ^(.*)$ index.php [QSA]
