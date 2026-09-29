@@ -144,6 +144,17 @@ class CustomFields
         if (isset($props['help'])) {
             $help = lang($props['help'], $props['help_de'] ?? null);
             $labelClass .= " has-help";
+        } elseif (!empty($field['description'] ?? null)) {
+            $help = e(lang($field['description'], $field['description_de'] ?? null));
+            $labelClass .= " has-help";
+        }
+
+        if ($field['format'] == 'heading') {
+            echo '<div class="data-module col-sm-12" data-module="' . $module . '">';
+            echo '<h5 class="mt-20 mb-5">' . e($label) . '</h5>';
+            echo $this->render_help($help);
+            echo '</div>';
+            return;
         }
 
         if ($field['format'] == 'bool') {

@@ -101,6 +101,12 @@ Route::get('/(projects|proposals)/view/(.*)', function ($collection, $id) {
     if (empty($project)) {
         abortwith(404, $collection == 'projects' ? lang('Project', 'Projekt') : lang('Project proposal', 'Projektantrag'), "/$collection");
     }
+    if ($collection == 'proposals') {
+        require_once BASEPATH . "/php/Project.php";
+        if (!Project::getProposalPermissions($project, $Settings)['view']) {
+            abortwith(403, lang('You do not have permission to view this proposal.', 'Du hast keine Berechtigung, diesen Antrag anzusehen.'), "/proposals", lang('Go back to proposals', 'Zurück zu den Anträgen'));
+        }
+    }
     $breadcrumb = [
         ['name' => $collection == 'projects' ? lang('Projects', 'Projekte') : lang('Project proposals', 'Projektanträge'), 'path' => "/$collection"],
         ['name' => $project['acronym'] ?? $project['name']]
@@ -126,7 +132,14 @@ Route::get('/(projects|proposals)/(edit|collaborators|finance|persons)/([a-zA-Z0
     $Project = new Project($project);
 
     $user_project = in_array($user, array_column(DB::doc2Arr($project['persons'] ?? []), 'user'));
-    $edit_perm = ($project['created_by'] == $_SESSION['username'] || $Settings->hasPermission($collection . '.edit') || ($Settings->hasPermission($collection . '.edit-own') && $user_project));
+    if ($collection == 'proposals') {
+        $edit_perm = Project::getProposalPermissions($project, $Settings)['edit'];
+        if ($page == 'edit' && isset($_GET['phase'])) {
+            $edit_perm = Project::canChangeStatus($project, $_GET['phase'], $Settings);
+        }
+    } else {
+        $edit_perm = ($project['created_by'] == $_SESSION['username'] || $Settings->hasPermission($collection . '.edit') || ($Settings->hasPermission($collection . '.edit-own') && $user_project));
+    }
     if (!$edit_perm) {
         abortwith(403, lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.'), "/$collection/view/$id", lang('Go back to project', 'Zurück zum Projekt'));
     }
@@ -281,6 +294,9 @@ Route::post('/proposals/download/(.*)', function ($id) {
     $project = $osiris->proposals->findOne(['_id' => $mongo_id]);
     if (empty($project)) {
         abortwith(404, lang('Project proposal', 'Projektantrag'), "/proposals");
+    }
+    if (!Project::getProposalPermissions($project, $Settings)['view']) {
+        abortwith(403, lang('You do not have permission to view this proposal.', 'Du hast keine Berechtigung, diesen Antrag anzusehen.'), "/proposals");
     }
     $project = DB::doc2Arr($project);
     $Project = new Project($project);
@@ -655,6 +671,14 @@ Route::post('/crud/(proposals)/finance/([A-Za-z0-9]*)', function ($collection, $
     include_once BASEPATH . "/php/Project.php";
     if (!isset($_POST['values'])) abortwith(500, lang('No values provided.', 'Keine Werte angegeben.'));
 
+    $project = $osiris->$collection->findOne(['_id' => $DB->to_ObjectID($id)]);
+    if (empty($project)) {
+        abortwith(404, lang('Project proposal', 'Projektantrag'), "/proposals");
+    }
+    if (!Project::getProposalPermissions($project, $Settings)['edit']) {
+        abortwith(403, lang('You do not have permission to edit this proposal.', 'Du hast keine Berechtigung, diesen Antrag zu bearbeiten.'), "/proposals/view/$id");
+    }
+
     /**
      * Combine values[grant_years] && values[grant_amounts] to associative array
      */
@@ -710,6 +734,13 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     $project = $osiris->$collection->findOne(['_id' => $DB->to_ObjectID($id)]);
     if (empty($project)) {
         abortwith(404, $collection == 'projects' ? lang('Project', 'Projekt') : lang('Project proposal', 'Projektantrag'), "/$collection");
+    }
+
+    if ($collection == 'proposals') {
+        $new_status = $_POST['values']['status'] ?? ($project['status'] ?? 'proposed');
+        if (!Project::canChangeStatus($project, $new_status, $Settings)) {
+            abortwith(403, lang('You do not have permission to edit this proposal or change its status.', 'Du hast keine Berechtigung, diesen Antrag zu bearbeiten oder seinen Status zu ändern.'), "/proposals/view/$id");
+        }
     }
 
     $values = validateValues($_POST['values'], $DB);
@@ -913,8 +944,15 @@ Route::post('/crud/(projects|proposals)/delete/([A-Za-z0-9]*)', function ($colle
 
     $project = $osiris->$collection->findOne(['_id' => $DB->to_ObjectID($id)]);
 
+    if (empty($project)) {
+        abortwith(404, $collection == 'projects' ? lang('Project', 'Projekt') : lang('Project proposal', 'Projektantrag'), "/$collection");
+    }
+
     // check if user has permission to delete project
-    $edit_perm = (
+    if ($collection == 'proposals') {
+        include_once BASEPATH . "/php/Project.php";
+        $edit_perm = Project::getProposalPermissions($project, $Settings)['delete'];
+    } else $edit_perm = (
         $Settings->hasPermission($collection . '.delete')
         ||
         ($Settings->hasPermission($collection . '.delete-own') &&
@@ -976,6 +1014,15 @@ Route::post('/crud/(projects|proposals)/delete/([A-Za-z0-9]*)', function ($colle
 Route::post('/crud/(projects|proposals)/update-persons/([A-Za-z0-9]*)', function ($collection, $id) {
     include_once BASEPATH . "/php/init.php";
     include_once BASEPATH . "/php/Project.php";
+    if ($collection == 'proposals') {
+        $project = $osiris->proposals->findOne(['_id' => $DB->to_ObjectID($id)]);
+        if (empty($project)) {
+            abortwith(404, lang('Project proposal', 'Projektantrag'), "/proposals");
+        }
+        if (!Project::getProposalPermissions($project, $Settings)['edit']) {
+            abortwith(403, lang('You do not have permission to edit this proposal.', 'Du hast keine Berechtigung, diesen Antrag zu bearbeiten.'), "/proposals/view/$id");
+        }
+    }
     $values = $_POST['persons'];
     foreach ($values as $i => $p) {
         $values[$i]['name'] =  $DB->getNameFromId($p['user']);

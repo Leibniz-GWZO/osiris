@@ -45,8 +45,13 @@ if (!$new_project) {
     if ($user_project == false && ($form['created_by'] ?? '') == $_SESSION['username']) {
         $user_project = True;
     }
-    $edit_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.edit-own') && $user_project));
-    $status_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.status-own') && $user_project));
+    if (($collection ?? 'proposals') == 'proposals') {
+        $edit_perm = Project::getProposalPermissions($form, $Settings)['edit'];
+        $status_perm = Project::canChangeStatus($form, $_GET['phase'] ?? ($form['status'] ?? 'proposed'), $Settings);
+    } else {
+        $edit_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.edit-own') && $user_project));
+        $status_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.status-own') && $user_project));
+    }
 
     // check if status change is requested
     if (isset($_GET['phase']) && $_GET['phase'] != $form['status']) {
@@ -203,7 +208,9 @@ if ($is_subproject) {
             $formaction = ROOTPATH . "/crud/proposals/create";
             $url = ROOTPATH . "/proposals/view/*";
             $title = lang('New project proposal', 'Neuer Projektantrag');
-            $subtitle = lang('This type of project must first be created as a project proposal and converted into a project once accepted.', 'Dieser Projekttyp muss zuerst als Projektantrag erstellt und kann nach Bewilligung in ein Projekt umgewandelt werden.');
+            if ($selected['convert_to_project'] ?? true) {
+                $subtitle = lang('This type of project must first be created as a project proposal and converted into a project once accepted.', 'Dieser Projekttyp muss zuerst als Projektantrag erstellt und kann nach Bewilligung in ein Projekt umgewandelt werden.');
+            }
         } elseif ($new_project && $selected['process'] == 'project') {
             $formaction = ROOTPATH . "/crud/projects/create";
             $url = ROOTPATH . "/projects/view/*";
@@ -1510,17 +1517,18 @@ if ($is_subproject) {
             <?php } ?>
 
             <?php
-            $custom_fields = [];
-            foreach ($osiris->adminFields->distinct('id') as $key) {
-                if (array_key_exists($key, $fields)) {
-                    $custom_fields[] = $key;
-                }
-            }
+            // custom fields in the order of the phase configuration
+            $custom_ids = DB::doc2Arr($osiris->adminFields->distinct('id'));
+            $custom_fields = array_values(array_filter(array_keys($fields), function ($key) use ($custom_ids) {
+                return in_array($key, $custom_ids);
+            }));
             if (!empty($custom_fields)) {
                 require_once BASEPATH . "/php/Modules.php";
                 $Modules = new Modules($form);
 
-                echo "<h5>" . lang('Institutional fields', 'Institutionelle Felder') . "</h5>";
+                if (!$Project->isHeadingField($custom_fields[0])) {
+                    echo "<h5>" . lang('Institutional fields', 'Institutionelle Felder') . "</h5>";
+                }
                 foreach ($custom_fields as $key) {
                     $Modules->custom_field($key, in_array($key, $required_fields));
                 }

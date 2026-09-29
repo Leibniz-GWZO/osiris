@@ -25,6 +25,9 @@ class Project extends Vocabulary
     public $isProposal = false;
 
     public $FIELDS = [];
+    // default fields that cannot be excluded from a project type
+    public const CORE_FIELDS = ['type', 'name', 'title', 'status'];
+    private $customFields;
 
     public const PHASES = [
         [
@@ -178,6 +181,7 @@ class Project extends Vocabulary
                 'de' => $field['name_de'],
                 'kdsf' => null,
                 'custom' => true,
+                'format' => $field['format'] ?? 'string',
                 'scope' => ["project" => false, "proposed" => false, "approved" => false],
                 'order' => $field['order'] ?? 99,
             ];
@@ -227,6 +231,144 @@ class Project extends Vocabulary
         return $this->db->adminProjects->find($filter, ['sort' => ['updated' => -1]])->toArray();
     }
 
+    /**
+     * Access rules of proposal types.
+     *
+     * A type can be restricted with the option `access_roles` (list of roles).
+     * For restricted types, `proposals.view` and `proposals.edit` do not grant
+     * access: only members of these roles and the persons of the proposal
+     * (creator, applicants) can see it. Members of these roles review it.
+     *
+     * With `restrict_status_own`, `proposals.status-own` only allows to submit
+     * or withdraw an own proposal; all other status changes need a reviewer.
+     */
+    private static $typeAccessRules = null;
+
+    public static function getTypeAccessRules()
+    {
+        if (self::$typeAccessRules !== null) return self::$typeAccessRules;
+        global $osiris;
+        $db = $osiris ?? (new DB)->db;
+        $rules = [];
+        $types = $db->adminProjects->find([], ['projection' => ['id' => 1, 'access_roles' => 1, 'restrict_status_own' => 1]]);
+        foreach ($types as $t) {
+            $rules[$t['id']] = [
+                'access_roles' => array_values(array_filter(DB::doc2Arr($t['access_roles'] ?? []))),
+                'restrict_status_own' => boolval($t['restrict_status_own'] ?? false)
+            ];
+        }
+        self::$typeAccessRules = $rules;
+        return $rules;
+    }
+
+    public static function getRestrictedTypes()
+    {
+        $rules = array_filter(self::getTypeAccessRules(), function ($r) {
+            return !empty($r['access_roles']);
+        });
+        return array_keys($rules);
+    }
+
+    public static function isRestrictedType($type)
+    {
+        return in_array($type, self::getRestrictedTypes());
+    }
+
+    public static function hasTypeAccess($type, $Settings)
+    {
+        $roles = self::getTypeAccessRules()[$type]['access_roles'] ?? [];
+        return !empty(array_intersect($roles, $Settings->roles));
+    }
+
+    public static function isOwnProposal($proposal, $username = null)
+    {
+        $username = $username ?? ($_SESSION['username'] ?? null);
+        if (empty($username)) return false;
+        if (($proposal['created_by'] ?? null) == $username) return true;
+        $persons = DB::doc2Arr($proposal['persons'] ?? []);
+        return in_array($username, array_map('strval', array_column($persons, 'user')));
+    }
+
+    /**
+     * Permissions of the current user on a proposal.
+     *
+     * @param array|object $proposal
+     * @param Settings $Settings
+     * @return array view, edit, status, review, delete, own
+     */
+    public static function getProposalPermissions($proposal, $Settings)
+    {
+        $type = $proposal['type'] ?? 'third-party';
+        $own = self::isOwnProposal($proposal);
+        if (self::isRestrictedType($type)) {
+            $review = self::hasTypeAccess($type, $Settings);
+            $view = $own || $review;
+            $edit = $review || ($own && $Settings->hasPermission('proposals.edit-own'));
+            $delete = ($review && $Settings->hasPermission('proposals.delete')) || ($own && $Settings->hasPermission('proposals.delete-own'));
+        } else {
+            $review = $Settings->hasPermission('proposals.edit');
+            $edit = $review || ($own && $Settings->hasPermission('proposals.edit-own')) || ($proposal['created_by'] ?? null) == ($_SESSION['username'] ?? '');
+            $view = $own || $edit || $Settings->hasPermission('proposals.view') || $Settings->hasPermission('proposals.finance') || $Settings->hasPermission('nagoya.view');
+            $delete = $Settings->hasPermission('proposals.delete') || ($own && $Settings->hasPermission('proposals.delete-own'));
+        }
+        return [
+            'own' => $own,
+            'view' => $view,
+            'edit' => $edit,
+            'status' => $review || ($own && $Settings->hasPermission('proposals.status-own')),
+            'review' => $review,
+            'delete' => $delete
+        ];
+    }
+
+    /**
+     * Check if the current user may change the status of a proposal.
+     */
+    public static function canChangeStatus($proposal, $to, $Settings)
+    {
+        $perm = self::getProposalPermissions($proposal, $Settings);
+        $from = $proposal['status'] ?? 'proposed';
+        if ($from == $to) return $perm['edit'];
+        if ($perm['review']) return true;
+        if (!$perm['status']) return false;
+        $type = $proposal['type'] ?? 'third-party';
+        if (!(self::getTypeAccessRules()[$type]['restrict_status_own'] ?? false)) return true;
+        // own proposals can only be submitted or withdrawn
+        return ($from == 'preparation' && $to == 'proposed')
+            || ($to == 'withdrawn' && in_array($from, ['preparation', 'proposed', 'review']));
+    }
+
+    /**
+     * MongoDB filter for all proposals the current user may see in lists.
+     * Returns an empty array if no restriction applies.
+     */
+    public static function getProposalListFilter($Settings)
+    {
+        $username = $_SESSION['username'] ?? '';
+        $own = [['created_by' => $username], ['persons.user' => $username]];
+        $restricted = self::getRestrictedTypes();
+        $allowed = array_values(array_filter($restricted, function ($t) use ($Settings) {
+            return self::hasTypeAccess($t, $Settings);
+        }));
+        $denied = array_values(array_diff($restricted, $allowed));
+        if ($Settings->hasPermission('proposals.view')) {
+            if (empty($denied)) return [];
+            return ['$or' => array_merge([['type' => ['$nin' => $denied]]], $own)];
+        }
+        if (empty($allowed)) return ['$or' => $own];
+        return ['$or' => array_merge([['type' => ['$in' => $allowed]]], $own)];
+    }
+
+    /**
+     * MongoDB filter that excludes restricted proposal types, e.g. from statistics and reports.
+     */
+    public static function getUnrestrictedTypesFilter()
+    {
+        $restricted = self::getRestrictedTypes();
+        if (empty($restricted)) return [];
+        return ['type' => ['$nin' => $restricted]];
+    }
+
     public function getFields($type_id, $phase = 'all')
     {
         $type = $this->db->adminProjects->findOne(['id' => $type_id]);
@@ -241,7 +383,10 @@ class Project extends Vocabulary
             }
         }
         $fields = DB::doc2Arr($fields);
+        // types can exclude default fields that do not fit (option `exclude_default_fields`)
+        $excluded = array_diff(DB::doc2Arr($type['exclude_default_fields'] ?? []), self::CORE_FIELDS);
         foreach ($this->FIELDS as $key => $value) {
+            if (in_array($key, $excluded)) continue;
             $scope = $value['scope'] ?? [];
             if (array_key_exists($phase, $scope) && $scope[$phase] === true) {
                 $fields[] = [
@@ -257,6 +402,14 @@ class Project extends Vocabulary
             return $a_order <=> $b_order;
         });
         return $fields;
+    }
+
+    /**
+     * Section headings are custom fields without a value.
+     */
+    public function isHeadingField($key)
+    {
+        return ($this->FIELDS[$key]['format'] ?? '') == 'heading';
     }
 
     public function printLabel($key)
@@ -286,10 +439,21 @@ class Project extends Vocabulary
     public function printField($field, $value, $portfolio = false)
     {
         $DB = new DB();
+        $custom = $this->FIELDS[$field]['custom'] ?? false;
+        if ($custom && is_bool($value)) {
+            return $value ? lang('Yes', 'Ja') : lang('No', 'Nein');
+        }
         if ($field == 'applicants') {
             $external = DB::doc2Arr($this->project['applicants_external'] ?? []);
             if (empty($value) && empty($external)) return '-';
         } else if (empty($value)) return '-';
+        if ($custom) {
+            // custom fields: translated list values, formatted dates, escaped text
+            require_once BASEPATH . '/php/CustomFields.php';
+            if (!isset($this->customFields)) $this->customFields = new CustomFields();
+            $this->customFields->form = [$field => $value];
+            return $this->customFields->value($field, '-');
+        }
         switch ($field) {
             case 'type':
                 return $this->getType('');

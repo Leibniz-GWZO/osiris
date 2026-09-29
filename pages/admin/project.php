@@ -325,6 +325,58 @@ if ($process == 'project') {
             <hr>
             <div class="content">
                 <h5>
+                    <?= lang('Access to proposals', 'Zugriff auf Anträge') ?>
+                </h5>
+                <p class="text-muted">
+                    <?= lang(
+                        'For proposals with sensitive content, access can be limited to selected roles. Members of these roles see, edit and review all proposals of this type. Everybody else only sees their own proposals, even with the right to see all proposals. Restricted types are not included in statistics and reports.',
+                        'Für Anträge mit sensiblen Inhalten kann der Zugriff auf ausgewählte Rollen beschränkt werden. Mitglieder dieser Rollen sehen, bearbeiten und prüfen alle Anträge dieses Typs. Alle anderen sehen nur ihre eigenen Anträge, auch mit dem Recht, alle Anträge zu sehen. Beschränkte Typen fließen nicht in Statistiken und Berichte ein.'
+                    ) ?>
+                </p>
+                <?php $access_roles = DB::doc2Arr($project['access_roles'] ?? []); ?>
+                <div class="form-group">
+                    <label for="access_roles"><?= lang('Roles with access (empty = no restriction)', 'Rollen mit Zugriff (leer = keine Beschränkung)') ?></label>
+                    <input type="hidden" name="values[access_roles]" value="">
+                    <select name="values[access_roles][]" id="access_roles" class="form-control" multiple>
+                        <?php foreach ($Settings->get('roles') as $role) { ?>
+                            <option value="<?= e($role) ?>" <?= in_array($role, $access_roles) ? 'selected' : '' ?>><?= strtoupper(e($role)) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="custom-checkbox mb-10">
+                    <input type="hidden" name="values[restrict_status_own]" value="0">
+                    <input type="checkbox" id="restrict_status_own" value="1" name="values[restrict_status_own]" <?= ($project['restrict_status_own'] ?? false) ? 'checked' : '' ?>>
+                    <label for="restrict_status_own">
+                        <?= lang('Applicants can only submit or withdraw their own proposals. All other status changes are made by reviewers.', 'Antragstellende können eigene Anträge nur einreichen oder zurückziehen. Alle anderen Statusänderungen nehmen Prüfende vor.') ?>
+                    </label>
+                </div>
+                <?php
+                $excluded_fields = DB::doc2Arr($project['exclude_default_fields'] ?? []);
+                $default_fields = array_filter($Project->FIELDS, function ($f, $key) {
+                    if (in_array($key, Project::CORE_FIELDS) || ($f['custom'] ?? false)) return false;
+                    return in_array(true, $f['scope'] ?? [], true);
+                }, ARRAY_FILTER_USE_BOTH);
+                ?>
+                <div class="form-group">
+                    <label for="exclude_default_fields"><?= lang('Hide default fields that do not fit this type', 'Standardfelder ausblenden, die nicht zu diesem Typ passen') ?></label>
+                    <input type="hidden" name="values[exclude_default_fields]" value="">
+                    <select name="values[exclude_default_fields][]" id="exclude_default_fields" class="form-control" multiple>
+                        <?php foreach ($default_fields as $key => $f) { ?>
+                            <option value="<?= e($key) ?>" <?= in_array($key, $excluded_fields) ? 'selected' : '' ?>><?= e(lang($f['en'], $f['de'] ?? null)) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+                <div class="custom-checkbox">
+                    <input type="hidden" name="values[convert_to_project]" value="0">
+                    <input type="checkbox" id="convert_to_project" value="1" name="values[convert_to_project]" <?= ($project['convert_to_project'] ?? true) ? 'checked' : '' ?>>
+                    <label for="convert_to_project">
+                        <?= lang('Approved proposals are converted into projects', 'Bewilligte Anträge werden in Projekte umgewandelt') ?>
+                    </label>
+                </div>
+            </div>
+            <hr>
+            <div class="content">
+                <h5>
                     <?= lang('Notifications', 'Benachrichtigungen') ?>
                 </h5>
 

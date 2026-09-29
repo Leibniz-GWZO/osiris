@@ -1876,14 +1876,18 @@ Route::get('/api/command-palette/search', function () {
 
         // Aggregation pipeline to rank prefix matches higher than contains matches.
         // Fields: acronym, name (as you said)
+        include_once BASEPATH . '/php/Project.php';
+        $match = [
+            '$or' => [
+                ['acronym' => ['$regex' => $rxContain, '$options' => 'i']],
+                ['name'    => ['$regex' => $rxContain, '$options' => 'i']],
+            ]
+        ];
+        $access = Project::getProposalListFilter($Settings);
+        if (!empty($access)) $match = ['$and' => [$match, $access]];
         $pipeline = [
             [
-                '$match' => [
-                    '$or' => [
-                        ['acronym' => ['$regex' => $rxContain, '$options' => 'i']],
-                        ['name'    => ['$regex' => $rxContain, '$options' => 'i']],
-                    ]
-                ]
+                '$match' => $match
             ],
             [
                 '$addFields' => [

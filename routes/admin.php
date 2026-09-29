@@ -1310,6 +1310,18 @@ Route::post('/crud/admin/projects/update/([A-Za-z0-9]*)', function ($id) {
         $values['disabled'] = boolval($values['disabled'] ?? false);
         $values['notification_changed_email'] = boolval($values['notification_changed_email'] ?? false);
         $values['notification_created_email'] = boolval($values['notification_created_email'] ?? false);
+        if (array_key_exists('access_roles', $values)) {
+            $values['access_roles'] = array_values(array_filter(DB::doc2Arr($values['access_roles'] ?: [])));
+        }
+        if (array_key_exists('restrict_status_own', $values)) {
+            $values['restrict_status_own'] = boolval($values['restrict_status_own']);
+        }
+        if (array_key_exists('exclude_default_fields', $values)) {
+            $values['exclude_default_fields'] = array_values(array_filter(DB::doc2Arr($values['exclude_default_fields'] ?: [])));
+        }
+        if (array_key_exists('convert_to_project', $values)) {
+            $values['convert_to_project'] = boolval($values['convert_to_project']);
+        }
 
         $updateResult = $collection->updateOne(
             ['_id' => $mongo_id],
