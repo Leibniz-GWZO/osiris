@@ -21,8 +21,16 @@ foreach ($persons as $p) {
 if ($user_project == false && $project['created_by'] == $_SESSION['username']) {
     $user_project = True;
 }
-$edit_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.edit-own') && $user_project));
-$status_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.status-own') && $user_project));
+$perm = Project::getProposalPermissions($project, $Settings);
+$edit_perm = $perm['edit'];
+$status_perm = $perm['status'];
+$can_status = function ($to) use ($project, $Settings) {
+    return Project::canChangeStatus($project, $to, $Settings);
+};
+$restricted_type = Project::isRestrictedType($type);
+$project_type = $Project->getProjectType($type);
+$doc_perm = $restricted_type ? ($perm['review'] || $user_project) : ($Settings->hasPermission('proposals.view-documents') || $user_project);
+$upload_perm = $restricted_type ? ($perm['review'] || $user_project) : $Settings->hasPermission('proposals.upload-documents');
 $nagoya_perm = $Settings->hasPermission('nagoya.view');
 
 include_once BASEPATH . "/php/Vocabulary.php";
@@ -96,7 +104,7 @@ if ($nagoyaRelevant) {
 
         </div>
         <div class="status">
-            <?php if ($status_perm) { ?>
+            <?php if ($status_perm && (!in_array($status, ['preparation', 'proposed', 'review']) || array_filter(['proposed', 'review', 'approved', 'rejected', 'withdrawn'], $can_status))) { ?>
                 <?php if ($status == 'preparation') { ?>
                     <div class="dropdown">
                         <button class="badge status muted text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-preparation" aria-haspopup="true" aria-expanded="false">
@@ -104,7 +112,7 @@ if ($nagoyaRelevant) {
                             <?= lang('In preparation', 'In Vorbereitung') ?>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-preparation">
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=proposed" class="item badge status signal mb-5"><?= lang('Proposed', 'Beantragt') ?></a>
+                            <?php if ($can_status('proposed')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=proposed" class="item badge status signal mb-5"><?= lang('Proposed', 'Beantragt') ?></a><?php } ?>
                         </div>
                     </div>
                 <?php } else if ($status == 'proposed') { ?>
@@ -114,10 +122,10 @@ if ($nagoyaRelevant) {
                             <?= lang('Proposed', 'Beantragt') ?>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-1">
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=review" class="item badge status warning mb-5"><?= lang('Under review', 'In Begutachtung') ?></a>
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a>
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a>
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a>
+                            <?php if ($can_status('review')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=review" class="item badge status warning mb-5"><?= lang('Under review', 'In Begutachtung') ?></a><?php } ?>
+                            <?php if ($can_status('approved')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a><?php } ?>
+                            <?php if ($can_status('rejected')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a><?php } ?>
+                            <?php if ($can_status('withdrawn')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a><?php } ?>
                         </div>
                     </div>
                 <?php } else if ($status == 'review') { ?>
@@ -127,9 +135,9 @@ if ($nagoyaRelevant) {
                             <?= lang('Under review', 'In Begutachtung') ?>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-review">
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a>
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a>
-                            <a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a>
+                            <?php if ($can_status('approved')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a><?php } ?>
+                            <?php if ($can_status('rejected')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a><?php } ?>
+                            <?php if ($can_status('withdrawn')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a><?php } ?>
                         </div>
                     </div>
                 <?php } else if ($status == 'approved') { ?>
@@ -182,7 +190,7 @@ if ($nagoyaRelevant) {
         </div>
     </div>
 
-    <?php if ($edit_perm && ($status == 'approved' && (empty($connected_project) || !$connected_project))) {
+    <?php if ($edit_perm && ($project_type['convert_to_project'] ?? true) && ($status == 'approved' && (empty($connected_project) || !$connected_project))) {
         // if project is not connected yet
     ?>
         <div class="box signal padded mt-0" style="background-color: var(--signal-color-10);">
@@ -225,7 +233,7 @@ if ($nagoyaRelevant) {
         <?php } ?>
 
         <?php if (
-            $Settings->hasPermission('proposals.delete') || ($Settings->hasPermission('proposals.delete-own') && $edit_perm)
+            $perm['delete']
         ) { ?>
 
             <div class="dropdown">
@@ -348,7 +356,7 @@ if ($nagoyaRelevant) {
                     <?php } ?>
 
                     <!-- documents -->
-                    <?php if ($Settings->hasPermission('proposals.view-documents') || $user_project) { ?>
+                    <?php if ($doc_perm) { ?>
                         <button class="btn font-weight-bold" onclick="selectTab('documents')" id="documents-btn">
                             <i class="ph ph-file-text"></i>
                             <?= lang('Documents', 'Dokumente') ?>
@@ -370,6 +378,10 @@ if ($nagoyaRelevant) {
                         $fields = $Project->getFields($type, 'proposed');
                         foreach ($fields as $f) {
                             $key = $f['module'];
+                            if ($Project->isHeadingField($key)) {
+                                echo '<tr><td><h5 class="m-0">' . e($Project->printLabel($key)) . '</h5></td></tr>';
+                                continue;
+                            }
                             if ($key == 'nagoya') {
                                 continue;
                             }
@@ -410,6 +422,10 @@ if ($nagoyaRelevant) {
                             $fields = $Project->getFields($type, 'approved');
                             foreach ($fields as $f) {
                                 $key = $f['module'];
+                                if ($Project->isHeadingField($key)) {
+                                    echo '<tr><td><h5 class="m-0">' . e($Project->printLabel($key)) . '</h5></td></tr>';
+                                    continue;
+                                }
                                 if ($key == 'nagoya') {
                                     continue;
                                 }
@@ -598,6 +614,10 @@ if ($nagoyaRelevant) {
                             $fields = $Project->getFields($type, 'rejected');
                             foreach ($fields as $f) {
                                 $key = $f['module'];
+                                if ($Project->isHeadingField($key)) {
+                                    echo '<tr><td><h5 class="m-0">' . e($Project->printLabel($key)) . '</h5></td></tr>';
+                                    continue;
+                                }
                                 if ($key == 'nagoya') {
                                     continue;
                                 }
@@ -616,7 +636,7 @@ if ($nagoyaRelevant) {
                 <?php } ?>
 
 
-                <?php if ($Settings->hasPermission('proposals.view-documents') || $user_project) { ?>
+                <?php if ($doc_perm) { ?>
                     <div id="documents-details" style="display:none;">
                         <table class="table">
                             <tbody>
@@ -678,7 +698,7 @@ if ($nagoyaRelevant) {
                                 ?>
                             </tbody>
                         </table>
-                        <?php if ($Settings->hasPermission('proposals.upload-documents')) { ?>
+                        <?php if ($upload_perm) { ?>
                             <form action="<?= ROOTPATH ?>/data/upload" method="post" enctype="multipart/form-data" class="box padded">
                                 <h5 class="title font-size-16">
                                     <?= lang('Upload document', 'Dokument hochladen') ?>

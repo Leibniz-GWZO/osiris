@@ -856,7 +856,10 @@ Route::get('/api/(projects|proposals)', function ($type) {
         $filter = ['title' => ['$regex' => $j]];
     }
 
-    if (!$Settings->hasPermission($type . '.view')) {
+    if ($type == 'proposals') {
+        $access = Project::getProposalListFilter($Settings);
+        if (!empty($access)) $filter = empty($filter) ? $access : ['$and' => [$filter, $access]];
+    } else if (!$Settings->hasPermission($type . '.view')) {
         $filter['$or'] = [
             ['persons.user' => $_SESSION['username']],
             ['created_by' => $_SESSION['username']]
@@ -1063,7 +1066,10 @@ Route::get('/api/search/(projects|proposals|activities|conferences|journals|pers
     if ($type == 'projects' || $type == 'proposals') {
         include_once BASEPATH . "/php/Project.php";
         $Project = new Project();
-        if (!$Settings->hasPermission($type . '.view')) {
+        if ($type == 'proposals') {
+            $access = Project::getProposalListFilter($Settings);
+            if (!empty($access)) $filter = empty($filter) ? $access : ['$and' => [$filter, $access]];
+        } else if (!$Settings->hasPermission($type . '.view')) {
             $filter['$or'] = [
                 ['persons.user' => $_SESSION['username']],
                 ['created_by' => $_SESSION['username']]

@@ -21,10 +21,11 @@ function fmt_pct($v)
 </h1>
 
 <?php
+include_once BASEPATH . '/php/Project.php';
 $fundingTotals = $osiris->proposals->aggregate([
     ['$match' => [
         'status' => 'approved'
-    ]],
+    ] + Project::getUnrestrictedTypesFilter()],
 
     ['$project' => [
         '_id' => 1,
@@ -121,7 +122,7 @@ $byApprovalYear = $osiris->proposals->find(
     [
         'status' => 'approved',
         'grant_sum' => ['$exists' => true],
-    ],
+    ] + Project::getUnrestrictedTypesFilter(),
     // Keep only the funding fields (defensive defaults)
     ['projection' => [
         '_id' => 1,
@@ -436,7 +437,7 @@ krsort($rows);
 
 
 <?php
-$filter_funding = ['grant_years' => ['$exists' => true, '$ne' => []]];
+$filter_funding = ['grant_years' => ['$exists' => true, '$ne' => []]] + Project::getUnrestrictedTypesFilter();
 $fundingByYear = $osiris->proposals->aggregate([
     ['$match' => $filter_funding],
     // Keep only what we need

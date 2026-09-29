@@ -223,7 +223,7 @@ $all = $osiris->projects->count();
                 ['approval_date'   => $filterDates['approval_date']],
                 ['rejection_date'  => $filterDates['rejection_date']],
             ]
-        ]],
+        ] + Project::getUnrestrictedTypesFilter()],
         ['$facet' => [
             'submitted' => [
                 ['$match' => ['submission_date' => $filterDates['submission_date']]],

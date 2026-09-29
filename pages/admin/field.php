@@ -129,6 +129,7 @@ $affiliation = preg_replace('/[^a-zA-Z0-9]/', '', $affiliation);
                         <option value="bool-check" <?= ($form['format'] ?? '') == 'bool-check' ? 'selected' : '' ?>><?= lang('Boolean (as checkbox)', 'Boolean (als Checkbox)') ?></option>
                         <option value="url" <?= ($form['format'] ?? '') == 'url' ? 'selected' : '' ?>>URL</option>
                         <option value="str-list" <?= ($form['format'] ?? '') == 'str-list' ? 'selected' : '' ?>><?= lang('Free text list (without predefined values)', 'Freitext-Liste (ohne vordefinierte Werte)') ?></option>
+                        <option value="heading" <?= ($form['format'] ?? '') == 'heading' ? 'selected' : '' ?>><?= lang('Section heading (no value)', 'Abschnittsüberschrift (ohne Wert)') ?></option>
                         <!-- <option value="user">User</option> -->
                     </select>
                 </div>
@@ -139,6 +140,17 @@ $affiliation = preg_replace('/[^a-zA-Z0-9]/', '', $affiliation);
             </div>
 
 
+
+            <div class="row row-eq-spacing">
+                <div class="col-sm-6">
+                    <label for="description"><?= lang('Help text (en)', 'Hilfetext (en)') ?></label>
+                    <input type="text" class="form-control" name="values[description]" id="description" value="<?= e($form['description'] ?? '') ?>">
+                </div>
+                <div class="col-sm-6">
+                    <label for="description_de"><?= lang('Help text (de)', 'Hilfetext (de)') ?></label>
+                    <input type="text" class="form-control" name="values[description_de]" id="description_de" value="<?= e($form['description_de'] ?? '') ?>">
+                </div>
+            </div>
 
             <fieldset id="values-field" <?= ($form['format'] ?? null) != 'list' ? 'style="display: none;"' : '' ?>>
                 <legend><?= lang('Possible values', 'Mögliche Werte') ?></legend>

@@ -75,6 +75,19 @@ class Report
         return $this->fields[$collection] ?? [];
     }
 
+    /**
+     * Proposal types with restricted access are never part of reports.
+     */
+    private function excludeRestrictedProposals($filter, $collection)
+    {
+        if ($collection != 'proposals') return $filter;
+        include_once BASEPATH . '/php/Project.php';
+        $restriction = Project::getUnrestrictedTypesFilter();
+        if (empty($restriction)) return $filter;
+        if (empty($filter)) return $restriction;
+        return ['$and' => [$filter, $restriction]];
+    }
+
     public function setYear($year)
     {
         $startyear = $year;
@@ -485,6 +498,7 @@ class Report
             $filter = $this->addTimeFilter($filter, $collection);
         }
         $filter['exclude_from_reports'] = ['$ne' => true];
+        $filter = $this->excludeRestrictedProposals($filter, $collection);
 
         // default sorting by type, year, month
         $options = ['sort' => ["type" => 1, "year" => 1, "month" => 1]];
@@ -704,7 +718,7 @@ class Report
 
         if ($timelimit)
             $filter = $this->addTimeFilter($filter, $collection);
-
+        $filter = $this->excludeRestrictedProposals($filter, $collection);
 
         $aggregate = [
             ['$match' => $filter],
