@@ -50,7 +50,10 @@
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($documents as $doc):
+                <?php
+                include_once BASEPATH . "/php/Uploads.php";
+                foreach ($documents as $doc):
+                    if (!Uploads::canView($doc, $Settings)) continue;
                     $file_url = ROOTPATH . '/uploads/' . $doc['_id'] . '.' . $doc['extension'];
 
                     $id = DB::to_ObjectID($doc['id']);
