@@ -585,7 +585,8 @@ class ProjectFields extends Fields
                 ],
                 "scope" => [
                     "project" => false,
-                    "proposed" => false
+                    "proposed" => false,
+                    "approved" => false
                 ],
             ],
             [
@@ -599,7 +600,8 @@ class ProjectFields extends Fields
                 ],
                 "scope" => [
                     "project" => false,
-                    "proposed" => false
+                    "proposed" => false,
+                    "approved" => false
                 ],
             ],
             [
