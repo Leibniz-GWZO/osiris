@@ -429,6 +429,44 @@ if ($process == 'project') {
                         <label for="notification_changed_email"><?= lang('Per Mail', 'Via Email') ?>*</label>
                     </div>
                 </div>
+                <hr>
+
+                <?= lang('Select role or user that should be notified when proposals of this type are <b>submitted</b> or <b>withdrawn</b>.', 'Wähle die Rolle oder den Benutzer, der benachrichtigt werden soll, wenn Anträge dieses Typs <b>eingereicht</b> oder <b>zurückgezogen</b> werden.') ?>
+                <div class="form-group">
+                    <?php
+                    $notification = $project['notification_submitted'] ?? '';
+                    ?>
+                    <select name="values[notification_submitted]" id="notification_submitted" class="form-control">
+                        <option value="" <?= empty($notification) ? 'selected' : '' ?>><?= lang('None', 'Keine') ?></option>
+                        <option value="" disabled>--- <?= lang('Roles', 'Rollen') ?> ---</option>
+                        <?php foreach ($Settings->get('roles') as $role) { ?>
+                            <option value="role:<?= e($role) ?>" <?= $notification == ('role:' . $role) ? 'selected' : '' ?>><?= strtoupper(e($role)) ?></option>
+                        <?php } ?>
+                        <option value="" disabled>--- <?= lang('User', 'Nutzende') ?> ---</option>
+                        <?php foreach ($osiris->persons->find([], ['sort' => ['last' => 1]]) as $u) { ?>
+                            <option value="user:<?= e($u['username']) ?>" <?= $notification == ('user:' . $u['username']) ? 'selected' : '' ?>><?= e($u['last']) ?>, <?= e($u['first']) ?></option>
+                        <?php } ?>
+                    </select>
+                    <div class="custom-checkbox mt-10">
+                        <input type="hidden" name="values[notification_submitted_email]" value="0">
+                        <input type="checkbox" id="notification_submitted_email" value="1" name="values[notification_submitted_email]" <?= ($project['notification_submitted_email'] ?? false) ? 'checked' : '' ?>>
+                        <label for="notification_submitted_email"><?= lang('Per Mail', 'Via Email') ?>*</label>
+                    </div>
+                </div>
+                <hr>
+
+                <div class="form-group">
+                    <div class="custom-checkbox">
+                        <input type="hidden" name="values[notification_status]" value="0">
+                        <input type="checkbox" id="notification_status" value="1" name="values[notification_status]" <?= ($project['notification_status'] ?? false) ? 'checked' : '' ?>>
+                        <label for="notification_status"><?= lang('Notify applicants when the status changes to under review, approved, rejected or withdrawn', 'Antragstellende benachrichtigen, wenn der Status auf In Begutachtung, Bewilligt, Abgelehnt oder Zurückgezogen wechselt') ?></label>
+                    </div>
+                    <div class="custom-checkbox mt-10">
+                        <input type="hidden" name="values[notification_status_email]" value="0">
+                        <input type="checkbox" id="notification_status_email" value="1" name="values[notification_status_email]" <?= ($project['notification_status_email'] ?? false) ? 'checked' : '' ?>>
+                        <label for="notification_status_email"><?= lang('Per Mail', 'Via Email') ?>*</label>
+                    </div>
+                </div>
 
                 <p>
                     * <?= lang('Before enabling emails here, please make sure that email settings are correctly set up and working in the general settings. If not, it may lead to problems.', 'Bevor du hier E-Mails aktivierst, stelle bitte sicher, dass die E-Mail-Einstellungen in den allgemeinen Einstellungen korrekt eingerichtet und funktionsfähig sind. Andernfalls kann es zu Problemen kommen.') ?>

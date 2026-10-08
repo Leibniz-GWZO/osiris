@@ -825,17 +825,21 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                             </tr>
                         <?php } ?>
 
-                        <tr>
-                            <td>
-                                <span class="key"><?= lang('Roles', 'Rollen') ?></span>
+                        <?php if ($Settings->hasPermission('admin.see')) {
+                            // roles are only shown to admins
+                        ?>
+                            <tr>
+                                <td>
+                                    <span class="key"><?= lang('Roles', 'Rollen') ?></span>
 
-                                <?php foreach (($scientist['roles'] ?? []) as $role) { ?>
-                                    <span class="badge">
-                                        <?= strtoupper($role) ?>
-                                    </span>
-                                <?php } ?>
-                            </td>
-                        </tr>
+                                    <?php foreach (($scientist['roles'] ?? []) as $role) { ?>
+                                        <span class="badge">
+                                            <?= strtoupper($role) ?>
+                                        </span>
+                                    <?php } ?>
+                                </td>
+                            </tr>
+                        <?php } ?>
 
                         <?php if (($Settings->featureEnabled('quarterly-reporting', true) && $Settings->hasPermission('report.dashboard')) && isset($scientist['approved'])) {
                             $approvedQ = DB::doc2Arr($scientist['approved']);

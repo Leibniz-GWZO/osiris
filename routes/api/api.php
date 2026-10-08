@@ -626,7 +626,8 @@ Route::get('/api/users', function () {
                 'public_image' => $user['public_image'] ?? true,
                 'topics' => $user['topics'] ?? array(),
                 'keywords' => $user['keywords'] ?? array(),
-                'roles' => $user['roles'] ?? array(),
+                // roles are only shown to admins
+                'roles' => $Settings->hasPermission('admin.see') ? ($user['roles'] ?? array()) : array(),
             ];
         }
     }
@@ -664,6 +665,8 @@ Route::get('/api/users/(.*)', function ($id) {
         echo return_rest('User not found', 0, 404);
         die;
     }
+    // roles are only shown to admins
+    if (!$Settings->hasPermission('admin.see')) unset($user['roles']);
 
     echo return_rest($user, 1);
 });

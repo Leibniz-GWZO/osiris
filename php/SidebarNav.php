@@ -380,6 +380,12 @@ class SidebarNav
                 ]
             ]
         ];
+
+        // sections of local add-ons (registered in addons/*/index.php), placed after "Content"
+        foreach ($GLOBALS['OSIRIS_ADDON_HOOKS']['sidebar'] ?? [] as $hook) {
+            $groups = call_user_func($hook, $settings);
+            if (!empty($groups)) array_splice($this->definition, 1, 0, $groups);
+        }
     }
 
     /* ------------------------------------

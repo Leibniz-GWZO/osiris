@@ -369,6 +369,85 @@ class Project extends Vocabulary
         return ['type' => ['$nin' => $restricted]];
     }
 
+    /**
+     * Messages (and optionally emails) on status changes of a proposal.
+     *
+     * Options of the project type:
+     * - notification_submitted (role:… or user:…) is notified when a proposal is
+     *   submitted (status "proposed") or withdrawn; notification_submitted_email
+     * - notification_status: applicants (creator and persons) are notified when
+     *   the status changes to review, approved, rejected or withdrawn; notification_status_email
+     *
+     * @return array usernames that received a message
+     */
+    public static function notifyStatusChange($proposal, $values, $type, $actor = [])
+    {
+        $status = $values['status'] ?? null;
+        if (empty($status) || $status == ($proposal['status'] ?? null)) return [];
+
+        $DB = new DB;
+        $id = strval($proposal['_id']);
+        $name = e($values['name'] ?? $proposal['name'] ?? '');
+        $me = $_SESSION['username'] ?? '';
+        $by = e(trim(($actor['first'] ?? '') . ' ' . ($actor['last'] ?? '')));
+        $label = ['en' => ucfirst($status), 'de' => ucfirst($status)];
+        foreach (self::PHASES as $phase) {
+            if ($phase['id'] == $status) $label = ['en' => $phase['name'], 'de' => $phase['name_de']];
+        }
+        if ($status == 'withdrawn') $label = ['en' => 'Withdrawn', 'de' => 'Zurückgezogen'];
+
+        $link = "/proposals/view/$id";
+        $messages = [];
+        // reviewers: submitted or withdrawn
+        if (in_array($status, ['proposed', 'withdrawn']) && !empty($type['notification_submitted'] ?? null)) {
+            $users = $DB->getMessageGroup($type['notification_submitted']);
+            if ($status == 'proposed') {
+                $en = "A proposal has been submitted by $by: <b>$name</b>";
+                $de = "Ein Antrag wurde eingereicht von $by: <b>$name</b>";
+            } else {
+                $en = "A proposal has been withdrawn by $by: <b>$name</b>";
+                $de = "Ein Antrag wurde zurückgezogen von $by: <b>$name</b>";
+            }
+            $messages[] = [$users, $en, $de, !empty($type['notification_submitted_email'] ?? false)];
+        }
+        // applicants: decisions and review
+        if (in_array($status, ['review', 'approved', 'rejected', 'withdrawn']) && !empty($type['notification_status'] ?? false)) {
+            $users = array_map('strval', array_column(DB::doc2Arr($proposal['persons'] ?? []), 'user'));
+            $users[] = $proposal['created_by'] ?? null;
+            $en = "The status of your proposal <b>$name</b> has been changed to <b>{$label['en']}</b> by $by";
+            $de = "Der Status deines Antrags <b>$name</b> wurde von $by geändert auf <b>{$label['de']}</b>";
+            $messages[] = [$users, $en, $de, !empty($type['notification_status_email'] ?? false)];
+        }
+
+        $notified = [];
+        foreach ($messages as [$users, $en, $de, $email]) {
+            $users = array_values(array_unique(array_filter($users, function ($u) use ($me, $notified) {
+                return !empty($u) && $u != $me && !in_array($u, $notified);
+            })));
+            if (empty($users)) continue;
+            foreach ($users as $u) {
+                $DB->addMessage($u, $en, $de, 'proposal', $link);
+            }
+            $notified = array_merge($notified, $users);
+            if (!$email) continue;
+
+            include_once BASEPATH . "/php/MailSender.php";
+            $html = '<p>' . $de . '</p><p>' . $en . '</p>';
+            if (!empty($values['comment'] ?? null) && in_array($status, ['approved', 'rejected'])) {
+                $html .= '<p><b>Kommentar / Comment:</b><br>' . nl2br(e($values['comment'])) . '</p>';
+            }
+            $subject = '[OSIRIS] Antrag / Proposal: ' . html_entity_decode(strip_tags($name)) . ' – ' . $label['de'] . ' / ' . $label['en'];
+            $recipients = $DB->db->persons->find(
+                ['username' => ['$in' => $users], 'is_active' => ['$ne' => false], 'mail' => ['$exists' => true, '$ne' => '']],
+                ['projection' => ['mail' => 1]]
+            );
+            foreach ($recipients as $r) {
+                sendMail($r['mail'], $subject, buildNotificationMail($label['de'] . ' / ' . $label['en'], $html, 'Antrag ansehen / View proposal', $link));
+            }
+        }
+        return $notified;
+    }
+
     public function getFields($type_id, $phase = 'all')
     {
         $type = $this->db->adminProjects->findOne(['id' => $type_id]);

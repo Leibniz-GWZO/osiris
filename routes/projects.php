@@ -439,7 +439,7 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
             'user' => $user,
             'role' => ($key == 'contact' ? 'applicant' : $key),
             'name' => $DB->getNameFromId($user),
-            'units' => $Groups->getPersonUnit($user)
+            'units' => array_values(array_map(fn($u) => $u['unit'], $Groups->getPersonUnit($user)))
         ];
     }
     if (isset($values['applicants'])) foreach ($values['applicants'] as $user) {
@@ -447,7 +447,7 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
             'user' => $user,
             'role' => 'applicant',
             'name' => $DB->getNameFromId($user),
-            'units' => $Groups->getPersonUnit($user)
+            'units' => array_values(array_map(fn($u) => $u['unit'], $Groups->getPersonUnit($user)))
         ];
     }
     if (!empty($persons)) {
@@ -897,11 +897,18 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     }
 
 
+    // applicants who get a message on this status change do not need the general one
+    $status_notified = [];
+    if ($collection == 'proposals' && !empty($type['notification_status'] ?? false) && ($values['status'] ?? null) != ($project['status'] ?? null) && in_array($values['status'] ?? null, ['review', 'approved', 'rejected', 'withdrawn'])) {
+        $status_notified = DB::doc2Arr($project['applicants'] ?? []);
+    }
+
     // send messages to applicants
     $applicants = $project['applicants'] ?? [];
     if (!empty($applicants)) {
         foreach ($applicants as $applicant) {
             if ($_SESSION['username'] == $applicant) continue; // do not send message to self
+            if (in_array($applicant, $status_notified)) continue;
             $creator = ($USER['first'] ?? '') . " " . $USER['last'];
             $tag = $collection == 'projects' ? 'project' : 'proposal';
             $DB->addMessage(
@@ -924,6 +931,10 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
         ['_id' => $id],
         ['$set' => $values]
     );
+
+    if ($collection == 'proposals') {
+        Project::notifyStatusChange($project, $values, $type, $USER);
+    }
 
     if (isset($_POST['redirect']) && !str_contains($_POST['redirect'], "//")) {
         $_SESSION['msg'] = lang("Project has been updated successfully.", "Projekt wurde erfolgreich aktualisiert.");
