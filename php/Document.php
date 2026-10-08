@@ -670,8 +670,8 @@ class Document extends Settings
 
     private function formatAuthorsNew($module)
     {
-        $isEditors = str_starts_with($module, 'editors-');
-        $isSupervisors = str_starts_with($module, 'supervisors-');
+        $isEditors = $module === 'editors' || str_starts_with($module, 'editors-');
+        $isSupervisors = $module === 'supervisors' || str_starts_with($module, 'supervisors-');
         $authorKey = $isEditors ? 'editors' : ($isSupervisors ? 'supervisors' : 'authors');
 
         $authors = DB::doc2Arr($this->getVal($authorKey, []));
