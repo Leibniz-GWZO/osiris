@@ -167,6 +167,13 @@ $cart = readCart();
         $n_notifications = $_SESSION['has_notifications'] ?? false;
         $has_notifications = $n_notifications > 0;
 
+        // tasks of local add-ons (registered in addons/*/index.php)
+        $addon_tasks = [];
+        foreach ($GLOBALS['OSIRIS_ADDON_HOOKS']['tasks'] ?? [] as $hook) {
+            $addon_tasks = array_merge($addon_tasks, call_user_func($hook, $Settings));
+        }
+        if (!empty($addon_tasks)) $has_notifications = true;
+
         $notifications['reviews'] = 0;
         if ($Settings->featureEnabled('quality-workflow', false)) {
             $notifications['reviews'] = $osiris->adminWorkflows->count(['steps.role' => ['$in' => $Settings->roles]]) > 0;
@@ -232,6 +239,14 @@ $cart = readCart();
                                 });
                             });
                         </script>
+                    <?php } ?>
+
+                    <?php foreach ($addon_tasks as $task) { ?>
+                        <a href="<?= ROOTPATH . $task['url'] ?>" class="with-icon">
+                            <i class="ph ph-<?= $task['icon'] ?>" aria-hidden="true"></i>
+                            <?= e($task['label']) ?>
+                            <span class="sidebar-index danger"><?= intval($task['count']) ?></span>
+                        </a>
                     <?php } ?>
 
                     <?php if (isset($notifications['messages'])) {

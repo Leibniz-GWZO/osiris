@@ -111,6 +111,9 @@ if ($active('keywords')) {
                 </table>
             </div>
 
+            <?php if ($Settings->hasPermission('admin.see')) {
+                // roles are only shown to admins
+            ?>
             <h6>
                 <?= lang('By Role', 'Nach Rolle') ?>
                 <a class="float-right" onclick="filterUsers('#filter-role .active', null, 15)"><i class="ph ph-x"></i></a>
@@ -129,6 +132,7 @@ if ($active('keywords')) {
                     <?php } ?>
                 </table>
             </div>
+            <?php } ?>
 
 
             <?php if ($topicsEnabled) { ?>
@@ -505,7 +509,7 @@ if ($active('keywords')) {
 </script>
 
 <?php
-if (isset($_GET['permission'])) {
+if (isset($_GET['permission']) && $Settings->hasPermission('admin.see')) {
     // filter users by permission
     $permission = $_GET['permission'];
     $roles = $osiris->adminRights->find(['right' => $permission, 'value' => true], ['projection' => ['role' => 1, '_id' => 0]])->toArray();

@@ -1310,6 +1310,9 @@ Route::post('/crud/admin/projects/update/([A-Za-z0-9]*)', function ($id) {
         $values['disabled'] = boolval($values['disabled'] ?? false);
         $values['notification_changed_email'] = boolval($values['notification_changed_email'] ?? false);
         $values['notification_created_email'] = boolval($values['notification_created_email'] ?? false);
+        foreach (['notification_submitted_email', 'notification_status', 'notification_status_email'] as $key) {
+            if (array_key_exists($key, $values)) $values[$key] = boolval($values[$key]);
+        }
         if (array_key_exists('access_roles', $values)) {
             $values['access_roles'] = array_values(array_filter(DB::doc2Arr($values['access_roles'] ?: [])));
         }

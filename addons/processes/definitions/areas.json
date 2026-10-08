@@ -1,0 +1,28 @@
+{
+    "areas": [
+        {
+            "id": "verwaltung",
+            "label": "Verwaltung",
+            "label_en": "Administration",
+            "icon": "briefcase",
+            "intro": "Formulare für Anträge an die Verwaltung. Du siehst nur die Formulare, die du nutzen darfst.",
+            "intro_en": "Forms for requests to the administration. You only see the forms you are allowed to use.",
+            "groups": [
+                { "id": "personalangelegenheiten", "label": "Personal", "label_en": "Staff" },
+                { "id": "beschaffung", "label": "Beschaffung", "label_en": "Procurement" },
+                { "id": "sonstiges", "label": "Weitere Vorgänge", "label_en": "Other processes" }
+            ]
+        },
+        {
+            "id": "publikation",
+            "label": "Publikationsplanung",
+            "label_en": "Publication planning",
+            "icon": "book-open-text",
+            "intro": "Publikationsvorhaben von der Idee bis zum Erscheinen.",
+            "intro_en": "Publication projects from the idea to publication.",
+            "groups": [
+                { "id": "buchreihen", "label": "Buchreihen", "label_en": "Book series" }
+            ]
+        }
+    ]
+}

@@ -252,6 +252,9 @@ if (
     // include_once BASEPATH . "/routes/adminRoles.php";
 
     include_once BASEPATH . "/addons/ida/index.php";
+
+    // local add-on: administrative processes and publication planning (see addons/processes/README.md)
+    include_once BASEPATH . "/addons/processes/index.php";
 }
 include_once BASEPATH . "/routes/migrate.php";
 

@@ -346,7 +346,14 @@ function renderProject($doc, $col = 'projects', $id = null)
                 }
             }
         } else {
-            $units = flatten(array_column($doc['persons'], 'units'));
+            // persons can hold unit ids or unit objects ({unit, start, end, ...})
+            $units = [];
+            foreach (DB::doc2Arr($doc['persons']) as $p) {
+                foreach (DB::doc2Arr($p['units'] ?? []) as $u) {
+                    $units[] = is_string($u) ? $u : ($u['unit'] ?? null);
+                }
+            }
+            $units = array_values(array_filter($units));
         }
         $units = array_merge($units, getManualUnits($doc, $project));
         $units = array_unique($units);

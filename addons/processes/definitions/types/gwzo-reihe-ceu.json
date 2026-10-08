@@ -1,0 +1,211 @@
+{
+    "id": "gwzo-reihe-ceu",
+    "area": "publikation",
+    "group": "buchreihen",
+    "flow": "phases",
+    "order": 10,
+    "prefix": "CEU",
+    "icon": "books",
+    "name": "GWZO-Buchreihe bei CEU Press",
+    "name_en": "GWZO book series with CEU Press",
+    "description": "Buchprojekte der GWZO-Reihe bei CEU Press, vom Proposal bis zur Veröffentlichung. Entwurf als Grundlage für die Abstimmung mit der Reihenkoordination.",
+    "description_en": "Book projects of the GWZO series with CEU Press, from the proposal to the publication. Draft as a basis for discussion with the series coordination.",
+    "title": "{pp_titel}",
+    "authors_field": "pp_autorinnen",
+    "funding_field": "pp_finanzierung",
+    "unit_field": "pp_abteilung",
+    "email": true,
+    "attachments": true,
+    "create": { "roles": ["reihenkoordination"] },
+    "manage": { "roles": ["reihenkoordination"] },
+    "view_all": { "roles": ["leitungskreis"], "persons": ["anja.fritzsche"] },
+    "fields": [
+        { "id": "pp_h_projekt", "type": "heading", "label": "Buchprojekt", "label_en": "Book project" },
+        { "id": "pp_autorinnen", "type": "string", "label": "Autor*innen / Herausgeber*innen", "label_en": "Authors / editors", "required": true, "width": 6 },
+        {
+            "id": "pp_art", "type": "select", "label": "Art", "label_en": "Kind", "width": 6,
+            "options": [
+                { "value": "monografie", "label": "Monografie", "label_en": "Monograph" },
+                { "value": "sammelband", "label": "Sammelband", "label_en": "Edited volume" },
+                { "value": "quellenedition", "label": "Quellenedition", "label_en": "Source edition" }
+            ]
+        },
+        { "id": "pp_titel", "type": "string", "label": "Titel (Arbeitstitel)", "label_en": "Title (working title)", "required": true },
+        { "id": "pp_abteilung", "type": "unit", "label": "Abteilung", "label_en": "Department", "width": 6 },
+        { "id": "pp_vorschlag_von", "type": "string", "label": "Vorgeschlagen von", "label_en": "Suggested by", "width": 6, "help": "z. B. bei Anfragen über Board-Mitglieder", "help_en": "e.g. for suggestions via board members" },
+        { "id": "pp_kontakte", "type": "contacts", "label": "Kontakte", "label_en": "Contacts", "help": "Autor*innen, Herausgeber*innen und weitere Ansprechpersonen", "help_en": "Authors, editors and other contacts" },
+
+        { "id": "pp_h_finanzierung", "type": "heading", "label": "Finanzierung und Zeitplan", "label_en": "Funding and schedule" },
+        {
+            "id": "pp_oa_mittel", "type": "select", "label": "Mittel für Open Access vorhanden?", "label_en": "Funds for open access?", "width": 4,
+            "options": [
+                { "value": "ja", "label": "ja", "label_en": "yes" },
+                { "value": "teilweise", "label": "teilweise", "label_en": "partly" },
+                { "value": "nein", "label": "nein", "label_en": "no" },
+                { "value": "unklar", "label": "noch unklar", "label_en": "not yet clear" }
+            ]
+        },
+        {
+            "id": "pp_oa_quelle", "type": "select", "label": "Herkunft der Mittel", "label_en": "Source of the funds", "width": 4,
+            "show_if": { "field": "pp_oa_mittel", "op": "in", "value": ["ja", "teilweise"] },
+            "options": [
+                { "value": "projekt", "label": "Drittmittelprojekt", "label_en": "Grant project" },
+                { "value": "institut", "label": "Institut", "label_en": "Institute" },
+                { "value": "gemischt", "label": "gemischt", "label_en": "mixed" },
+                { "value": "sonstige", "label": "sonstige", "label_en": "other" }
+            ]
+        },
+        { "id": "pp_mittel_bis", "type": "date", "label": "Mittel verfügbar bis", "label_en": "Funds available until", "width": 4, "show_if": { "field": "pp_oa_mittel", "op": "in", "value": ["ja", "teilweise"] } },
+        { "id": "pp_erscheinen_soll", "type": "string", "label": "Geplantes Erscheinen laut Projektplan", "label_en": "Planned publication according to the grant schedule", "width": 6 },
+        { "id": "pp_finanzierung", "type": "text", "label": "Finanzierung: Details", "label_en": "Funding: details", "rows": 2 }
+    ],
+    "phases": [
+        {
+            "id": "anfrage", "label": "Anfrage/Idee", "label_en": "Enquiry/idea",
+            "responsible": "GF", "help": "Vorschläge und Anfragen, bevor ein Proposal vorliegt.", "help_en": "Suggestions and enquiries before a proposal has been submitted."
+        },
+        {
+            "id": "proposal", "label": "Proposal eingereicht", "label_en": "Proposal submitted",
+            "responsible": "GF",
+            "help": "Book proposal form der GWZO-Reihe und zwei Probekapitel inkl. Einleitung an GF.",
+            "help_en": "Book proposal form of the GWZO series and two sample chapters incl. introduction to GF.",
+            "fields": [
+                { "id": "pp_proposal_eingang", "type": "date", "label": "Eingang", "label_en": "Received", "width": 4 },
+                { "id": "pp_probekapitel", "type": "check", "label": "Probekapitel liegen vor", "label_en": "Sample chapters received", "width": 4 }
+            ]
+        },
+        {
+            "id": "intern", "label": "Interne Begutachtung (GWZO)", "label_en": "Internal review (GWZO)",
+            "duration_weeks": [4, 6], "responsible": "GF",
+            "help": "GF informiert die Reihenherausgeber*innen und, mit deren Zustimmung, das passende Board-Mitglied (AUP Peer Review Form, für das GWZO angepasst).",
+            "help_en": "GF informs the series editors and, with their approval, the most relevant board member (AUP peer review form adapted for GWZO).",
+            "fields": [
+                { "id": "pp_reihenhg_ok", "type": "check", "label": "Zustimmung der Reihenherausgeber*innen", "label_en": "Approval of the series editors", "width": 6 },
+                { "id": "pp_promotionsgutachten", "type": "check", "label": "Promotionsgutachten statt Erstgutachten", "label_en": "PhD examiners' reports instead of a first review", "width": 6 },
+                { "id": "pp_gutachten_intern", "type": "string", "label": "Gutachter*in (Board)", "label_en": "Reviewer (board)", "width": 6 },
+                {
+                    "id": "pp_intern_ergebnis", "type": "select", "label": "Ergebnis", "label_en": "Result", "width": 6,
+                    "options": [
+                        { "value": "positiv", "label": "positiv", "label_en": "positive" },
+                        { "value": "ueberarbeiten", "label": "Überarbeitung nötig", "label_en": "revision needed" },
+                        { "value": "negativ", "label": "negativ", "label_en": "negative" }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "board", "label": "Editorial Board (CEU Press)", "label_en": "Editorial board (CEU Press)",
+            "duration_weeks": [6, 8], "responsible": "Linda McGrath (CEU Press)",
+            "help": "GF sendet die Unterlagen samt Erstgutachten an Linda McGrath. Das Editorial Board tagt alle 6 Wochen.",
+            "help_en": "GF sends the documents incl. the first review to Linda McGrath. The editorial board meets every 6 weeks.",
+            "fields": [
+                { "id": "pp_board_gesendet", "type": "date", "label": "An CEU Press gesendet", "label_en": "Sent to CEU Press", "width": 4 },
+                { "id": "pp_board_sitzung", "type": "date", "label": "Board-Sitzung", "label_en": "Board meeting", "width": 4 },
+                {
+                    "id": "pp_board_ergebnis", "type": "select", "label": "Entscheidung", "label_en": "Decision", "width": 4,
+                    "options": [
+                        { "value": "angenommen", "label": "angenommen", "label_en": "accepted" },
+                        { "value": "zweitgutachten", "label": "Zweitgutachten nötig", "label_en": "second review needed" },
+                        { "value": "abgelehnt", "label": "abgelehnt", "label_en": "rejected" }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "vertrag", "label": "Verlagsvertrag", "label_en": "Publishing contract",
+            "responsible": "Linda McGrath (CEU Press)",
+            "help": "Die Autor*innen unterschreiben den Vertrag mit dem Verlag und verpflichten sich zur Abgabe des Manuskripts. Bei Open Access schickt CEU Press (AUP) dem GWZO eine Vereinbarung über die Zahlung bei Erscheinen.",
+            "help_en": "The author signs a contract with the publisher and commits to a delivery date. For open access, CEU Press (AUP) sends GWZO an agreement to pay the fee upon publication.",
+            "fields": [
+                { "id": "pp_vertrag_datum", "type": "date", "label": "Vertrag unterzeichnet", "label_en": "Contract signed", "width": 4 },
+                { "id": "pp_abgabe_manuskript", "type": "date", "label": "Abgabetermin Manuskript", "label_en": "Manuscript delivery date", "width": 4 },
+                { "id": "pp_open_access", "type": "bool", "label": "Open Access", "label_en": "Open access", "width": 4 }
+            ],
+            "tasks": [
+                {
+                    "id": "oa_vereinbarung", "label": "OA-Kostenvereinbarung von CEU Press/AUP prüfen", "label_en": "Check the open access fee agreement from CEU Press/AUP",
+                    "assignees": { "persons": ["anja.fritzsche"] },
+                    "condition": { "field": "pp_open_access", "op": "eq", "value": true }
+                }
+            ]
+        },
+        {
+            "id": "peer_review", "label": "Peer Review", "label_en": "Peer review",
+            "duration_weeks": [13, 17], "responsible": "GF",
+            "help": "Externes Gutachten zum vollständigen Manuskript. GF sucht und kontaktiert die Gutachter*in und setzt eine Frist; die Rechnung geht über GF an die Finanzen. GF hält CEU Press auf dem Laufenden.",
+            "help_en": "External review of the full manuscript. GF finds and contacts the reviewer and sets a deadline; the invoice goes via GF to finance. GF keeps CEU Press updated.",
+            "fields": [
+                { "id": "pp_peer_gutachter", "type": "string", "label": "Externe*r Gutachter*in", "label_en": "External reviewer", "width": 6 },
+                { "id": "pp_peer_frist", "type": "date", "label": "Frist für das Gutachten", "label_en": "Deadline for the review", "width": 6 }
+            ],
+            "tasks": [
+                { "id": "honorarvertrag", "label": "Honorarvertrag für die Gutachter*in erstellen", "label_en": "Prepare the fee contract for the reviewer", "assignees": { "persons": ["anja.fritzsche"] } },
+                { "id": "rechnung_gutachten", "label": "Rechnung für das Gutachten bearbeiten", "label_en": "Process the invoice for the review", "assignees": { "persons": ["anja.fritzsche"] } }
+            ]
+        },
+        {
+            "id": "post_review", "label": "Post-Review-Check und Revisionsplan", "label_en": "Post-review check and revisions plan",
+            "responsible": "GF und Linda McGrath",
+            "help": "GF und CEU Press bewerten Gutachten und Manuskript, ggf. mit Reihenherausgeber*innen und Board. Die Autor*innen legen einen Revisionsplan mit Zeitplan vor und vereinbaren einen Abgabetermin.",
+            "help_en": "GF and CEU Press assess the review and the manuscript, if needed with the series editors and board. The author prepares a revisions plan with a schedule and sets a submission date.",
+            "fields": [
+                { "id": "pp_revisionsplan", "type": "check", "label": "Revisionsplan liegt vor", "label_en": "Revisions plan received", "width": 6 },
+                { "id": "pp_einreichung_termin", "type": "date", "label": "Vereinbarter Abgabetermin", "label_en": "Agreed submission date", "width": 6 }
+            ]
+        },
+        {
+            "id": "revision", "label": "Überarbeitung und Einreichung", "label_en": "Content revisions and submission",
+            "duration_weeks": [4, 26], "responsible": "GF und Linda McGrath",
+            "help": "Die Autor*innen überarbeiten das Manuskript. Am Ende ggf. Clearance-Review durch GF oder Gutachter*innen.",
+            "help_en": "The author revises the manuscript. Possibly a clearance review at the end by GF or the reviewers.",
+            "fields": [
+                { "id": "pp_clearance", "type": "check", "label": "Clearance-Review nötig", "label_en": "Clearance review needed", "width": 6 },
+                { "id": "pp_manuskript_eingang", "type": "date", "label": "Überarbeitetes Manuskript eingegangen", "label_en": "Revised manuscript received", "width": 6 }
+            ]
+        },
+        {
+            "id": "lektorat", "label": "Sprachlektorat", "label_en": "Language editing",
+            "duration_weeks": [6, 8], "responsible": "GF",
+            "help": "GF prüft, ob ein professionelles Sprachlektorat nötig ist. Organisiert wird es von den Autor*innen.",
+            "help_en": "GF checks the need for professional language editing. It is organised by the author.",
+            "fields": [
+                {
+                    "id": "pp_lektorat_noetig", "type": "select", "label": "Lektorat nötig?", "label_en": "Language editing needed?", "width": 6,
+                    "options": [
+                        { "value": "ja", "label": "ja", "label_en": "yes" },
+                        { "value": "nein", "label": "nein", "label_en": "no" },
+                        { "value": "offen", "label": "noch offen", "label_en": "open" }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "produktion", "label": "Produktion und Copy-Editing", "label_en": "Production and copy-editing",
+            "duration_weeks": [17, 26], "responsible": "Linda McGrath (CEU Press), AUP",
+            "help": "Das finale Manuskript geht an AUP zur Produktion. Kommunikation vor allem zwischen CEU Press und Autor*innen; GF wird informiert und prüft Cover und Unterlagen.",
+            "help_en": "The final manuscript goes to AUP for production. Communication mostly between CEU Press and the author; GF is kept informed and checks the cover and documents.",
+            "fields": [
+                { "id": "pp_cover_geprueft", "type": "check", "label": "Cover geprüft", "label_en": "Cover checked", "width": 6 },
+                {
+                    "id": "pp_impressum_geprueft", "type": "check", "label": "Impressum mit Förderhinweis und Logos geprüft", "label_en": "Imprint with funding note and logos checked", "width": 6,
+                    "help": "Published with the support of the Leibniz Institute for the History and Culture of Eastern Europe (GWZO) e. V. in Leipzig. This measure is co-financed by tax funds on the basis of the budget adopted by the Saxon State Parliament. – GWZO-Logo und Logo des Freistaats Sachsen.",
+                    "help_en": "Published with the support of the Leibniz Institute for the History and Culture of Eastern Europe (GWZO) e. V. in Leipzig. This measure is co-financed by tax funds on the basis of the budget adopted by the Saxon State Parliament. – GWZO logo and Saxon logo."
+                }
+            ]
+        },
+        {
+            "id": "erschienen", "label": "Veröffentlichung", "label_en": "Publication",
+            "responsible": "GF",
+            "help": "GF bespricht die Promotion mit Autor*innen, Verlag und Alexander Weidle und informiert die Board-Mitglieder. Die Publikation wird als Aktivität in OSIRIS erfasst und hier verknüpft.",
+            "help_en": "GF discusses promotion with the author, the publisher and Alexander Weidle and informs the board members. The publication is added to OSIRIS as an activity and linked here.",
+            "fields": [
+                { "id": "pp_erscheinungsdatum", "type": "date", "label": "Erscheinungsdatum", "label_en": "Publication date", "width": 4 },
+                { "id": "pp_isbn", "type": "string", "label": "ISBN", "width": 4 },
+                { "id": "pp_doi", "type": "string", "label": "DOI", "width": 4 },
+                { "id": "pp_promotion", "type": "check", "label": "Promotion mit A. Weidle abgestimmt", "label_en": "Promotion agreed with A. Weidle", "width": 6 },
+                { "id": "pp_board_informiert", "type": "check", "label": "Board informiert", "label_en": "Board informed", "width": 6 },
+                { "id": "pp_aktivitaet", "type": "activity", "label": "Aktivität in OSIRIS", "label_en": "Activity in OSIRIS" }
+            ]
+        }
+    ]
+}

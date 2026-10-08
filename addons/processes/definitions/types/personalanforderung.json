@@ -1,0 +1,164 @@
+{
+    "id": "personalanforderung",
+    "area": "verwaltung",
+    "group": "personalangelegenheiten",
+    "order": 10,
+    "prefix": "PA",
+    "icon": "user-plus",
+    "name": "Personalanforderung",
+    "name_en": "Staff request",
+    "description": "Neu- oder Nachbesetzung und Verlängerung, für Mitarbeitende und Hilfskräfte (SHK/WHK). Grundlage ist der Personalanforderungsbogen.",
+    "description_en": "New hire, replacement or extension, for staff and student/research assistants. Based on the staff request form.",
+    "title": "{pa_vorname} {pa_nachname} – {pa_vorgang}",
+    "unit_field": "pa_abteilung",
+    "email": true,
+    "attachments": true,
+    "attachments_help": "Zum Beispiel Lebenslauf, Zeugnisse oder Stellenbeschreibung.",
+    "attachments_help_en": "For example CV, certificates or job description.",
+    "create": {
+        "unit_heads": true,
+        "roles": ["personalverwaltung"]
+    },
+    "view_all": {
+        "roles": ["personalverwaltung"]
+    },
+    "steps": [
+        {
+            "id": "abteilungsleitung",
+            "label": "Abteilungsleitung",
+            "label_en": "Head of department",
+            "help": "Entfällt, wenn die Abteilungsleitung selbst beantragt.",
+            "help_en": "Skipped if the head of department submits the request.",
+            "approvers": { "unit_head": true, "self": "skip" }
+        },
+        {
+            "id": "personalverwaltung",
+            "label": "Personal und Organisation",
+            "label_en": "HR and Organisation",
+            "approvers": { "roles": ["personalverwaltung"] }
+        },
+        {
+            "id": "verwaltung",
+            "label": "Admin Verwaltung",
+            "label_en": "Head of administration",
+            "help": "Bitte die Aufteilung auf Kostenstellen ausfüllen.",
+            "help_en": "Please fill in the allocation to cost centres.",
+            "approvers": { "roles": ["verwaltungsleitung"] },
+            "editable": ["pa_kostenstellen"]
+        },
+        {
+            "id": "geschaeftsfuehrung",
+            "label": "Geschäftsführung",
+            "label_en": "Managing director",
+            "approvers": { "roles": ["geschaeftsfuehrung"] }
+        }
+    ],
+    "hints": [
+        {
+            "date_field": "pa_vertragsbeginn",
+            "min_days_ahead": 61,
+            "condition": { "field": "pa_aufenthaltstitel", "op": "ne", "value": true },
+            "message": "Die Anforderung muss mindestens zwei Monate vor Vertragsbeginn eingehen.",
+            "message_en": "The request must be submitted at least two months before the start of the contract."
+        },
+        {
+            "date_field": "pa_vertragsbeginn",
+            "min_days_ahead": 92,
+            "condition": { "field": "pa_aufenthaltstitel", "op": "eq", "value": true },
+            "message": "Mit Aufenthaltstitel muss die Anforderung mindestens drei Monate vor Vertragsbeginn eingehen.",
+            "message_en": "With a residence permit, the request must be submitted at least three months before the start of the contract."
+        }
+    ],
+    "fields": [
+        { "id": "pa_h_vorgang", "type": "heading", "label": "Vorgang", "label_en": "Request" },
+        {
+            "id": "pa_vorgang", "type": "select", "label": "Art des Vorgangs", "label_en": "Type of request", "required": true, "width": 6,
+            "options": [
+                { "value": "neu", "label": "Neu- oder Nachbesetzung", "label_en": "New hire / replacement" },
+                { "value": "verlaengerung", "label": "Verlängerung", "label_en": "Extension" }
+            ]
+        },
+        {
+            "id": "pa_personengruppe", "type": "select", "label": "Personengruppe", "label_en": "Staff group", "required": true, "width": 6,
+            "options": [
+                { "value": "mitarbeitende", "label": "Mitarbeiter*in", "label_en": "Staff member" },
+                { "value": "shk", "label": "Studentische Hilfskraft (SHK)", "label_en": "Student assistant (SHK)" },
+                { "value": "whk", "label": "Wissenschaftliche Hilfskraft (WHK)", "label_en": "Research assistant (WHK)" }
+            ]
+        },
+
+        { "id": "pa_h_person", "type": "heading", "label": "Personendaten", "label_en": "Personal data", "help": "Bei Verlängerungen genügen Name, Vertragsdaten und Änderungen.", "help_en": "For extensions, only name, contract dates and changes are needed." },
+        { "id": "pa_titel", "type": "string", "label": "Titel", "label_en": "Title", "width": 2 },
+        { "id": "pa_nachname", "type": "string", "label": "Name", "label_en": "Last name", "required": true, "width": 5 },
+        { "id": "pa_vorname", "type": "string", "label": "Vorname", "label_en": "First name", "required": true, "width": 5 },
+        { "id": "pa_geburtsdatum", "type": "date", "label": "Geburtsdatum", "label_en": "Date of birth", "width": 4, "show_if": { "field": "pa_vorgang", "op": "eq", "value": "neu" } },
+        { "id": "pa_geburtsort", "type": "string", "label": "Geburtsort", "label_en": "Place of birth", "width": 4, "show_if": { "field": "pa_vorgang", "op": "eq", "value": "neu" } },
+        { "id": "pa_staatsangehoerigkeit", "type": "string", "label": "Staatsangehörigkeit", "label_en": "Nationality", "width": 4, "show_if": { "field": "pa_vorgang", "op": "eq", "value": "neu" } },
+        { "id": "pa_promovierend", "type": "bool", "label": "Promovierend", "label_en": "Doctoral candidate", "required": true, "width": 6 },
+        { "id": "pa_mehrfachbeschaeftigung", "type": "bool", "label": "Mehrfachbeschäftigung", "label_en": "Multiple employment", "required": true, "width": 6 },
+        {
+            "id": "pa_aufenthaltstitel", "type": "bool", "label": "Aufenthaltstitel erforderlich", "label_en": "Residence permit required", "required": true, "width": 6,
+            "help": "Wenn ja, muss die Anforderung mindestens 3 Monate vor Vertragsbeginn eingehen.", "help_en": "If yes, the request must be submitted at least 3 months before the start of the contract."
+        },
+        {
+            "id": "pa_exportkontrolle", "type": "bool", "label": "Exportkontrolle notwendig", "label_en": "Export control necessary", "required": true, "width": 6,
+            "help": "Im Zweifel bitte mit Personal und Organisation klären.", "help_en": "If in doubt, please clarify with HR and Organisation."
+        },
+        { "id": "pa_bildungsabschluss", "type": "string", "label": "Höchster Bildungsabschluss", "label_en": "Highest degree", "help": "Bei Neueinstellung oder Änderung", "help_en": "New hires, or if changed" },
+
+        { "id": "pa_h_stelle", "type": "heading", "label": "Stellendaten", "label_en": "Position" },
+        {
+            "id": "pa_vertragsbeginn", "type": "date", "label": "Vertragsbeginn", "label_en": "Start of contract", "required": true, "width": 6,
+            "help": "Die Anforderung muss mindestens 2 Monate vorher eingehen.", "help_en": "Requests must be submitted at least 2 months in advance."
+        },
+        { "id": "pa_vertragsende", "type": "date", "label": "Vertragsende", "label_en": "End of contract", "width": 6, "help": "Leer bei unbefristetem Vertrag", "help_en": "Leave empty for permanent contracts" },
+        { "id": "pa_taetigkeit", "type": "string", "label": "Auszuübende Tätigkeit", "label_en": "Activity to be performed", "required": true },
+        {
+            "id": "pa_arbeitszeit", "type": "select", "label": "Regelmäßige Arbeitszeit", "label_en": "Regular working time", "required": true, "width": 6,
+            "options": [
+                { "value": "vollzeit", "label": "Vollzeit (40 Wochenstunden)", "label_en": "Full-time (40 hours/week)" },
+                { "value": "teilzeit", "label": "Teilzeit", "label_en": "Part-time" }
+            ]
+        },
+        { "id": "pa_stunden_woche", "type": "float", "label": "Stunden pro Woche", "label_en": "Hours per week", "required": true, "width": 3, "show_if": { "field": "pa_arbeitszeit", "op": "eq", "value": "teilzeit" } },
+        { "id": "pa_befristete_teilzeit", "type": "check", "label": "Befristete Teilzeit", "label_en": "Temporary part-time", "width": 3, "show_if": { "field": "pa_arbeitszeit", "op": "eq", "value": "teilzeit" } },
+        {
+            "id": "pa_stundenverteilung", "type": "string", "label": "Verteilung der Arbeitsstunden pro Wochentag", "label_en": "Distribution of hours per weekday",
+            "help": "z. B. Mo 8, Di 8, Mi 4, Do 0, Fr 0", "help_en": "e.g. Mon 8, Tue 8, Wed 4, Thu 0, Fri 0",
+            "show_if": { "field": "pa_arbeitszeit", "op": "eq", "value": "teilzeit" }
+        },
+        { "id": "pa_entgeltgruppe", "type": "string", "label": "Geplante Eingruppierung TV-L: Entgeltgruppe", "label_en": "Planned grading TV-L: pay group", "width": 6, "show_if": { "field": "pa_personengruppe", "op": "eq", "value": "mitarbeitende" } },
+        { "id": "pa_stufe", "type": "int", "label": "Geplante Eingruppierung TV-L: Stufe", "label_en": "Planned grading TV-L: step", "width": 6, "show_if": { "field": "pa_personengruppe", "op": "eq", "value": "mitarbeitende" } },
+        { "id": "pa_entgelt_vereinbart", "type": "string", "label": "Keine Eingruppierung, vereinbartes Entgelt", "label_en": "No grading, agreed remuneration" },
+        { "id": "pa_qualifizierungsvereinbarung", "type": "bool", "label": "Qualifizierungsvereinbarung", "label_en": "Qualification agreement", "width": 6, "show_if": { "field": "pa_personengruppe", "op": "eq", "value": "whk" } },
+        { "id": "pa_betreuungsvereinbarung", "type": "bool", "label": "Betreuungsvereinbarung", "label_en": "Supervision agreement", "width": 6, "show_if": { "field": "pa_promovierend", "op": "eq", "value": true } },
+        { "id": "pa_betreuende", "type": "string", "label": "Name des/der Betreuenden", "label_en": "Name of supervisor", "width": 6, "show_if": { "field": "pa_promovierend", "op": "eq", "value": true } },
+        { "id": "pa_aufgaben", "type": "text", "label": "Angaben über das Arbeitsgebiet und die Aufgaben (Beschäftigungsgrund für den Arbeitsvertrag)", "label_en": "Field of work and tasks (reason for employment)", "required": true, "rows": 5 },
+
+        { "id": "pa_h_organisation", "type": "heading", "label": "Organisatorische Daten", "label_en": "Organisational data" },
+        { "id": "pa_abteilung", "type": "unit", "label": "Abteilung", "label_en": "Department", "required": true, "width": 6, "help": "Die Leitung dieser Einheit gibt die Anforderung frei.", "help_en": "The head of this unit approves the request." },
+        {
+            "id": "pa_zuordnung", "type": "select", "label": "Zuordnung", "label_en": "Staff category", "width": 6,
+            "show_if": { "field": "pa_personengruppe", "op": "eq", "value": "mitarbeitende" },
+            "options": [
+                { "value": "wissenschaftsunterstuetzend", "label": "Wissenschaftsunterstützendes Personal", "label_en": "Science support staff" },
+                { "value": "wissenschaftlich", "label": "Wissenschaftliches Personal", "label_en": "Academic staff" }
+            ]
+        },
+        { "id": "pa_projektleitung", "type": "string", "label": "Name der Projektleitung", "label_en": "Name of project lead", "width": 6 },
+        { "id": "pa_finanzierung", "type": "string", "label": "Finanzierung", "label_en": "Funding", "required": true, "width": 6 },
+        { "id": "pa_programmbereich", "type": "string", "label": "Programmbereich", "label_en": "Programme area", "width": 6 },
+        { "id": "pa_sitzplan", "type": "string", "label": "Vorschlag Sitzplan", "label_en": "Seating proposal", "width": 6, "show_if": { "field": "pa_vorgang", "op": "eq", "value": "neu" } },
+        {
+            "id": "pa_startbegleitung", "type": "string", "label": "Vorgesehene(r) Startbegleiter*in", "label_en": "Designated onboarding buddy", "width": 6,
+            "show_if": { "all": [{ "field": "pa_vorgang", "op": "eq", "value": "neu" }, { "field": "pa_personengruppe", "op": "eq", "value": "mitarbeitende" }] }
+        },
+
+        { "id": "pa_h_kostenstellen", "type": "heading", "label": "Aufteilung auf verschiedene Kostenstellen", "label_en": "Allocation to cost centres", "help": "Wird von Admin Verwaltung ausgefüllt.", "help_en": "Filled in by the head of administration." },
+        {
+            "id": "pa_kostenstellen", "type": "text", "label": "Kostenstellen (bis zu 4)", "label_en": "Cost centres (up to 4)", "rows": 8, "only_steps": ["verwaltung"],
+            "default": "Kostenstelle (T…):\nProjektbezeichnung (Kurzform):\nZuwendungsbescheid/Kennzeichen:\nProjektlaufzeit (von – bis):\nWöchentlicher Arbeitsanteil:\nProjekt-Nr.:",
+            "help": "Ein Block je Kostenstelle", "help_en": "One block per cost centre"
+        }
+    ]
+}

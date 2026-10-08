@@ -215,6 +215,23 @@
                     </div>
                 </div>
 
+                <?php if (file_exists(BASEPATH . '/addons/processes/index.php')) { ?>
+                    <div class="box padded">
+                        <h4 class="title" id="processes">
+                            <?= lang('Processes (local add-on)', 'Vorgänge (lokales Add-on)') ?>
+                        </h4>
+                        <p class="description">
+                            <?= lang('Administrative processes and publication planning with their own forms, approval steps and access rules. Definitions:', 'Verwaltungsvorgänge und Publikationsplanung mit eigenen Formularen, Freigabeschritten und Zugriffsregeln. Definitionen:') ?>
+                            <a href="<?= ROOTPATH ?>/processes/check">/processes/check</a>
+                        </p>
+                        <div class="form-group">
+                            <?php
+                            renderCheckbox('processes');
+                            ?>
+                        </div>
+                    </div>
+                <?php } ?>
+
                 <div class="box padded">
                     <h4 class="title" id="teaching-modules">
                         <?= lang('Teaching modules', 'Lehrveranstaltungen') ?>
