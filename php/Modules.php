@@ -906,7 +906,16 @@ class Modules
             "section" => "authors",
         ],
         "supervisor-thesis" => [
-            "fields" => ["authors"],
+            "fields" => ["supervisors" => [
+                [
+                    "last" => "Koblitz",
+                    "first" => "Julia",
+                    "aoi" => true,
+                    "user" => "jkoblitz",
+                    "approved" => true,
+                    "role" => "first-reviewer"
+                ],
+            ]],
             "name" => "Supervisor (Thesis)",
             "name_de" => "Betreuer:in (Abschlussarbeit)",
             "label" => "Supervisor of the thesis",
