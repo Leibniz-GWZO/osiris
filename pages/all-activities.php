@@ -91,7 +91,7 @@ $cart = readCart();
         <table class="table dataTable" id="result-table" style="width:100%">
             <thead>
                 <tr>
-                    <th><?= lang('Quarter', 'Quartal') ?></th>
+                    <th><?= lang('Date', 'Datum') ?></th>
                     <th><?= lang('Type', 'Typ') ?></th>
                     <th><?= lang('Activity', 'Aktivität') ?></th>
                     <th>Links</th>
@@ -369,8 +369,8 @@ $cart = readCart();
 
     const activeFilters = $('#active-filters')
     const headers = [{
-            title: lang('Quarter', 'Quartal'),
-            'key': 'quarter'
+            title: lang('Date', 'Datum'),
+            'key': 'date'
         },
         {
             title: lang('Type', 'Typ'),
@@ -550,21 +550,30 @@ $cart = readCart();
             // dom: '<"dtsp-dataTable"frtip>',
             columnDefs: [{
                     targets: 0,
-                    data: "quarter",
+                    data: "start",
                     searchPanes: {
                         show: false
                     },
                     render: function(data, type, row) {
+                        if (type === 'sort' || type === 'type') {
+                            return data ? new Date(data).getTime() : 0;
+                        }
+                        if (type !== 'display') return data;
+                        // month precision only: about a quarter of all activities have no day
+                        const monthYear = (d) => d ? d.slice(5, 7) + '/' + d.slice(0, 4) : '';
+                        let label = monthYear(data);
+                        const end = monthYear(row.end);
+                        if (end && end !== label) label += ' – ' + end;
                         if (workflowsEnabled) {
                             if (row.workflow && row.workflow == 'in_progress') {
-                                return `${data} <i class="ph ph-seal text-muted" title="<?= lang('In workflow', 'Im Workflow') ?>"></i>`;
+                                return `${label} <i class="ph ph-seal text-muted" title="<?= lang('In workflow', 'Im Workflow') ?>"></i>`;
                             } else if (row.workflow && row.workflow == 'rejected') {
-                                return `${data} <i class="ph ph-x-circle text-danger" title="<?= lang('Rejected in workflow', 'Im Workflow abgelehnt') ?>"></i>`;
+                                return `${label} <i class="ph ph-x-circle text-danger" title="<?= lang('Rejected in workflow', 'Im Workflow abgelehnt') ?>"></i>`;
                             } else if (row.workflow && row.workflow == 'verified') {
-                                return `${data} <i class="ph ph-seal-check text-success" title="<?= lang('Verified in workflow', 'Im Workflow verifiziert') ?>"></i>`;
+                                return `${label} <i class="ph ph-seal-check text-success" title="<?= lang('Verified in workflow', 'Im Workflow verifiziert') ?>"></i>`;
                             }
                         }
-                        return data;
+                        return label;
                     }
                 },
                 {
@@ -750,7 +759,7 @@ $cart = readCart();
                 }
             ],
             "order": [
-                [5, 'desc'],
+                [0, 'desc'],
                 [1, 'asc']
             ],
             <?php if (isset($_GET['q'])) { ?> "oSearch": {
