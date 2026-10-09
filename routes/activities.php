@@ -26,8 +26,9 @@ Route::get('/(activities|my-activities)', function ($page) {
         ];
     } elseif (isset($_GET['user'])) {
         $user = $_GET['user'];
+        $userLabel = e($user);
         $breadcrumb = [
-            ['name' => lang("Activities of $user", "Aktivitäten von $user")]
+            ['name' => lang("Activities of $userLabel", "Aktivitäten von $userLabel")]
         ];
     } else {
         $breadcrumb = [

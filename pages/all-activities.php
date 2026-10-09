@@ -31,7 +31,7 @@ $cart = readCart();
     <?php if (isset($_GET['user'])) { ?>
         <i class="ph-duotone ph-folder-user"></i>
         <?= lang("Activities of ", "Aktivitäten von ") ?>
-        <a href="<?= ROOTPATH ?>/profile/<?= $user ?>"><?= $DB->getNameFromId($user) ?></a>
+        <a href="<?= ROOTPATH ?>/profile/<?= e(urlencode($user)) ?>"><?= e($DB->getNameFromId($user)) ?></a>
     <?php } elseif ($page == 'activities' || !$Settings->hasPermission('scientist')) { ?>
         <i class="ph-duotone ph-book-open"></i>
         <?= lang("All activities", "Alle Aktivitäten") ?>
@@ -458,8 +458,8 @@ $cart = readCart();
             "ajax": {
                 "url": ROOTPATH + '/api/all-activities',
                 "data": {
-                    "page": '<?= $page ?>',
-                    'user': '<?= $user ?>'
+                    "page": <?= json_encode((string) $page, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+                    'user': <?= json_encode((string) $user, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
                 },
                 dataSrc: 'data'
             },
@@ -754,7 +754,7 @@ $cart = readCart();
                 [1, 'asc']
             ],
             <?php if (isset($_GET['q'])) { ?> "oSearch": {
-                    "sSearch": "<?= $_GET['q'] ?>"
+                    "sSearch": <?= json_encode((string) $_GET['q'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
                 }
             <?php } ?>
 
@@ -792,7 +792,7 @@ $cart = readCart();
         });
 
         <?php if (isset($_GET['type'])) { ?>
-            window.location.hash = "type=<?= $_GET['type'] ?>";
+            window.location.hash = "type=" + encodeURIComponent(<?= json_encode((string) $_GET['type'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>);
         <?php } ?>
 
 
