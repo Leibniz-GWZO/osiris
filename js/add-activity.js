@@ -274,19 +274,32 @@ function addAuthor(event, editor = false) {
 
         // check if author is empty
         if (data.trim() === '' || data.trim() === ',') {
-            toastError(lang('Author name cannot be empty.', 'Der Autorenname darf nicht leer sein.'));
+            if (editor) {
+                toastError(lang('Editor name cannot be empty.', 'Der Name des Herausgebers darf nicht leer sein.'));
+            } else {
+                toastError(lang('Author name cannot be empty.', 'Der Autorenname darf nicht leer sein.'));
+            }
             return;
         }
         const match = (SCIENTISTS.indexOf(data) != -1)
         var value = data.split(',')
         // console.log(data);
         if (value.length !== 2) {
-            toastError(
-                lang(
-                    'Author name must be formatted like this: Lastname, Firstname. The Firstname can be empty but the comma is required.',
-                    'Der Autorenname muss folgendermassen formatiert sein: Nachname, Vorname. Der Vorname kann leer sein, das Komma wird jedoch benötigt.'
+            if (editor) {
+                toastError(
+                    lang(
+                        'Editor name must be formatted like this: Lastname, Firstname. The Firstname can be empty but the comma is required.',
+                        'Der Name des Herausgebers muss folgendermassen formatiert sein: Nachname, Vorname. Der Vorname kann leer sein, das Komma wird jedoch benötigt.'
+                    )
                 )
-            )
+            } else {
+                toastError(
+                    lang(
+                        'Author name must be formatted like this: Lastname, Firstname. The Firstname can be empty but the comma is required.',
+                        'Der Autorenname muss folgendermassen formatiert sein: Nachname, Vorname. Der Vorname kann leer sein, das Komma wird jedoch benötigt.'
+                    )
+                )
+            }
             return;
         }
         addAuthorDiv(value[0], value[1], match, editor)
@@ -413,13 +426,24 @@ function verifyForm(event, form) {
 
     // some form elements store lists and can only be validated as a whole, e.g. countries, authors, topics. Check if they are required and not empty:
     // check if authors are defined
+    // authors and editors are checked separately, otherwise an editor would count as author
     if ($('#author-widget').length > 0) {
-        if ($('.author-list').find('.author').length === 0) {
+        if ($('#author-list').find('.author').length === 0) {
             $('#author-widget').addClass('is-invalid').removeClass('is-valid')
             correct = false
-            errors_empty.push("Authors")
+            errors_empty.push(lang('Authors', 'Autoren'))
         } else {
             $('#author-widget').addClass('is-valid').removeClass('is-invalid')
+        }
+    }
+    // editors are only checked if the editor module is marked as required
+    if ($('#editor-widget').length > 0 && $('label[for="editor"]').hasClass('required')) {
+        if ($('#editor-list').find('.author').length === 0) {
+            $('#editor-widget').addClass('is-invalid').removeClass('is-valid')
+            correct = false
+            errors_empty.push(lang('Editors', 'Herausgeber'))
+        } else {
+            $('#editor-widget').addClass('is-valid').removeClass('is-invalid')
         }
     }
 
