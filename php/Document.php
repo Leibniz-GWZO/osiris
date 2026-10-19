@@ -1352,6 +1352,13 @@ class Document extends Settings
             case "edition-ed": // ["edition"],
                 $val = $this->getVal('edition', $default);
                 if ($val != $default && is_numeric($val)) {
+                    if ($this->lang == 'de') {
+                        $val .= ".";
+                        if ($module == "edition-ed") {
+                            $val .= " Aufl.";
+                        }
+                        return $val;
+                    }
                     if ($val == 1) $val .= "st";
                     elseif ($val == 2) $val .= "nd";
                     elseif ($val == 3) $val .= "rd";
@@ -2170,6 +2177,8 @@ class Document extends Settings
         $line = preg_replace('/,\s:/', ',', $line);
         $line = preg_replace('/\s\./', '.', $line);
         $line = preg_replace('/\.+/', '.', $line);
+        // titles ending with punctuation inside italics: "Title.</i>." -> "Title.</i>"
+        $line = preg_replace('/([.?!])(<\/i>)\./', '$1$2', $line);
         $line = preg_replace('/\(:\s*/', '(', $line);
         $line = preg_replace('/\s*\(,?\s*\)/', '', $line);
         $line = preg_replace('/\s+/', ' ', $line);
