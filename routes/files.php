@@ -23,6 +23,10 @@ Route::post('/crud/upload-image', function () {
         exit;
     }
     $project_id = $_POST['project_id'];
+    if (!DB::is_ObjectID($project_id)) {
+        echo json_encode(['error' => 'Invalid project ID.']);
+        exit;
+    }
     if (isset($_FILES['image'])) {
         // Define the directory where you want to save the uploaded images
         $target_dir = "/uploads/projects/";

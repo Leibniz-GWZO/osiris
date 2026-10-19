@@ -97,6 +97,18 @@ class Uploads
         return $perm['own'] || $Settings->hasPermission('proposals.view-documents');
     }
 
+    /**
+     * File extension for an uploaded image, derived from its content instead of the client's file name.
+     * Returns null if the file is not a JPEG, PNG, GIF or WebP image.
+     */
+    public static function imageExtension($tmpFile)
+    {
+        $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/gif' => 'gif', 'image/webp' => 'webp'];
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpFile);
+        if (!isset($allowed[$mime]) || @getimagesize($tmpFile) === false) return null;
+        return $allowed[$mime];
+    }
+
     private static function isUploader($doc)
     {
         return !empty($doc['uploaded_by']) && $doc['uploaded_by'] == ($_SESSION['username'] ?? null);
