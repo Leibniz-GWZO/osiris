@@ -1146,6 +1146,17 @@ Route::post('/crud/projects/update-collaborators/([A-Za-z0-9]*)', function ($id)
 
 Route::post('/crud/projects/image/([A-Za-z0-9]*)', function ($id) {
     include_once BASEPATH . "/php/init.php";
+    include_once BASEPATH . "/php/Uploads.php";
+
+    $project = DB::is_ObjectID($id) ? $osiris->projects->findOne(['_id' => $DB->to_ObjectID($id)]) : null;
+    if (empty($project)) {
+        abortwith(404, lang('Project', 'Projekt'), "/projects");
+    }
+    $user_project = in_array($_SESSION['username'], array_column(DB::doc2Arr($project['persons'] ?? []), 'user'));
+    $edit_perm = (($project['created_by'] ?? '') == $_SESSION['username'] || $Settings->hasPermission('projects.edit') || ($Settings->hasPermission('projects.edit-own') && $user_project));
+    if (!$edit_perm) {
+        abortwith(403, lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.'), "/projects/view/$id", lang('Go back to project', 'Zurück zum Projekt'));
+    }
 
     $target_dir = BASEPATH . "/uploads/";
     if (!is_writable($target_dir)) {
@@ -1157,9 +1168,9 @@ Route::post('/crud/projects/image/([A-Za-z0-9]*)', function ($id) {
         if (!file_exists($target_dir)) {
             mkdir($target_dir, 0777);
         }
-        // random filename
-        $filename = $id . "." . pathinfo($_FILES["file"]["name"], PATHINFO_EXTENSION);
-        // $filetype = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        // the extension is derived from the content, so only images end up in this public directory
+        $extension = $_FILES['file']['error'] == UPLOAD_ERR_OK ? Uploads::imageExtension($_FILES["file"]["tmp_name"]) : null;
+        $filename = $id . "." . $extension;
         $filesize = $_FILES["file"]["size"];
 
         if ($_FILES['file']['error'] != UPLOAD_ERR_OK) {
@@ -1174,6 +1185,9 @@ Route::post('/crud/projects/image/([A-Za-z0-9]*)', function ($id) {
                 default => lang('Something went wrong.', 'Etwas ist schiefgelaufen.') . " (" . $_FILES['file']['error'] . ")"
             };
             $_SESSION['msg'] = $errorMsg;
+            $_SESSION['msg_type'] = "error";
+        } else if ($extension === null) {
+            $_SESSION['msg'] = lang("Only JPEG, PNG, GIF and WebP images are allowed.", "Es sind nur JPEG-, PNG-, GIF- und WebP-Bilder erlaubt.");
             $_SESSION['msg_type'] = "error";
         } else if ($filesize > 16000000) {
             $_SESSION['msg'] = lang("File is too big: max 16 MB is allowed.", "Die Datei ist zu groß: maximal 16 MB sind erlaubt.");
@@ -1191,8 +1205,9 @@ Route::post('/crud/projects/image/([A-Za-z0-9]*)', function ($id) {
             $_SESSION['msg_type'] = "error";
         }
     } else if (isset($_POST['delete'])) {
-        $filename = $_POST['delete'];
-        if (file_exists($target_dir . '/' . $filename)) {
+        // only the project's own image can be deleted
+        $filename = basename($project['image'] ?? '');
+        if ($filename !== '' && file_exists($target_dir . '/' . $filename)) {
             // Use unlink() function to delete a file
             if (!unlink($target_dir . '/' . $filename)) {
                 $_SESSION['msg'] = lang("$filename cannot be deleted due to an error.", "$filename kann nicht gelöscht werden, da ein Fehler aufgetreten ist.");
@@ -1214,7 +1229,7 @@ Route::post('/crud/projects/image/([A-Za-z0-9]*)', function ($id) {
 
     header("Location: " . ROOTPATH . "/projects/view/$id");
     die;
-});
+}, 'login');
 
 
 Route::post('/crud/projects/connect-activities', function () {
