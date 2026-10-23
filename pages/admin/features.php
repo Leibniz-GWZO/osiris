@@ -250,6 +250,45 @@
                 </div>
 
                 <div class="box padded">
+                    <h4 class="title" id="tickets">
+                        <?= lang('Tickets and feedback', 'Tickets und Feedback') ?>
+                    </h4>
+                    <p class="description">
+                        <?= lang('Users can report problems, request changes (e.g. to forms and fields) or suggest ideas directly in OSIRIS. A feedback button appears in the top bar. Tickets are managed by everyone with the right "tickets.manage" (as long as no role has it: by everyone with access to the settings).', 'Nutzende können Probleme melden, Änderungen wünschen (z. B. an Formularen und Feldern) oder Ideen vorschlagen, direkt in OSIRIS. In der Kopfleiste erscheint ein Feedback-Button. Bearbeitet werden die Tickets von allen mit dem Recht „tickets.manage“ (solange keine Rolle es hat: von allen mit Zugriff auf die Einstellungen).') ?>
+                    </p>
+                    <div class="form-group">
+                        <?php
+                        renderCheckbox('tickets');
+                        ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="label">
+                            <?= lang('Also notify by e-mail', 'Zusätzlich per E-Mail benachrichtigen') ?>
+                        </label>
+                        <?php
+                        renderCheckbox('tickets-mail', true);
+                        ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="" class="label">
+                            <?= lang('Users can make tickets visible to everyone', 'Nutzende können Tickets für alle sichtbar machen') ?>
+                        </label>
+                        <?php
+                        renderCheckbox('tickets-public');
+                        ?>
+                        <small class="text-muted">
+                            <?= lang('Others can then join a ticket ("affects me too") instead of reporting the same thing again. Similar tickets are suggested while typing.', 'Andere können sich dann einem Ticket anschließen („Betrifft mich auch“), statt dasselbe noch einmal zu melden. Ähnliche Tickets werden schon beim Tippen vorgeschlagen.') ?>
+                        </small>
+                    </div>
+                    <p class="mb-0">
+                        <a href="<?= ROOTPATH ?>/admin/vocabulary/ticket-category">
+                            <i class="ph ph-list-bullets"></i>
+                            <?= lang('Edit ticket categories', 'Ticket-Kategorien bearbeiten') ?>
+                        </a>
+                    </p>
+                </div>
+
+                <div class="box padded">
                     <h4 class="title" id="research-topics">
                         <?= lang('Research Topics', 'Forschungsbereiche') ?>
                     </h4>
@@ -689,6 +728,7 @@
                     <a href="#portal" class="submenu"><?= lang('OSIRIS Portfolio') ?></a>
                     <a href="#projects" class="submenu"><?= lang('Projects and Proposals', 'Projekte und Anträge') ?></a>
                     <a href="#teaching-modules" class="submenu"><?= lang('Teaching modules', 'Lehrveranstaltungen') ?></a>
+                    <a href="#tickets" class="submenu"><?= lang('Tickets and feedback', 'Tickets und Feedback') ?></a>
                     <a href="#research-topics" class="submenu"><?= lang('Research Topics', 'Forschungsbereiche') ?></a>
                     <a href="#infrastructures" class="submenu"><?= lang('Infrastructures', 'Infrastrukturen') ?></a>
                     <a href="#calendar" class="submenu"><?= lang('Calendar and Events', 'Kalender und Events') ?></a>
