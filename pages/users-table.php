@@ -111,8 +111,8 @@ if ($active('keywords')) {
                 </table>
             </div>
 
-            <?php if ($Settings->hasPermission('admin.see')) {
-                // roles are only shown to admins
+            <?php if ($Settings->hasPermission('admin.give-right')) {
+                // roles are only shown to those who may assign them
             ?>
             <h6>
                 <?= lang('By Role', 'Nach Rolle') ?>
