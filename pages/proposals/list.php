@@ -37,6 +37,33 @@ function val($index, $default = '')
 
 $filter = [];
 $tagsEnabled = $Settings->featureEnabled('tags');
+
+// status filter and overview: [label, color, regex for the status column]
+$proposalStatuses = [
+    'preparation' => [lang('in preparation', 'in Vorbereitung'), 'muted', '^preparation$'],
+    'review' => [lang('under review', 'in Begutachtung'), 'warning', '^review$'],
+    'proposed' => [lang('applied', 'beantragt'), 'signal', '^(proposed|applied)$'],
+    'approved' => [lang('approved', 'bewilligt'), 'success', '^approved$'],
+    'finished' => [lang('finished', 'abgeschlossen'), 'success', '^finished$'],
+    'rejected' => [lang('rejected', 'abgelehnt'), 'danger', '^rejected$'],
+    'withdrawn' => [lang('withdrawn', 'zurückgezogen'), 'muted', '^withdrawn$'],
+];
+
+// counts of the proposals the user may see, in total and per department
+$statusCounts = array_fill_keys(array_keys($proposalStatuses), 0);
+$deptCounts = [];
+$visibleProposals = $osiris->proposals->find(Project::getProposalListFilter($Settings), ['projection' => ['status' => 1, 'units' => 1]]);
+foreach ($visibleProposals as $p) {
+    $status = $p['status'] ?? 'proposed';
+    if ($status == 'applied') $status = 'proposed';
+    if (!isset($statusCounts[$status])) continue;
+    $statusCounts[$status]++;
+    foreach (DB::doc2Arr($p['units'] ?? []) as $unit) {
+        if (!isset($Departments[$unit])) continue;
+        $deptCounts[$unit][$status] = ($deptCounts[$unit][$status] ?? 0) + 1;
+    }
+}
+$showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCounts);
 ?>
 
 <link rel="stylesheet" href="<?= ROOTPATH ?>/css/projecttable.css?v=<?= OSIRIS_BUILD ?>">
@@ -113,6 +140,54 @@ $tagsEnabled = $Settings->featureEnabled('tags');
         </a>
     <?php } ?>
 </div>
+
+<?php if (array_sum($statusCounts) > 0) { ?>
+    <div class="proposal-overview my-10">
+        <?php foreach ($proposalStatuses as $status => [$label, $color]) {
+            // the pipeline is always shown, closed states only if they occur
+            if ($statusCounts[$status] == 0 && !in_array($status, ['preparation', 'review', 'proposed', 'approved'])) continue; ?>
+            <a class="badge <?= $color ?> mr-5 mb-5" onclick="filterStatus('<?= $status ?>')" title="<?= lang('Filter by this status', 'Nach diesem Status filtern') ?>">
+                <?= $label ?> <b class="ml-5"><?= $statusCounts[$status] ?></b>
+            </a>
+        <?php } ?>
+
+        <?php if ($showDeptOverview) { ?>
+            <details class="mt-5">
+                <summary class="text-muted font-size-12"><?= lang('By department', 'Je Abteilung') ?></summary>
+                <table class="table small simple w-auto mt-5">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <?php foreach ($proposalStatuses as $status => [$label, $color]) {
+                                if ($statusCounts[$status] == 0) continue; ?>
+                                <th class="text-<?= $color ?>"><?= $label ?></th>
+                            <?php } ?>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($Departments as $dept_id => $dept) {
+                            if (empty($deptCounts[$dept_id])) continue; ?>
+                            <tr>
+                                <th><a onclick="applyFilter(document.getElementById('<?= e($dept_id) ?>-btn'), '<?= e($dept_id) ?>', 8)"><?= e($dept) ?></a></th>
+                                <?php foreach ($proposalStatuses as $status => $s) {
+                                    if ($statusCounts[$status] == 0) continue;
+                                    $n = $deptCounts[$dept_id][$status] ?? 0; ?>
+                                    <td class="text-center">
+                                        <?php if ($n > 0) { ?>
+                                            <a onclick="applyFilter(document.getElementById('<?= e($dept_id) ?>-btn'), '<?= e($dept_id) ?>', 8); filterStatus('<?= $status ?>')"><?= $n ?></a>
+                                        <?php } else { ?>
+                                            <span class="text-muted">–</span>
+                                        <?php } ?>
+                                    </td>
+                                <?php } ?>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </details>
+        <?php } ?>
+    </div>
+<?php } ?>
 
 
 <div class="row row-eq-spacing">
@@ -195,26 +270,13 @@ $tagsEnabled = $Settings->featureEnabled('tags');
             </h6>
             <div class="filter">
                 <table id="filter-status" class="table small simple">
-                    <tr style="--highlight-color: var(--success-color)">
-                        <td>
-                            <a data-type="approved" onclick="filterProjects(this, 'approved', 7)" class="item text-success"><?= lang('approved', 'bewilligt') ?></a>
-                        </td>
-                    </tr>
-                    <tr style="--highlight-color: var(--signal-color)">
-                        <td>
-                            <a data-type="proposed" onclick="filterProjects(this, 'proposed', 7)" class="item text-signal"><?= lang('applied', 'beantragt') ?></a>
-                        </td>
-                    </tr>
-                    <tr style="--highlight-color: var(--danger-color)">
-                        <td>
-                            <a data-type="rejected" onclick="filterProjects(this, 'rejected', 7)" class="item text-danger"><?= lang('rejected', 'abgelehnt') ?></a>
-                        </td>
-                    </tr>
-                    <tr style="--highlight-color: var(--muted-color)">
-                        <td>
-                            <a data-type="withdrawn" onclick="filterProjects(this, 'withdrawn', 7)" class="item text-muted"><?= lang('withdrawn', 'zurückgezogen') ?></a>
-                        </td>
-                    </tr>
+                    <?php foreach ($proposalStatuses as $status => [$label, $color, $regex]) { ?>
+                        <tr style="--highlight-color: var(--<?= $color ?>-color)">
+                            <td>
+                                <a data-type="<?= $status ?>" id="<?= $status ?>-btn" onclick="filterProjects(this, '<?= $regex ?>', 7, '<?= e($label) ?>')" class="item text-<?= $color ?>"><?= $label ?></a>
+                            </td>
+                        </tr>
+                    <?php } ?>
                 </table>
             </div>
 
@@ -715,7 +777,7 @@ $tagsEnabled = $Settings->featureEnabled('tags');
             var hash = readHash();
             console.log(hash);
             if (hash.status !== undefined) {
-                filterProjects(document.getElementById(hash.status + '-btn'), hash.status, 7)
+                filterStatus(hash.status)
             }
             if (hash.units !== undefined) {
                 filterProjects(document.getElementById(hash.unit + '-btn'), hash.unit, 8)
@@ -782,14 +844,25 @@ $tagsEnabled = $Settings->featureEnabled('tags');
     });
 
 
-    function filterProjects(btn, activity = null, column = 1) {
-        console.log(column);
+    // set a filter without toggling it off when it is already active
+    function applyFilter(btn, value, column, label = null) {
+        if (!btn || $(btn).closest('tr').hasClass('active')) return;
+        filterProjects(btn, value, column, label);
+    }
+
+    function filterStatus(status) {
+        const btn = document.getElementById(status + '-btn');
+        if (btn) btn.closest('tr').classList.contains('active') || btn.click();
+    }
+
+    function filterProjects(btn, activity = null, column = 1, label = null) {
         var tr = $(btn).closest('tr')
         var table = tr.closest('table')
         $('#filter-' + column).remove()
         const field = headers[column]
         const hash = {}
-        hash[field.key] = activity
+        // the status filter searches with a regex, the URL keeps the plain value
+        hash[field.key] = $(btn).attr('data-type') ?? activity
 
         if (tr.hasClass('active') || activity === null) {
             hash[field.key] = null
@@ -803,7 +876,7 @@ $tagsEnabled = $Settings->featureEnabled('tags');
             dataTable.columns(column).search(activity, true, false, true).draw();
             // indicator
             const filterBtn = $('<span class="badge" id="filter-' + column + '">')
-            filterBtn.html(`<b>${field.title}:</b> <span>${activity}</span>`)
+            filterBtn.html(`<b>${field.title}:</b> <span>${label ?? activity}</span>`)
             const a = $('<a>')
             a.html('&times;')
             a.on('click', function() {
