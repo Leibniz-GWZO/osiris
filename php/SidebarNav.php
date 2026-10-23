@@ -362,6 +362,24 @@ class SidebarNav
                 ]
             ],
             [
+                'id' => 'sidebar-support',
+                'label' => lang('Support', 'Support'),
+                'items' => [
+                    [
+                        'id' => 'tickets',
+                        'label' => lang('Tickets & feedback', 'Tickets & Feedback'),
+                        'icon' => 'chat-circle-dots',
+                        'url' => '/tickets',
+                        'active' => ['^/tickets($|/)'],
+                        'feature' => 'tickets',
+                        'default' => false,
+                        'permission' => null,
+                        'favoritable' => true,
+                        'hasSearch' => false
+                    ]
+                ]
+            ],
+            [
                 'id' => 'sidebar-admin',
                 'label' => lang('Admin', 'Admin'),
                 'items' => [
@@ -568,6 +586,15 @@ class SidebarNav
                     $html .= '<small class="sidebar-index info" id="queue-counter">' . $queueCount . '</small>';
                 } else {
                     $html .= '<small class="sidebar-index info hidden" id="queue-counter">0</small>';
+                }
+                break;
+            case 'tickets':
+                // new tickets for managers, open questions for reporters
+                include_once BASEPATH . '/php/Tickets.php';
+                $Tickets = new Tickets($this->settings);
+                $ticketCount = $Tickets->canManage() ? $Tickets->newCount() : $Tickets->waitingCount();
+                if ($ticketCount > 0) {
+                    $html .= '<small class="sidebar-index info">' . $ticketCount . '</small>';
                 }
                 break;
         }

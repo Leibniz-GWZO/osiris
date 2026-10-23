@@ -501,5 +501,19 @@
                 "en": "See Nagoya-relevant information"
             }
         ]
+    },
+    {
+        "de": "Tickets",
+        "en": "Tickets",
+        "icon": "chat-circle-dots",
+        "fields": [
+            {
+                "id": "tickets.manage",
+                "de": "Tickets aller Nutzenden sehen und bearbeiten",
+                "en": "See and manage the tickets of all users",
+                "comment_de": "Alle Nutzenden können Tickets einreichen und ihre eigenen sehen. Solange keine Rolle dieses Recht hat, bearbeiten alle mit Zugriff auf die Einstellungen die Tickets.",
+                "comment_en": "All users can submit tickets and see their own. As long as no role has this right, everyone with access to the settings manages tickets."
+            }
+        ]
     }
 ]
