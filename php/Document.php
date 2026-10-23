@@ -1227,6 +1227,8 @@ class Document extends Settings
                 return $this->lang('Master Student', 'Masterstudent');
             case "bachelor student":
                 return $this->lang('Bachelor Student', 'Bachelorstudent');
+            case "exam candidate":
+                return $this->lang('State Examination Candidate', 'Examenskandidat:in (Staatsexamen)');
             case "intern":
                 return $this->lang('Intern', 'Praktikant');
             default:
