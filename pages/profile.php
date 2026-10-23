@@ -825,8 +825,8 @@ if ($currentuser || $Settings->hasPermission('user.image')) { ?>
                             </tr>
                         <?php } ?>
 
-                        <?php if ($Settings->hasPermission('admin.see')) {
-                            // roles are only shown to admins
+                        <?php if ($Settings->hasPermission('admin.give-right')) {
+                            // roles are only shown to those who may assign them
                         ?>
                             <tr>
                                 <td>
