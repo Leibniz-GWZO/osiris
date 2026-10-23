@@ -134,6 +134,7 @@ Route::get('/user/oauth-callback', function () {
             'mail' => $mail,
             'position' => $user['jobTitle'] ?? '',
             'telephone' => $user['businessPhones'][0] ?? '',
+            'uniqueid' => $user['id'] ?? null,
             'lastlogin' => date('d.m.Y'),
             'created' => date('d.m.Y'),
         ];
@@ -160,15 +161,29 @@ Route::get('/user/oauth-callback', function () {
         die("Could not determine username from OAuth provider.");
     }
 
-    $USER = $DB->getPerson($username);
+    // the object id stays the same when the mail address changes, the username does not
+    $USER = $DB->getPersonByUniqueID($new_user['uniqueid'] ?? null);
+    if (empty($USER)) {
+        $USER = $DB->getPerson($username);
+        if (!empty($USER['uniqueid']) && !empty($new_user['uniqueid']) && $USER['uniqueid'] !== $new_user['uniqueid']) {
+            // same username, but a different account of the identity provider
+            abortwith(403, lang('This user name belongs to a different account. Please contact the administration.', 'Dieser Benutzername gehört zu einem anderen Konto. Bitte wende dich an die Administration.'));
+        }
+    }
+
+    if (!empty($USER) && ($USER['is_active'] ?? true) === false) {
+        abortwith(403, lang('Your account is inactive. Please contact the administration.', 'Dein Konto ist inaktiv. Bitte wende dich an die Administration.'));
+    }
 
     if (empty($USER)) {
         $osiris->persons->insertOne($new_user);
         $USER = $DB->getPerson($username);
     } else {
+        $set = ["lastlogin" => date('d.m.Y')];
+        if (empty($USER['uniqueid']) && !empty($new_user['uniqueid'])) $set['uniqueid'] = $new_user['uniqueid'];
         $osiris->persons->updateOne(
             ['username' => $USER['username']],
-            ['$set' => ["lastlogin" => date('d.m.Y')]]
+            ['$set' => $set]
         );
     }
 
