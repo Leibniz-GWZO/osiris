@@ -178,6 +178,7 @@ class Achievement
                             'doctoral student',
                             'master student',
                             'bachelor student',
+                            'exam candidate',
                         ];
                         foreach ($activities as $a) {
                             if (isset($a['category']) && in_array($a['category'], $thesis_cats) && isset($a['status']) && $a['status'] == 'completed') $value++;

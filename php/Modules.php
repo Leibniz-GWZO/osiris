@@ -2715,11 +2715,20 @@ class Modules
             ?>
                 <div class="data-module floating-form col-sm-<?= $width ?>" data-module="student-category">
                     <select name="values[category]" id="category-students" class="form-control" <?= $labelClass ?>>
-                        <option value="doctoral student" <?= $this->val('category') == 'doctoral thesis' ? 'selected' : '' ?>><?= lang('Doctoral Student', 'Doktorand:in') ?></option>
-                        <option value="master student" <?= $this->val('category') == 'master thesis' ? 'selected' : '' ?>><?= lang('Master Student', 'Masterstudent') ?></option>
-                        <option value="bachelor student" <?= $this->val('category') == 'bachelor thesis' ? 'selected' : '' ?>><?= lang('Bachelor Student', 'Bachelorstudent') ?></option>
-                        <option value="intern" <?= $this->val('category') == 'internship' ? 'selected' : '' ?>><?= lang('Intern', 'Praktikant') ?></option>
-                        <option value="other" <?= $this->val('category') == 'other' ? 'selected' : '' ?>><?= lang('Other', 'Sonstiges') ?></option>
+                        <?php
+                        $cat = $this->val('category');
+                        // legacy values (e.g. 'doctoral thesis') are kept selectable
+                        $student_cats = [
+                            'doctoral student' => ['doctoral thesis', lang('Doctoral Student', 'Doktorand:in')],
+                            'master student' => ['master thesis', lang('Master Student', 'Masterstudent')],
+                            'bachelor student' => ['bachelor thesis', lang('Bachelor Student', 'Bachelorstudent')],
+                            'exam candidate' => ['exam candidate', lang('State Examination Candidate', 'Examenskandidat:in (Staatsexamen)')],
+                            'intern' => ['internship', lang('Intern', 'Praktikant')],
+                            'other' => ['other', lang('Other', 'Sonstiges')],
+                        ];
+                        foreach ($student_cats as $value => [$legacy, $name]) { ?>
+                            <option value="<?= $value ?>" <?= $cat == $value || $cat == $legacy ? 'selected' : '' ?>><?= $name ?></option>
+                        <?php } ?>
                     </select>
                     <label for="category-students" class="<?= $labelClass ?>"><?= $label ?></label>
                     <?= $this->render_help($help) ?>
