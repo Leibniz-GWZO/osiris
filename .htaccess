@@ -7,7 +7,7 @@ RewriteEngine on
 RewriteBase /
 
 # Deliver the folder or file directly if it exists on the server
-RewriteRule ^(css|img|js|settings.json|manifest.json)($|/) - [L]
+RewriteRule ^(css|img|js|settings\.json|manifest\.json|robots\.txt)($|/) - [L]
 
 # Public images (portfolio, website) are delivered directly,
 # all other uploads go through index.php with a permission check (see Uploads::PUBLIC_DIRS)

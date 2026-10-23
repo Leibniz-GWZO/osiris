@@ -933,5 +933,45 @@
         "de": "Sonstige Nachrichten"
       }
     ]
+  },
+  {
+    "id": "ticket-category",
+    "category": "Tickets",
+    "name": "Ticket Category",
+    "name_de": "Ticket-Kategorie",
+    "description": "What a ticket is about. Users choose it when submitting feedback. Icons and filling hints exist for the default categories only.",
+    "description_de": "Worum es in einem Ticket geht. Nutzende wählen sie beim Einreichen von Feedback. Icons und Ausfüllhinweise gibt es nur für die Standardkategorien.",
+    "values": [
+      {
+        "id": "bug",
+        "en": "Something does not work",
+        "de": "Etwas funktioniert nicht"
+      },
+      {
+        "id": "field",
+        "en": "Change a form or field",
+        "de": "Formular oder Feld ändern"
+      },
+      {
+        "id": "data",
+        "en": "Correct data",
+        "de": "Daten korrigieren"
+      },
+      {
+        "id": "feature",
+        "en": "Idea or new function",
+        "de": "Idee oder neue Funktion"
+      },
+      {
+        "id": "question",
+        "en": "Question",
+        "de": "Frage"
+      },
+      {
+        "id": "other",
+        "en": "Other",
+        "de": "Sonstiges"
+      }
+    ]
   }
 ]

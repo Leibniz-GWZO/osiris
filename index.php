@@ -248,6 +248,7 @@ if (
     include_once BASEPATH . "/routes/workflows.php";
     include_once BASEPATH . "/routes/admin.php";
     include_once BASEPATH . "/routes/orcid.php";
+    include_once BASEPATH . "/routes/tickets.php";
     // include_once BASEPATH . "/routes/adminGeneral.php";
     // include_once BASEPATH . "/routes/adminRoles.php";
 

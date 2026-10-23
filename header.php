@@ -264,6 +264,13 @@ $pageactive = function ($p) use ($page) {
 
             </ul>
 
+            <?php if (!empty($_SESSION['loggedin']) && isset($_SESSION['username']) && $Settings->featureEnabled('tickets')) { ?>
+                <a href="<?= ROOTPATH ?>/tickets/new?page=<?= urlencode(substr($_SERVER['REQUEST_URI'] ?? '', strlen(ROOTPATH))) ?>" class="btn primary outline mr-10" title="<?= lang('Report a problem or suggest a change', 'Problem melden oder Änderung vorschlagen') ?>">
+                    <i class="ph ph-chat-circle-dots" aria-hidden="true"></i>
+                    <span class="d-none d-md-inline"><?= lang('Feedback', 'Feedback') ?></span>
+                </a>
+            <?php } ?>
+
             <!-- messages -->
             <div class="dropdown modal-sm">
                 <button class="btn primary outline mr-10" data-toggle="dropdown" type="button" id="change-language" aria-haspopup="true" aria-expanded="false">
