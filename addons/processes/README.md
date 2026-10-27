@@ -59,6 +59,7 @@ Kommentare nur zur Erklärung, JSON erlaubt keine Kommentare.
   "title": "{pa_vorname} {pa_nachname}", // Titel aus Feldwerten
   "unit_field": "pa_abteilung",          // Einheit des Vorgangs, sonst erste Einheit der antragstellenden Person
   "email": true,                         // zusätzlich E-Mails
+  "disabled": true,                      // keine neuen Vorgänge, Bereich nur für Beteiligte bestehender Vorgänge
   "create":   { "unit_heads": true, "roles": ["personalverwaltung"] },  // wer anlegen darf
   "view_all": { "roles": ["personalverwaltung"] },                      // wer alle Vorgänge sieht
   "steps": [ ... ],

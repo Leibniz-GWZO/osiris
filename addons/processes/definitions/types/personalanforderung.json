@@ -4,6 +4,7 @@
     "group": "personalangelegenheiten",
     "order": 10,
     "prefix": "PA",
+    "disabled": true,
     "icon": "user-plus",
     "name": "Personalanforderung",
     "name_en": "Staff request",

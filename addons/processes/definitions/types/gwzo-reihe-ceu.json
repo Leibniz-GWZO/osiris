@@ -18,7 +18,7 @@
     "attachments": true,
     "create": { "roles": ["reihenkoordination"] },
     "manage": { "roles": ["reihenkoordination"] },
-    "view_all": { "roles": ["leitungskreis"], "persons": ["anja.fritzsche"] },
+    "view_all": { "roles": ["reihenkoordination"] },
     "fields": [
         { "id": "pp_h_projekt", "type": "heading", "label": "Buchprojekt", "label_en": "Book project" },
         { "id": "pp_autorinnen", "type": "string", "label": "Autor*innen / Herausgeber*innen", "label_en": "Authors / editors", "required": true, "width": 6 },
@@ -124,7 +124,7 @@
             "tasks": [
                 {
                     "id": "oa_vereinbarung", "label": "OA-Kostenvereinbarung von CEU Press/AUP prüfen", "label_en": "Check the open access fee agreement from CEU Press/AUP",
-                    "assignees": { "persons": ["anja.fritzsche"] },
+                    "assignees": { "roles": ["reihenkoordination"] },
                     "condition": { "field": "pp_open_access", "op": "eq", "value": true }
                 }
             ]
@@ -139,8 +139,8 @@
                 { "id": "pp_peer_frist", "type": "date", "label": "Frist für das Gutachten", "label_en": "Deadline for the review", "width": 6 }
             ],
             "tasks": [
-                { "id": "honorarvertrag", "label": "Honorarvertrag für die Gutachter*in erstellen", "label_en": "Prepare the fee contract for the reviewer", "assignees": { "persons": ["anja.fritzsche"] } },
-                { "id": "rechnung_gutachten", "label": "Rechnung für das Gutachten bearbeiten", "label_en": "Process the invoice for the review", "assignees": { "persons": ["anja.fritzsche"] } }
+                { "id": "honorarvertrag", "label": "Honorarvertrag für die Gutachter*in erstellen", "label_en": "Prepare the fee contract for the reviewer", "assignees": { "roles": ["reihenkoordination"] } },
+                { "id": "rechnung_gutachten", "label": "Rechnung für das Gutachten bearbeiten", "label_en": "Process the invoice for the review", "assignees": { "roles": ["reihenkoordination"] } }
             ]
         },
         {

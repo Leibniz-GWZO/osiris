@@ -566,6 +566,8 @@ class Processes
     {
         $access = ['create' => false, 'all' => false, 'mine' => false, 'todo' => false, 'overview' => false];
         foreach ($this->types($area) as $type) {
+            // disabled types only stay reachable for persons involved in existing cases (below)
+            if (!empty($type['disabled'])) continue;
             if ($this->canCreate($type)) $access['create'] = true;
             if ($this->canSeeAll($type)) $access['all'] = true;
             if (ProcessPhases::isPhases($type)) {
