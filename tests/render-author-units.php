@@ -109,4 +109,13 @@ $out = renderAuthorUnits($date + ['authors' => [array_replace($a, ['aoi' => fals
 check('Unaffiliated automatic person has no units', $out['units'], []);
 $out = renderAuthorUnits($date + ['persons' => [array_replace($a, ['aoi' => false])]]);
 check('Project persons do not require aoi', $out['persons'][0]['units'], ['OLD_YEAR']);
+$guest = ['first' => 'Guest', 'last' => 'Editor', 'aoi' => false, 'user' => null];
+$out = renderAuthorUnits($date + ['editors' => [$guest], 'units_manual' => ['GROUP']]);
+check('Manual activity units without own persons', $out['units'], ['GROUP', 'ROOT']);
+$out = renderAuthorUnits(['start_date' => '2025-01-01'], $out);
+check('Stored activity units survive date changes', $out['units'], ['GROUP', 'ROOT']);
+$out = renderAuthorUnits($date + ['authors' => [$a], 'units_manual' => []], $old + ['units_manual' => ['GROUP']]);
+check('Empty manual list removes activity units', $out['units'], ['OLD', 'ROOT']);
+$out = renderAuthorUnits(['units_manual' => ['GROUP']]);
+check('Manual units without any roles', $out['units'], ['GROUP', 'ROOT']);
 echo "Passed $checks regression checks.\n";

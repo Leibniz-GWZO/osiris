@@ -706,7 +706,10 @@ Route::post('/crud/activities/create', function () {
         }
         $values['projects'] = $projects;
     }
-    if (isset($values['authors']) || isset($values['editors']) || isset($values['supervisors'])) {
+    if (isset($_POST['units_manual_submitted'])) {
+        $values['units_manual'] = array_values(array_unique(array_filter(array_map('strval', $values['units_manual'] ?? []))));
+    }
+    if (isset($values['authors']) || isset($values['editors']) || isset($values['supervisors']) || isset($values['units_manual'])) {
         $values = renderAuthorUnits($values);
     }
 
@@ -903,8 +906,12 @@ Route::post('/crud/activities/update/([A-Za-z0-9]*)', function ($id) {
     $values['updated'] = date('Y-m-d');
     $values['updated_by'] = ($_SESSION['username']);
 
-    // Recompute affiliations for role changes and activity date changes.
-    if (array_intersect(['authors', 'editors', 'supervisors', 'start', 'year', 'month', 'day', 'start_date'], array_keys($values))) {
+    if (isset($_POST['units_manual_submitted'])) {
+        $values['units_manual'] = array_values(array_unique(array_filter(array_map('strval', $values['units_manual'] ?? []))));
+    }
+
+    // Recompute affiliations for role changes, activity date changes and manually assigned units.
+    if (array_intersect(['authors', 'editors', 'supervisors', 'units_manual', 'start', 'year', 'month', 'day', 'start_date'], array_keys($values))) {
         // check if authors have been changed
         $old = $collection->findOne(['_id' => $DB->to_ObjectID($id)]);
         foreach (['authors', 'editors', 'supervisors'] as $role) {

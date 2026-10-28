@@ -158,7 +158,7 @@ function renderAuthorUnits($doc, $old_doc = [])
         }
         $hasRoles = $hasRoles || array_key_exists($role, $doc);
     }
-    if (!$hasRoles) return $doc;
+    if (!$hasRoles && !array_key_exists('units_manual', $doc)) return $doc;
 
     // Raw date changes take precedence over a previously materialized start_date.
     $effective = array_replace($old_doc, $doc);
@@ -252,6 +252,10 @@ function renderAuthorUnits($doc, $old_doc = [])
         $doc[$role] = $current;
     }
 
+    // Units assigned to the activity as a whole, e.g. for works without own authors.
+    $manual = array_key_exists('units_manual', $doc) ? $doc['units_manual'] : ($old_doc['units_manual'] ?? []);
+    $allUnits = array_merge($allUnits, array_filter(DB::doc2Arr($manual ?? [])));
+
     $directUnits = array_values(array_unique($allUnits));
     foreach ($directUnits as $unit) {
         $allUnits = array_merge($allUnits, $Groups->getParents($unit, true));
@@ -264,7 +268,7 @@ function renderAuthorUnits($doc, $old_doc = [])
 function renderAuthorUnitsMany($filter = [])
 {
     $DB = new DB;
-    $cursor = $DB->db->activities->find($filter, ['projection' => ['authors' => 1, 'editors' => 1, 'supervisors' => 1, 'units' => 1, 'start_date' => 1, 'subtype' => 1]]);
+    $cursor = $DB->db->activities->find($filter, ['projection' => ['authors' => 1, 'editors' => 1, 'supervisors' => 1, 'units' => 1, 'units_manual' => 1, 'start_date' => 1, 'subtype' => 1]]);
     foreach ($cursor as $doc) {
         $doc = renderAuthorUnits($doc);
         $DB->db->activities->updateOne(

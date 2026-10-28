@@ -1538,6 +1538,12 @@
                                     ?>
                                 </tbody>
                             </table>
+                            <?php if (!empty($doc['units_manual'] ?? [])) { ?>
+                                <small class="text-muted">
+                                    <?= lang('Manually assigned', 'Manuell zugeordnet') ?>:
+                                    <?= implode(', ', array_map(fn($u) => e($Groups->getName($u)), DB::doc2Arr($doc['units_manual']))) ?>
+                                </small>
+                            <?php } ?>
                         </div>
                     </div>
                 </div>
