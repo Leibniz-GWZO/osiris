@@ -288,7 +288,7 @@ Route::post('/user/login', function () {
                 setcookie('osiris-remember', $selector . ':' . $token, [
                     'expires' => $expires,
                     'path' => ROOTPATH . '/',
-                    'secure' => !empty($_SERVER['HTTPS']),
+                    'secure' =>  isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== '' && strtolower($_SERVER['HTTPS']) !== 'off',
                     'httponly' => true,
                     'samesite' => 'Lax',
                 ]);
@@ -337,7 +337,7 @@ Route::get('/user/logout', function () {
         setcookie('osiris-remember', '', [
             'expires' => time() - 3600,
             'path' => ROOTPATH . '/',
-            'secure' => !empty($_SERVER['HTTPS']),
+            'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== '' && strtolower($_SERVER['HTTPS']) !== 'off',
             'httponly' => true,
             'samesite' => 'Lax',
         ]);

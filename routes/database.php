@@ -224,8 +224,13 @@ Route::get('/uploads/(.+)', function ($path) {
             $allowed = $Settings->hasPermission('admin.see');
         }
     } else {
-        // public images and older file uploads (uploads/<id>/<file>): all logged-in users
+        // public images and older file uploads (uploads/<id>/<file>): all logged-in users,
+        // except legacy guest documents (uploads/<guest-id>/<file>)
         $allowed = true;
+        $parts = explode('/', $relative, 2);
+        if (count($parts) === 2 && $osiris->guests->count(['id' => $parts[0], 'files.filename' => basename($parts[1])]) > 0) {
+            $allowed = $Settings->hasPermission('guests.see.documents') || $Settings->hasPermission('guests.edit.documents');
+        }
     }
     if (!$allowed) {
         abortwith(403, lang('You do not have permission to view this document.', 'Du hast keine Berechtigung, dieses Dokument anzusehen.'));
