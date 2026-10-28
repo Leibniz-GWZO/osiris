@@ -684,6 +684,38 @@ function val($index, $default = '')
             <!-- if topics are registered, you can choose them here -->
             <?php $Settings->topicChooser($form['topics'] ?? []) ?>
 
+            <?php
+            // units assigned to the activity as a whole, in addition to those of the authors
+            $selected_units = $copy ? [] : DB::doc2Arr($form['units_manual'] ?? []);
+            $unit_options = $osiris->groups->find(['level' => ['$gt' => 0]], ['sort' => ['level' => 1, 'name' => 1]]);
+            ?>
+            <div class="form-group">
+                <a onclick="$('#units-manual-box').toggleClass('hidden')" class="cursor-pointer">
+                    <i class="ph ph-plus"></i> <?= lang('Assign organisational unit', 'Organisationseinheit zuordnen') ?>
+                    (<?= lang('if the units of the authors do not fit or are missing', 'falls die Einheiten der Autor:innen nicht passen oder fehlen') ?>)
+                </a>
+                <div id="units-manual-box" class="<?= empty($selected_units) ? 'hidden' : '' ?> mt-5">
+                    <input type="hidden" name="units_manual_submitted" value="1">
+                    <select class="form-control" name="values[units_manual][]" id="units_manual" multiple size="8">
+                        <?php foreach ($unit_options as $g) {
+                            $inactive = !empty($g['inactive']) && $g['inactive'] !== '0';
+                            if ($inactive && !in_array($g['id'], $selected_units)) continue;
+                        ?>
+                            <option value="<?= e($g['id']) ?>" <?= in_array($g['id'], $selected_units) ? 'selected' : '' ?>>
+                                <?= str_repeat('&nbsp;&nbsp;', max(0, ($g['level'] ?? 1) - 1)) . e(lang($g['name'] ?? $g['id'], $g['name_de'] ?? null)) ?>
+                                <?= $inactive ? '(' . lang('inactive', 'inaktiv') . ')' : '' ?>
+                            </option>
+                        <?php } ?>
+                    </select>
+                    <small class="text-muted">
+                        <?= lang(
+                            'The activity is also listed under these units (Ctrl/Cmd+click for multiple), e.g. a special issue of a junior research group with external guest editors. The units of the authors are added automatically.',
+                            'Die Aktivität wird zusätzlich unter diesen Einheiten geführt (Strg/Cmd+Klick für mehrere), z. B. ein Special Issue einer Nachwuchsgruppe mit externen Gasteditor:innen. Die Einheiten der Autor:innen werden automatisch ergänzt.'
+                        ) ?>
+                    </small>
+                </div>
+            </div>
+
             <?php if (!$copy && (!isset($form['comment']) || empty($form['comment']))) { ?>
                 <div class="form-group">
                     <a onclick="$(this).next().toggleClass('hidden')">
