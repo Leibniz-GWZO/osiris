@@ -49,8 +49,8 @@ if (!$new_project) {
         $edit_perm = Project::getProposalPermissions($form, $Settings)['edit'];
         $status_perm = Project::canChangeStatus($form, $_GET['phase'] ?? ($form['status'] ?? 'proposed'), $Settings);
     } else {
-        $edit_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.edit-own') && $user_project));
-        $status_perm = ($Settings->hasPermission('proposals.edit') || ($Settings->hasPermission('proposals.status-own') && $user_project));
+        $edit_perm = ($Settings->hasPermission($collection . '.edit') || ($Settings->hasPermission($collection . '.edit-own') && $user_project));
+        $status_perm = ($Settings->hasPermission($collection . '.edit') || ($Settings->hasPermission($collection . '.status-own') && $user_project));
     }
 
     // check if status change is requested
