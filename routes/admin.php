@@ -1469,13 +1469,20 @@ Route::post('/crud/admin/projects/update/([A-Za-z0-9]*)', function ($id) {
                 }
             }
             // add phase to values
-            $values['phases'][] = [
+            $phase_values = [
                 'id' => $phase_id,
                 'name' => $phase['name'],
                 'name_de' => $phase['name_de'],
                 'color' => $phase['color'] ?? 'muted',
                 'modules' => $modules
             ];
+            // keep a phase switched off (e.g. "review"), there is no form field for it
+            foreach ($original['phases'] ?? [] as $p) {
+                if (($p['id'] ?? null) == $phase_id && ($p['disabled'] ?? false)) {
+                    $phase_values['disabled'] = true;
+                }
+            }
+            $values['phases'][] = $phase_values;
         }
 
         $updateResult = $collection->updateOne(

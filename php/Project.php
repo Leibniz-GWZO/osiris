@@ -155,6 +155,84 @@ class Project extends Vocabulary
         return $clean;
     }
 
+    /**
+     * Whether a phase (e.g. "review") is configured and not disabled for a project type.
+     */
+    public static function isPhaseEnabled($projectType, $phase): bool
+    {
+        foreach (DB::doc2Arr($projectType['phases'] ?? []) as $p) {
+            if (($p['id'] ?? null) == $phase) return !($p['disabled'] ?? false);
+        }
+        return false;
+    }
+
+    public const MONEY_FIELDS = [
+        'grant_sum_proposed',
+        'grant_income_proposed',
+        'grant_subproject_proposed',
+        'grant_sum',
+        'grant_income',
+        'grant_subproject',
+    ];
+
+    /**
+     * Parse a free-text amount ("569.405,00", "1,296,800", "227.116 €", "ca. 350.000")
+     * into a number. A separator followed by exactly three digits is treated as
+     * thousands separator, otherwise as decimal separator. Keep in sync with
+     * parseMoney() in pages/proposals/edit.php.
+     */
+    public static function parseMoney($value)
+    {
+        if ($value === null || is_int($value) || is_float($value)) return $value;
+        $value = trim(strval($value));
+        if ($value === '') return null;
+        $s = preg_replace('/[^\d,.\-]/', '', $value);
+        if (!preg_match('/\d/', $s)) return $value;
+        $negative = str_starts_with($s, '-');
+        $s = str_replace('-', '', $s);
+
+        $has_comma = str_contains($s, ',');
+        $has_dot = str_contains($s, '.');
+        if ($has_comma && $has_dot) {
+            // the last separator is the decimal one
+            $dec = strrpos($s, ',') > strrpos($s, '.') ? ',' : '.';
+            $s = str_replace($dec == ',' ? '.' : ',', '', $s);
+            $s = str_replace($dec, '.', $s);
+        } elseif ($has_comma || $has_dot) {
+            $sep = $has_comma ? ',' : '.';
+            $parts = explode($sep, $s);
+            $last = array_pop($parts);
+            $middle_ok = count(array_filter(array_slice($parts, 1), fn($p) => strlen($p) != 3)) == 0;
+            if (strlen($last) == 3 && $middle_ok) {
+                $s = implode('', $parts) . $last;
+            } else {
+                $s = implode('', $parts) . '.' . $last;
+            }
+        }
+        $num = floatval($s);
+        if ($negative) $num = -$num;
+        return floor($num) == $num ? intval($num) : round($num, 2);
+    }
+
+    /**
+     * Build the collaborators list from form values
+     * (values[collaborators][organization][] and values[collaborators][role][]).
+     */
+    public static function collaboratorsFromForm($values, $DB): array
+    {
+        $collaborators = [];
+        $orgs = $values['organization'] ?? [];
+        $roles = $values['role'] ?? [];
+        foreach ($orgs as $i => $org) {
+            if (!DB::is_ObjectID(strval($org))) continue;
+            $collaborators[] = [
+                'organization' => $DB->to_ObjectID(strval($org)),
+                'role' => strval($roles[$i] ?? 'partner'),
+            ];
+        }
+        return $collaborators;
+    }
+
     public function initFields()
     {
         // get all fields from file data/project-fields.json

@@ -1175,6 +1175,87 @@ if ($is_subproject) {
                 <?php } ?>
                 
                 
+                <?php if (str_contains($formaction, '/crud/proposals/')) {
+                    $collab_roles = [
+                        'partner' => 'Partner',
+                        'coordinator' => lang('Coordinator', 'Koordinator'),
+                        'associated' => lang('Associated', 'Beteiligt'),
+                    ];
+                ?>
+                    <div class="box py-5 px-10 mt-20" id="collaborators-box">
+                        <label class="floating-title">
+                            <?= lang('Collaborators (partner institutions)', 'Kooperationspartner (Partnereinrichtungen)') ?>
+                        </label>
+                        <input type="hidden" name="collaborators_submitted" value="1">
+                        <table class="table simple small">
+                            <tbody id="collaborators-list">
+                                <?php foreach ($form['collaborators'] ?? [] as $con) {
+                                    $con = DB::doc2Arr($con);
+                                    $org = $osiris->organizations->findOne(['_id' => $con['organization'] ?? null]);
+                                    if (empty($org)) continue;
+                                    $r = $con['role'] ?? 'partner';
+                                ?>
+                                    <tr>
+                                        <td>
+                                            <b><?= e($org['name'] ?? '') ?></b>
+                                            <br><small class="text-muted"><?= e($org['location'] ?? '') ?></small>
+                                            <input type="hidden" name="values[collaborators][organization][]" value="<?= $org['_id'] ?>">
+                                        </td>
+                                        <td class="w-150">
+                                            <select name="values[collaborators][role][]" class="form-control small">
+                                                <?php foreach ($collab_roles as $k => $v) { ?>
+                                                    <option value="<?= $k ?>" <?= $r == $k ? 'selected' : '' ?>><?= $v ?></option>
+                                                <?php } ?>
+                                            </select>
+                                        </td>
+                                        <td class="w-50">
+                                            <a class="text-danger" onclick="$(this).closest('tr').remove()"><i class="ph ph-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                        <div class="input-group mt-5">
+                            <input type="text" class="form-control" id="collab-search" onkeydown="searchCollaborator(event)" placeholder="<?= lang('Search organization by name or ROR ID', 'Organisation nach Name oder ROR-ID suchen') ?>" autocomplete="off">
+                            <div class="input-group-append">
+                                <button class="btn" type="button" onclick="searchCollaborator(null)"><i class="ph ph-magnifying-glass"></i></button>
+                            </div>
+                        </div>
+                        <p id="collab-search-comment" class="my-5"></p>
+                        <table class="table simple">
+                            <tbody id="collab-org-suggest"></tbody>
+                        </table>
+                        <small class="text-muted"><?= lang('Your own institution does not need to be added.', 'Die eigene Einrichtung muss nicht eingetragen werden.') ?> Powered by <a href="https://ror.org/" target="_blank" rel="noopener noreferrer">ROR</a></small>
+                    </div>
+                    <script>
+                        const COLLAB_ROLES = <?= json_encode($collab_roles) ?>;
+
+                        function searchCollaborator(event) {
+                            if (event !== null && event.key !== 'Enter') return;
+                            if (event) event.preventDefault();
+                            SUGGEST = $('#collab-org-suggest')
+                            INPUT = $('#collab-search')
+                            COMMENT = $('#collab-search-comment')
+                            window.createOrganizationTR = function(org) {
+                                let id = cleanID(org.id)
+                                if ($('#collaborators-list input[value="' + id + '"]').length) return;
+                                let tr = $('<tr>')
+                                let td = $('<td>')
+                                td.append($('<b>').text(org.name), '<br>', $('<small class="text-muted">').text(org.location ?? ''))
+                                td.append($('<input type="hidden" name="values[collaborators][organization][]">').val(id))
+                                tr.append(td)
+                                let select = $('<select name="values[collaborators][role][]" class="form-control small">')
+                                Object.entries(COLLAB_ROLES).forEach(([k, v]) => select.append($('<option>').val(k).text(v)))
+                                tr.append($('<td class="w-150">').append(select))
+                                tr.append('<td class="w-50"><a class="text-danger" onclick="$(this).closest(\'tr\').remove()"><i class="ph ph-trash"></i></a></td>')
+                                $('#collaborators-list').append(tr)
+                            }
+                            getOrganization(INPUT.val());
+                            return false;
+                        }
+                    </script>
+                <?php } ?>
+
                 <div class="row row-eq-spacing">
                     <?php if (array_key_exists('role', $fields)) { ?>
                         <div class="col floating-form">
@@ -1846,6 +1927,47 @@ if ($is_subproject) {
             return false;
         }
     }
+
+    // show how an amount is interpreted, same rules as Project::parseMoney()
+    function parseMoney(value) {
+        value = (value ?? '').toString().trim();
+        if (value === '') return null;
+        let s = value.replace(/[^\d,.\-]/g, '');
+        if (!/\d/.test(s)) return NaN;
+        const negative = s.startsWith('-');
+        s = s.replace(/-/g, '');
+        const hasComma = s.includes(','), hasDot = s.includes('.');
+        if (hasComma && hasDot) {
+            const dec = s.lastIndexOf(',') > s.lastIndexOf('.') ? ',' : '.';
+            s = s.split(dec == ',' ? '.' : ',').join('').replace(dec, '.');
+        } else if (hasComma || hasDot) {
+            const parts = s.split(hasComma ? ',' : '.');
+            const last = parts.pop();
+            const middleOk = parts.slice(1).every(p => p.length == 3);
+            s = parts.join('') + (last.length == 3 && middleOk ? '' : '.') + last;
+        }
+        const num = parseFloat(s);
+        return negative ? -num : num;
+    }
+    $('.money-input').each(function() {
+        const hint = $('<small class="money-hint d-block"></small>');
+        $(this).closest('.floating-form').append(hint);
+        const update = () => {
+            const num = parseMoney($(this).val());
+            if (num === null) {
+                hint.text('');
+            } else if (isNaN(num)) {
+                hint.attr('class', 'money-hint d-block text-danger').text(lang('Not a number, please enter digits only', 'Keine Zahl, bitte nur Ziffern eingeben'));
+            } else {
+                hint.attr('class', 'money-hint d-block text-muted').text(lang('Saved as', 'Wird gespeichert als') + ': ' + num.toLocaleString('de-DE', {
+                    style: 'currency',
+                    currency: 'EUR'
+                }));
+            }
+        };
+        $(this).on('input', update);
+        update();
+    });
 
     // $('.money-input').on('blur', function() {
     //     let value = $(this).val();

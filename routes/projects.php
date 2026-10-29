@@ -414,6 +414,15 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
     if (isset($_POST['units_manual_submitted'])) {
         $values['units_manual'] = array_values(array_unique(array_filter(array_map('strval', $values['units_manual'] ?? []))));
     }
+    if (isset($_POST['collaborators_submitted'])) {
+        $values['collaborators'] = Project::collaboratorsFromForm($_POST['values']['collaborators'] ?? [], $DB);
+    }
+    // parse amounts from the raw input, validateValues() would read "569.405" as 569.405
+    foreach (Project::MONEY_FIELDS as $key) {
+        if (array_key_exists($key, $_POST['values'])) {
+            $values[$key] = Project::parseMoney($_POST['values'][$key]);
+        }
+    }
     if (!isset($values['type']) || !isset($values['name'])) {
         $_SESSION['msg'] = lang("Missing required parameters.", "Fehlende erforderliche Parameter.");
         $_SESSION['msg_type'] = "error";
@@ -487,7 +496,7 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
             $proposal = $osiris->proposals->findOne(['_id' => $values['proposal_id']]);
             if (!empty($proposal)) {
                 $values['persons'] = $proposal['persons'];
-                if (!empty($proposal['collaborators'] ?? [])) {
+                if (!empty($proposal['collaborators'] ?? []) && empty($values['collaborators'] ?? [])) {
                     $values['collaborators'] = $proposal['collaborators'];
                 }
                 $values['_id'] = $values['proposal_id'];
@@ -753,6 +762,15 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     }
     if (isset($_POST['units_manual_submitted'])) {
         $values['units_manual'] = array_values(array_unique(array_filter(array_map('strval', $values['units_manual'] ?? []))));
+    }
+    if (isset($_POST['collaborators_submitted'])) {
+        $values['collaborators'] = Project::collaboratorsFromForm($_POST['values']['collaborators'] ?? [], $DB);
+    }
+    // parse amounts from the raw input, validateValues() would read "569.405" as 569.405
+    foreach (Project::MONEY_FIELDS as $key) {
+        if (array_key_exists($key, $_POST['values'])) {
+            $values[$key] = Project::parseMoney($_POST['values'][$key]);
+        }
     }
     // add information on creating process
     $values['updated'] = date('Y-m-d');
@@ -1136,15 +1154,7 @@ Route::post('/crud/(projects|proposals)/update-collaborators/([A-Za-z0-9]*)', fu
     }
     $Project = new Project();
 
-    $collaborators = [];
-    foreach ($values as $key => $values) {
-        foreach ($values as $i => $val) {
-            $collaborators[$i][$key] = $val;
-        }
-    }
-    foreach ($collaborators as $i => &$c) {
-        $c['organization'] = $DB->to_ObjectID($c['organization']);
-    }
+    $collaborators = Project::collaboratorsFromForm($values, $DB);
 
     $osiris->$collection->updateOne(
         ['_id' => $DB->to_ObjectID($id)],

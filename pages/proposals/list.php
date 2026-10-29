@@ -141,11 +141,17 @@ $showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCo
     <?php } ?>
 </div>
 
-<?php if (array_sum($statusCounts) > 0) { ?>
+<?php if (array_sum($statusCounts) > 0) {
+    $alwaysShown = ['preparation', 'proposed', 'approved'];
+    // "under review" only if a proposal type still uses this phase
+    if ($osiris->adminProjects->countDocuments(['phases' => ['$elemMatch' => ['id' => 'review', 'disabled' => ['$ne' => true]]]]) > 0) {
+        $alwaysShown[] = 'review';
+    }
+?>
     <div class="proposal-overview my-10">
         <?php foreach ($proposalStatuses as $status => [$label, $color]) {
             // the pipeline is always shown, closed states only if they occur
-            if ($statusCounts[$status] == 0 && !in_array($status, ['preparation', 'review', 'proposed', 'approved'])) continue; ?>
+            if ($statusCounts[$status] == 0 && !in_array($status, $alwaysShown)) continue; ?>
             <a class="badge <?= $color ?> mr-5 mb-5" onclick="filterStatus('<?= $status ?>')" title="<?= lang('Filter by this status', 'Nach diesem Status filtern') ?>">
                 <?= $label ?> <b class="ml-5"><?= $statusCounts[$status] ?></b>
             </a>
