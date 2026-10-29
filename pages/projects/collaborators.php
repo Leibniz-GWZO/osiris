@@ -213,7 +213,7 @@ if (!isset($project['collaborators']) || empty($project['collaborators'])) {
     </div>
 </div>
 
-<form action="<?= ROOTPATH ?>/crud/projects/update-collaborators/<?= $id ?>" method="POST">
+<form action="<?= ROOTPATH ?>/crud/<?= $collection ?? 'projects' ?>/update-collaborators/<?= $id ?>" method="POST">
     <table class="table">
         <thead>
             <tr>

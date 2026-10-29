@@ -809,6 +809,62 @@ if ($nagoyaRelevant) {
                 </table>
 
                 <h2>
+                    <?= lang('Collaborators', 'Kooperationspartner') ?>
+                </h2>
+
+                <?php if ($edit_perm) { ?>
+                    <div class="btn-toolbar mb-10">
+                        <a href="<?= ROOTPATH ?>/proposals/collaborators/<?= $id ?>" class="btn primary">
+                            <i class="ph ph-edit"></i>
+                            <?= lang('Edit', 'Bearbeiten') ?>
+                        </a>
+                    </div>
+                <?php } ?>
+
+                <table class="table">
+                    <tbody>
+                        <?php
+                        include_once BASEPATH . '/php/Organization.php';
+                        $collaborators = $Project->getCollaborators();
+                        if (empty($collaborators)) {
+                        ?>
+                            <tr>
+                                <td>
+                                    <?= lang('No collaborators connected.', 'Keine Partner verknüpft.') ?>
+                                </td>
+                            </tr>
+                        <?php
+                        } else foreach ($collaborators as $collab) {
+                        ?>
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <span data-toggle="tooltip" data-title="<?= $collab['type'] ?>" class="badge mr-10">
+                                            <?= Organization::getIcon($collab['type'], 'ph-fw ph-2x m-0') ?>
+                                        </span>
+                                        <div class="">
+                                            <a class="d-block font-weight-bold" href="<?= ROOTPATH ?>/organizations/view/<?= $collab['id'] ?>">
+                                                <?= $collab['name'] ?>
+                                            </a>
+                                            <?= $collab['location'] ?>
+                                            <br>
+                                            <small class="text-muted">
+                                                <?= match ($collab['role']) {
+                                                    'coordinator' => lang('Coordinator', 'Koordinator'),
+                                                    'associated' => lang('Associated Partner', 'Assoziierter Partner'),
+                                                    default => 'Partner',
+                                                } ?>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php
+                        } ?>
+                    </tbody>
+                </table>
+
+                <h2>
                     <?= lang('Units', 'Einheiten') ?>
                 </h2>
                 <table class="table unit-table w-full">

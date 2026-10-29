@@ -487,6 +487,9 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
             $proposal = $osiris->proposals->findOne(['_id' => $values['proposal_id']]);
             if (!empty($proposal)) {
                 $values['persons'] = $proposal['persons'];
+                if (!empty($proposal['collaborators'] ?? [])) {
+                    $values['collaborators'] = $proposal['collaborators'];
+                }
                 $values['_id'] = $values['proposal_id'];
 
                 $osiris->proposals->updateOne(
@@ -1110,16 +1113,26 @@ Route::post('/crud/(projects|proposals)/update-persons/([A-Za-z0-9]*)', function
     header("Location: " . ROOTPATH . "/$collection/view/$id");
 });
 
-Route::post('/crud/projects/update-collaborators/([A-Za-z0-9]*)', function ($id) {
+Route::post('/crud/(projects|proposals)/update-collaborators/([A-Za-z0-9]*)', function ($collection, $id) {
     include_once BASEPATH . "/php/init.php";
     include_once BASEPATH . "/php/Project.php";
 
     $values = $_POST['values'] ?? [];
 
     // get project
-    $project = $osiris->projects->findOne(['_id' => $DB->to_ObjectID($id)]);
+    $project = $osiris->$collection->findOne(['_id' => $DB->to_ObjectID($id)]);
     if (empty($project)) {
-        abortwith(404, lang('Project', 'Projekt'), "/projects");
+        abortwith(404, $collection == 'projects' ? lang('Project', 'Projekt') : lang('Project proposal', 'Projektantrag'), "/$collection");
+    }
+    // same permission check as the GET route for the collaborators page
+    if ($collection == 'proposals') {
+        $edit_perm = Project::getProposalPermissions($project, $Settings)['edit'];
+    } else {
+        $user_project = in_array($_SESSION['username'], array_column(DB::doc2Arr($project['persons'] ?? []), 'user'));
+        $edit_perm = ($project['created_by'] == $_SESSION['username'] || $Settings->hasPermission('projects.edit') || ($Settings->hasPermission('projects.edit-own') && $user_project));
+    }
+    if (!$edit_perm) {
+        abortwith(403, lang('You do not have permission to edit this project.', 'Du hast keine Berechtigung, dieses Projekt zu bearbeiten.'), "/$collection/view/$id");
     }
     $Project = new Project();
 
@@ -1133,14 +1146,14 @@ Route::post('/crud/projects/update-collaborators/([A-Za-z0-9]*)', function ($id)
         $c['organization'] = $DB->to_ObjectID($c['organization']);
     }
 
-    $osiris->projects->updateOne(
+    $osiris->$collection->updateOne(
         ['_id' => $DB->to_ObjectID($id)],
         ['$set' => ["collaborators" => $collaborators]]
     );
 
     $_SESSION['msg'] = lang("Collaborators for this project have been updated successfully.", "Partner für dieses Projekt wurden erfolgreich aktualisiert.");
     $_SESSION['msg_type'] = "success";
-    header("Location: " . ROOTPATH . "/projects/view/$id");
+    header("Location: " . ROOTPATH . "/$collection/view/$id");
 });
 
 
