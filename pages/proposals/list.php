@@ -141,12 +141,14 @@ $showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCo
     <?php } ?>
 </div>
 
-<?php if (array_sum($statusCounts) > 0) {
-    $alwaysShown = ['preparation', 'proposed', 'approved'];
-    // "under review" only if a proposal type still uses this phase
-    if ($osiris->adminProjects->countDocuments(['phases' => ['$elemMatch' => ['id' => 'review', 'disabled' => ['$ne' => true]]]]) > 0) {
-        $alwaysShown[] = 'review';
-    }
+<?php
+// "under review" only if a proposal type still uses this phase (or a proposal still has this status)
+$reviewEnabled = $osiris->adminProjects->countDocuments(['phases' => ['$elemMatch' => ['id' => 'review', 'disabled' => ['$ne' => true]]]]) > 0;
+if (!$reviewEnabled && $statusCounts['review'] == 0) {
+    unset($proposalStatuses['review']);
+}
+if (array_sum($statusCounts) > 0) {
+    $alwaysShown = ['preparation', 'proposed', 'approved', 'review'];
 ?>
     <div class="proposal-overview my-10">
         <?php foreach ($proposalStatuses as $status => [$label, $color]) {
@@ -205,8 +207,9 @@ $showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCo
                 <?= lang('Sort', 'Sortieren') ?> <i class="ph ph-caret-down ml-5" aria-hidden="true"></i>
             </button>
             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdown-1">
+                <a class="item active" onclick="sortTable(this, [[7, 'asc'], [11, 'asc']])"><?= lang('Status, then name', 'Status, dann Name') ?></a>
                 <a class="item" onclick="sortTable(this, 3, 'asc')">Start date (ASC)</a>
-                <a class="item active" onclick="sortTable(this, 3, 'desc')">Start date (DESC)</a>
+                <a class="item" onclick="sortTable(this, 3, 'desc')">Start date (DESC)</a>
                 <a class="item" onclick="sortTable(this, 4, 'asc')">End date (ASC)</a>
                 <a class="item" onclick="sortTable(this, 4, 'desc')">End date (DESC)</a>
                 <a class="item" onclick="sortTable(this, 0, 'asc')">Name (ASC)</a>
@@ -710,7 +713,13 @@ $showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCo
                     searchable: true,
                     visible: false,
                     header: lang('Status', 'Status'),
-                    defaultContent: 'proposed'
+                    defaultContent: 'proposed',
+                    // sort along the proposal pipeline instead of alphabetically
+                    render: (data, type) => {
+                        if (type !== 'sort') return data;
+                        const rank = {preparation: 0, proposed: 1, applied: 1, review: 2, approved: 3, finished: 4, rejected: 5, withdrawn: 6};
+                        return rank[data ?? 'proposed'] ?? 9;
+                    }
                 },
                 {
                     target: 8,
@@ -767,7 +776,8 @@ $showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCo
                 }
             ],
             order: [
-                [3, 'desc']
+                [7, 'asc'],
+                [11, 'asc']
             ],
             paging: true,
             autoWidth: true,
@@ -899,7 +909,7 @@ $showDeptOverview = $Settings->hasPermission('proposals.view') && !empty($deptCo
         $(el).closest('.dropdown-menu').find('.active').removeClass('active');
         $(el).addClass('active');
 
-        dataTable.order([column, direction]).draw();
+        dataTable.order(Array.isArray(column) ? column : [column, direction]).draw();
         return false;
     }
 </script>
