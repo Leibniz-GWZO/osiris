@@ -75,6 +75,21 @@ if ($nagoyaRelevant) {
     .badge.status.muted {
         border: var(--border-width) solid var(--muted-color);
     }
+
+    button.badge.status {
+        box-shadow: var(--box-shadow);
+        transition: filter .15s, box-shadow .15s;
+    }
+
+    button.badge.status:hover {
+        filter: brightness(.95);
+        box-shadow: 0 0 0 .3rem var(--primary-color-20);
+    }
+
+    .badge.status .status-caret {
+        font-size: 1.6rem;
+        margin-left: .5rem;
+    }
 </style>
 <script src="<?= ROOTPATH ?>/js/projects.js?v=<?= OSIRIS_BUILD ?>"></script>
 
@@ -107,22 +122,26 @@ if ($nagoyaRelevant) {
             <?php if ($status_perm && (!in_array($status, ['preparation', 'proposed', 'review']) || array_filter(['proposed', 'review', 'approved', 'rejected', 'withdrawn'], $can_status))) { ?>
                 <?php if ($status == 'preparation') { ?>
                     <div class="dropdown">
-                        <button class="badge status muted text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-preparation" aria-haspopup="true" aria-expanded="false">
+                        <button class="badge status muted text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-preparation" aria-haspopup="true" aria-expanded="false" title="<?= lang('Change status', 'Status ändern') ?>">
                             <i class="ph ph-edit" aria-hidden="true"></i>
                             <?= lang('In preparation', 'In Vorbereitung') ?>
+                            <i class="ph ph-caret-down status-caret" aria-hidden="true"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-preparation">
+                            <small class="d-block text-muted mb-5"><?= lang('Change status to:', 'Status ändern zu:') ?></small>
                             <?php if ($can_status('proposed')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=proposed" class="item badge status signal mb-5"><?= lang('Proposed', 'Beantragt') ?></a><?php } ?>
                         </div>
                     </div>
                 <?php } else if ($status == 'proposed') { ?>
                     <div class="dropdown">
-                        <button class="badge status signal text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-1" aria-haspopup="true" aria-expanded="false">
+                        <button class="badge status signal text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-1" aria-haspopup="true" aria-expanded="false" title="<?= lang('Change status', 'Status ändern') ?>">
                             <i class="ph ph-edit" aria-hidden="true"></i>
                             <?= lang('Proposed', 'Beantragt') ?>
+                            <i class="ph ph-caret-down status-caret" aria-hidden="true"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-1">
-                            <?php if ($can_status('review')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=review" class="item badge status warning mb-5"><?= lang('Under review', 'In Begutachtung') ?></a><?php } ?>
+                            <small class="d-block text-muted mb-5"><?= lang('Change status to:', 'Status ändern zu:') ?></small>
+                            <?php if ($can_status('review') && Project::isPhaseEnabled($project_type, 'review')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=review" class="item badge status warning mb-5"><?= lang('Under review', 'In Begutachtung') ?></a><?php } ?>
                             <?php if ($can_status('approved')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a><?php } ?>
                             <?php if ($can_status('rejected')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a><?php } ?>
                             <?php if ($can_status('withdrawn')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a><?php } ?>
@@ -130,11 +149,13 @@ if ($nagoyaRelevant) {
                     </div>
                 <?php } else if ($status == 'review') { ?>
                     <div class="dropdown">
-                        <button class="badge status warning text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-review" aria-haspopup="true" aria-expanded="false">
+                        <button class="badge status warning text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-review" aria-haspopup="true" aria-expanded="false" title="<?= lang('Change status', 'Status ändern') ?>">
                             <i class="ph ph-edit" aria-hidden="true"></i>
                             <?= lang('Under review', 'In Begutachtung') ?>
+                            <i class="ph ph-caret-down status-caret" aria-hidden="true"></i>
                         </button>
                         <div class="dropdown-menu dropdown-menu-right w-250" aria-labelledby="dropdown-review">
+                            <small class="d-block text-muted mb-5"><?= lang('Change status to:', 'Status ändern zu:') ?></small>
                             <?php if ($can_status('approved')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=approved" class="item badge status success mb-5"><?= lang('Approved', 'Bewilligt') ?></a><?php } ?>
                             <?php if ($can_status('rejected')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=rejected" class="item badge status danger mb-5"><?= lang('Rejected', 'Abgelehnt') ?></a><?php } ?>
                             <?php if ($can_status('withdrawn')) { ?><a href="<?= ROOTPATH ?>/proposals/edit/<?= $id ?>?phase=withdrawn" class="item badge status muted"><?= lang('Withdrawn', 'Zurückgezogen') ?></a><?php } ?>
