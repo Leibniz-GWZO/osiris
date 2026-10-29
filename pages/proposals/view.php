@@ -120,6 +120,9 @@ if ($nagoyaRelevant) {
         </div>
         <div class="status">
             <?php if ($status_perm && (!in_array($status, ['preparation', 'proposed', 'review']) || array_filter(['proposed', 'review', 'approved', 'rejected', 'withdrawn'], $can_status))) { ?>
+                <?php if (in_array($status, ['preparation', 'proposed', 'review'])) { ?>
+                    <small class="d-block text-muted text-right mb-5"><?= lang('Change proposal status', 'Antragsstatus ändern') ?></small>
+                <?php } ?>
                 <?php if ($status == 'preparation') { ?>
                     <div class="dropdown">
                         <button class="badge status muted text-uppercase cursor-pointer" data-toggle="dropdown" type="button" id="dropdown-preparation" aria-haspopup="true" aria-expanded="false" title="<?= lang('Change status', 'Status ändern') ?>">
