@@ -39,7 +39,7 @@ $pageactive = function ($p) use ($page) {
 
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<?= lang('en', 'de') ?>">
 
 <head>
     <!-- Meta tags -->
