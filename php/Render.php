@@ -280,12 +280,13 @@ function renderAuthorUnitsMany($filter = [])
 function renderAuthorUnitsProjects($filter = [])
 {
     $DB = new DB;
-    $cursor = $DB->db->projects->find($filter, ['projection' => ['persons' => 1, 'units' => 1, 'start_date' => 1]]);
+    $cursor = $DB->db->projects->find($filter, ['projection' => ['persons' => 1, 'units' => 1, 'start_date' => 1, 'units_manual' => 1]]);
     foreach ($cursor as $doc) {
+        $manual = getManualUnits(DB::doc2Arr($doc));
         $doc = renderAuthorUnits($doc, [], 'persons');
         $DB->db->projects->updateOne(
             ['_id' => $doc['_id']],
-            ['$set' => ['units' => $doc['units'] ?? []]]
+            ['$set' => ['units' => mergeUnitsWithParents(DB::doc2Arr($doc['units'] ?? []), $manual)]]
         );
     }
     $cursor = $DB->db->proposals->find($filter, ['projection' => ['persons' => 1, 'units' => 1, 'start_date' => 1, 'units_manual' => 1]]);

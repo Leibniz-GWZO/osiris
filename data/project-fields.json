@@ -120,7 +120,10 @@
     "scope": {
       "proposed": true,
       "preparation": true,
-      "review": true
+      "review": true,
+      "approved": true,
+      "rejected": true,
+      "project": true
     },
     "order": 7
   },

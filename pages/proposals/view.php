@@ -450,7 +450,8 @@ if ($nagoyaRelevant) {
                                     echo '<tr><td><h5 class="m-0">' . e($Project->printLabel($key)) . '</h5></td></tr>';
                                     continue;
                                 }
-                                if ($key == 'nagoya') {
+                                // units_manual is already listed in the proposal details
+                                if ($key == 'nagoya' || $key == 'units_manual') {
                                     continue;
                                 }
                             ?>
@@ -642,7 +643,8 @@ if ($nagoyaRelevant) {
                                     echo '<tr><td><h5 class="m-0">' . e($Project->printLabel($key)) . '</h5></td></tr>';
                                     continue;
                                 }
-                                if ($key == 'nagoya') {
+                                // units_manual is already listed in the proposal details
+                                if ($key == 'nagoya' || $key == 'units_manual') {
                                     continue;
                                 }
                             ?>
