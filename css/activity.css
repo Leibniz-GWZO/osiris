@@ -46,6 +46,14 @@ ul.authors>li.more-authors {
     font-style: italic;
 }
 
+ul.authors>li.role-label {
+    color: var(--muted-color);
+}
+
+ul.authors>li.role-label::after {
+    content: "";
+}
+
 
 .cards {
     display: flex;
