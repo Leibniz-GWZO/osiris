@@ -62,7 +62,7 @@ $order = ['active' => 0, 'on_hold' => 1, 'published' => 2, 'rejected' => 3, 'wit
     $badges = function ($it) {
         $html = '';
         if ($it['overdue']) {
-            $html .= ' <span class="badge signal" title="' . lang('Longer than the target duration', 'Länger als die Soll-Dauer') . '"><i class="ph ph-clock-countdown"></i></span>';
+            $html .= ' <span class="badge signal" title="' . lang('Longer than the target duration or past the deadline', 'Länger als die Soll-Dauer oder Frist abgelaufen') . '"><i class="ph ph-clock-countdown"></i></span>';
         }
         if (!empty($it['tasks'])) {
             $titles = implode(', ', array_map(fn($t) => Processes::t($t['task']), $it['tasks']));
@@ -73,17 +73,20 @@ $order = ['active' => 0, 'on_hold' => 1, 'published' => 2, 'rejected' => 3, 'wit
 ?>
     <section class="proc-overview" id="ov-<?= $tid ?>" data-tid="<?= $tid ?>">
         <div class="d-flex align-items-center flex-wrap mt-20 mb-5">
-            <h3 class="my-0 mr-20"><?= e(Processes::t($type, 'name')) ?></h3>
+            <h3 class="my-0 mr-20">
+                <a href="#ov-<?= $tid ?>" class="proc-toggle" role="button" aria-expanded="false" aria-controls="ov-body-<?= $tid ?>"><i class="ph ph-caret-right"></i> <?= e(Processes::t($type, 'name')) ?></a>
+            </h3>
             <span class="text-muted mr-20">
                 <?= $nOpen ?> <?= lang('running', 'laufend') ?>
                 <?php if ($nOverdue) { ?> · <span class="text-signal"><i class="ph ph-clock-countdown"></i> <?= $nOverdue ?> <?= lang('overdue', 'überfällig') ?></span><?php } ?>
                 <?php if ($nTasks) { ?> · <i class="ph ph-list-checks"></i> <?= $nTasks ?> <?= lang('with open tasks', 'mit offenen Aufgaben') ?><?php } ?>
             </span>
             <?php if (ProcessPhases::canManage($P, $type)) { ?>
-                <a class="btn success ml-auto" href="<?= ROOTPATH ?>/processes/<?= e($area['id']) ?>/new/<?= $tid ?>"><i class="ph ph-plus-circle"></i> <?= lang('New project', 'Neues Projekt') ?></a>
+                <a class="btn success ml-auto" href="<?= ROOTPATH ?>/processes/<?= e($area['id']) ?>/new/<?= $tid ?>"><i class="ph ph-plus-circle"></i> <?= e(Processes::t($type, 'new_label', lang('New project', 'Neues Projekt'))) ?></a>
             <?php } ?>
         </div>
 
+        <div class="proc-body" id="ov-body-<?= $tid ?>">
         <div class="proc-toolbar">
             <div class="btn-group mr-10">
                 <button type="button" class="btn small" data-mode="table"><i class="ph ph-table"></i> <?= lang('Table', 'Tabelle') ?></button>
@@ -114,8 +117,9 @@ $order = ['active' => 0, 'on_hold' => 1, 'published' => 2, 'rejected' => 3, 'wit
                         <?php foreach ($type['phases'] as $i => $ph) { ?>
                             <th class="col-phase" data-phase="<?= $i ?>" title="<?= e(Processes::t($ph)) ?>">
                                 <div class="th-label">
-                                    <?= $i ?>. <?= e(Processes::t($ph)) ?>
+                                    <?= ProcessPhases::number($type, $i) ?>. <?= e(Processes::t($ph)) ?>
                                     <?php if (ProcessPhases::durationLabel($ph)) { ?><br><small class="text-muted font-weight-normal"><?= e(ProcessPhases::durationLabel($ph)) ?></small><?php } ?>
+                                    <?php if (ProcessPhases::dueLabel($ph)) { ?><br><small class="text-muted font-weight-normal"><?= e(ProcessPhases::dueLabel($ph)) ?></small><?php } ?>
                                 </div>
                             </th>
                         <?php } ?>
@@ -164,9 +168,10 @@ $order = ['active' => 0, 'on_hold' => 1, 'published' => 2, 'rejected' => 3, 'wit
                 $inPhase = array_filter($items, fn($it) => $it['cur'] === $i); ?>
                 <div class="proc-lane" data-phase="<?= $i ?>">
                     <div class="proc-lane-head">
-                        <b><?= $i ?>. <?= e(Processes::t($ph)) ?></b>
+                        <b><?= ProcessPhases::number($type, $i) ?>. <?= e(Processes::t($ph)) ?></b>
                         <span class="text-muted count"></span>
                         <?php if (ProcessPhases::durationLabel($ph)) { ?><br><small class="text-muted"><?= e(ProcessPhases::durationLabel($ph)) ?></small><?php } ?>
+                        <?php if (ProcessPhases::dueLabel($ph)) { ?><br><small class="text-muted"><?= e(ProcessPhases::dueLabel($ph)) ?></small><?php } ?>
                     </div>
                     <?php foreach ($inPhase as $it) {
                         $c = $it['case'];
@@ -185,6 +190,7 @@ $order = ['active' => 0, 'on_hold' => 1, 'published' => 2, 'rejected' => 3, 'wit
                     <?php } ?>
                 </div>
             <?php } ?>
+        </div>
         </div>
     </section>
 <?php } ?>
@@ -259,11 +265,44 @@ $order = ['active' => 0, 'on_hold' => 1, 'published' => 2, 'rejected' => 3, 'wit
                 });
             });
             apply(sec);
+
+            // collapsed by default, a link to #ov-<type> opens the section
+            var toggle = sec.querySelector('.proc-toggle');
+            function setOpen(open) {
+                sec.classList.toggle('open', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+            setOpen(location.hash == '#' + sec.id);
+            toggle.addEventListener('click', function(ev) {
+                ev.preventDefault();
+                setOpen(!sec.classList.contains('open'));
+            });
         });
     })();
 </script>
 
 <style>
+    .proc-overview {
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: .5rem;
+    }
+
+    .proc-overview:not(.open) .proc-body {
+        display: none;
+    }
+
+    .proc-toggle {
+        color: inherit;
+    }
+
+    .proc-toggle .ph-caret-right {
+        transition: transform .15s;
+    }
+
+    .proc-overview.open .proc-toggle .ph-caret-right {
+        transform: rotate(90deg);
+    }
+
     .proc-toolbar {
         display: flex;
         flex-wrap: wrap;

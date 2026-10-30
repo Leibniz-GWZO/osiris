@@ -8,6 +8,8 @@
     "icon": "books",
     "name": "GWZO-Buchreihe bei CEU Press",
     "name_en": "GWZO book series with CEU Press",
+    "new_label": "Neues Buchprojekt (CEU Press)",
+    "new_label_en": "New book project (CEU Press)",
     "description": "Buchprojekte der GWZO-Reihe bei CEU Press, vom Proposal bis zur Veröffentlichung. Entwurf als Grundlage für die Abstimmung mit der Reihenkoordination.",
     "description_en": "Book projects of the GWZO series with CEU Press, from the proposal to the publication. Draft as a basis for discussion with the series coordination.",
     "title": "{pp_titel}",

@@ -1,0 +1,310 @@
+{
+    "id": "gwzo-halecki",
+    "area": "publikation",
+    "group": "buchreihen",
+    "flow": "phases",
+    "order": 20,
+    "number_from": 1,
+    "prefix": "HAL",
+    "icon": "microphone-stage",
+    "name": "Hausreihe Halecki-Vorlesung",
+    "name_en": "In-house series Halecki Lecture",
+    "new_label": "Neuer Halecki-Band",
+    "new_label_en": "New Halecki volume",
+    "description": "Publikation der Halecki-Vorlesung des Vorjahres, von der Vergabe der Herausgeberschaft bis zur Open-Access-Version. Schritte nach der Ablaufplanung Hausreihen, Version 10/2026 (Testphase).",
+    "description_en": "Publication of the previous year's Halecki Lecture, from assigning the editor to the open access version. Steps according to the in-house series workflow, version 10/2026 (test phase).",
+    "title": "{hl_vortragende}: {hl_titel}",
+    "authors_field": "hl_vortragende",
+    "funding_field": "hl_kosten",
+    "unit_field": "hl_abteilung",
+    "email": true,
+    "attachments": true,
+    "create": { "roles": ["reihenkoordination"] },
+    "manage": { "roles": ["reihenkoordination"] },
+    "view_all": { "roles": ["reihenkoordination"] },
+    "hints": [
+        {
+            "condition": { "any": [
+                { "field": "hl_zeichen_text", "op": "gt", "value": 55000 },
+                { "all": [ { "field": "hl_zeichen_text", "op": "filled" }, { "field": "hl_zeichen_text", "op": "lt", "value": 45000 } ] }
+            ] },
+            "message": "Der Textkorpus weicht um mehr als 10 % von den vorgesehenen ca. 50.000 Zeichen ab. Bitte die Admin frühzeitig informieren.",
+            "message_en": "The main text deviates by more than 10 % from the planned approx. 50,000 characters. Please inform the administration early."
+        },
+        {
+            "condition": { "field": "hl_abbildungen", "op": "gt", "value": 5 },
+            "message": "Mehr als die vorgesehenen ca. 5 Abbildungen: Kosten und Bildrechte prüfen, ggf. die Admin informieren.",
+            "message_en": "More than the planned approx. 5 figures: check costs and image rights, inform the administration if necessary."
+        }
+    ],
+    "fields": [
+        { "id": "hl_h_vorlesung", "type": "heading", "label": "Halecki-Vorlesung", "label_en": "Halecki Lecture" },
+        { "id": "hl_vortragende", "type": "string", "label": "Vortragende*r (Autor*in)", "label_en": "Lecturer (author)", "required": true, "width": 6 },
+        { "id": "hl_vl_datum", "type": "date", "label": "Termin der Halecki-Vorlesung", "label_en": "Date of the Halecki Lecture", "width": 3 },
+        { "id": "hl_jahr", "type": "int", "label": "Erscheinungsjahr", "label_en": "Year of publication", "required": true, "width": 3, "help": "In der Regel das Jahr nach der Vorlesung; Erscheinen im 4. Quartal. Daraus ergeben sich die Fristen der Schritte 7–17.", "help_en": "Usually the year after the lecture; publication in the 4th quarter. The deadlines of steps 7–17 are based on it." },
+        { "id": "hl_titel", "type": "string", "label": "Titel (Arbeitstitel)", "label_en": "Title (working title)", "required": true },
+        { "id": "hl_hg", "type": "person", "label": "Herausgeber*in (inhouse)", "label_en": "Editor (in-house)", "width": 6, "participant": true, "help": "Inhaltliche Betreuung, meist die Person, die die Einführung hält. Sieht diesen Vorgang.", "help_en": "Responsible for the content, usually the person who gives the introduction. Can see this case." },
+        { "id": "hl_abteilung", "type": "unit", "label": "Abteilung der/des Hg.", "label_en": "Department of the editor", "width": 6 },
+        { "id": "hl_kontakte", "type": "contacts", "label": "Kontakte", "label_en": "Contacts", "help": "Autor*in und weitere Ansprechpersonen, z. B. beim Verlag", "help_en": "Author and other contacts, e.g. at the publisher" },
+
+        { "id": "hl_h_umfang", "type": "heading", "label": "Umfang", "label_en": "Scope", "help": "Insgesamt ca. 50 Seiten. Formale Vorgaben laut GWZO-Stylesheet. Weicht der Textkorpus um mehr als 10 % ab, frühzeitig die Admin informieren.", "help_en": "Approx. 50 pages in total. Formatting according to the GWZO style sheet. If the main text deviates by more than 10 %, inform the administration early." },
+        { "id": "hl_zeichen_einf", "type": "int", "label": "Zeichen Einführung (inkl. Leerzeichen)", "label_en": "Characters introduction (incl. spaces)", "width": 4, "help": "Richtwert ca. 20.000", "help_en": "Guideline approx. 20,000" },
+        { "id": "hl_zeichen_text", "type": "int", "label": "Zeichen Textkorpus (inkl. Leerzeichen)", "label_en": "Characters main text (incl. spaces)", "width": 4, "help": "Richtwert ca. 50.000 (bisher 33.000–104.000)", "help_en": "Guideline approx. 50,000 (so far 33,000–104,000)" },
+        { "id": "hl_abbildungen", "type": "int", "label": "Abbildungen", "label_en": "Figures", "width": 4, "help": "Fakultativ, ca. 5; Rechteklärung durch Hg./GWZO", "help_en": "Optional, approx. 5; rights clearance by the editor/GWZO" },
+        { "id": "hl_publikationsliste", "type": "check", "label": "Liste „Ausgewählte Publikationen / Selected Publications“ am Ende des Bandes", "label_en": "List \"Selected Publications\" at the end of the volume", "help": "Optional, vor allem bei kürzeren Haupttexten", "help_en": "Optional, especially for shorter main texts" }
+    ],
+    "phases": [
+        {
+            "id": "vergabe", "label": "Terminierung, Themenvergabe, Vergabe der Herausgeberschaft", "label_en": "Scheduling, topic, assigning the editor",
+            "responsible": "Direktion, Hg., Publ.-Koordination", "responsible_en": "Directorate, editor, publication coordination",
+            "due_text": "nach Einladung durch die Direktion", "due_text_en": "after the invitation by the directorate",
+            "help": "Erstkontakt durch die Direktion. Die/der Hg. übernimmt die inhaltliche Betreuung, meist die Person, die auch die Einführung hält. Die/der Vortragende erfährt, dass der Vortrag als Publikation erscheinen wird.",
+            "help_en": "First contact by the directorate. The editor is responsible for the content, usually the person who also gives the introduction. The lecturer is told that the lecture will be published.",
+            "fields": [
+                { "id": "hl_einladung", "type": "date", "label": "Einladung durch die Direktion", "label_en": "Invitation by the directorate", "width": 6 },
+                { "id": "hl_hinweis_publikation", "type": "check", "label": "Hinweis auf die Publikation gegeben", "label_en": "Lecturer informed about the publication", "width": 6 }
+            ]
+        },
+        {
+            "id": "unterlagen", "label": "Bereitstellung der Informationsunterlagen", "label_en": "Information documents",
+            "responsible": "Publ.-Koordination, Hg., Autor*in", "responsible_en": "Publication coordination, editor, author",
+            "due": { "field": "hl_vl_datum", "months": -3 },
+            "due_text": "spätestens 3 Monate vor der Halecki-VL", "due_text_en": "at least 3 months before the lecture",
+            "help": "Die/der Hg. erhält Ordnerzugriff durch die Publ.-Koordination und leitet die Unterlagen an die/den Autor*in weiter: allgemeine Erläuterungen mit Zeitschiene, Stylesheet, Bildanforderungen und Rechte.",
+            "help_en": "The editor gets access to the folder from the publication coordination and forwards the documents to the author: general information with schedule, style sheet, image requirements and rights.",
+            "fields": [
+                { "id": "hl_ordnerzugriff", "type": "check", "label": "Hg. hat Ordnerzugriff", "label_en": "Editor has folder access", "width": 6 },
+                { "id": "hl_unterlagen_versandt", "type": "date", "label": "Unterlagen an Autor*in weitergeleitet", "label_en": "Documents forwarded to the author", "width": 6 }
+            ]
+        },
+        {
+            "id": "anmeldung", "label": "Anmeldung zur Gesamtpublikationsplanung des Folgejahres", "label_en": "Registration for next year's publication planning",
+            "responsible": "Publ.-Koordination", "responsible_en": "Publication coordination",
+            "due": { "field": "hl_vl_datum" },
+            "due_text": "bis zur Halecki-VL", "due_text_en": "by the lecture",
+            "help": "Eintragung in die GWZO-Gesamtplanung und Rückmeldung an den Verlag (Google Sheets: Buchreihen im GWZO).",
+            "help_en": "Entry in the GWZO overall planning and notice to the publisher (Google Sheets: Buchreihen im GWZO).",
+            "tasks": [
+                { "id": "gesamtplanung", "label": "In GWZO-Gesamtplanung eintragen und Verlag informieren", "label_en": "Enter in the GWZO overall planning and inform the publisher", "help": "Google Sheets: Buchreihen im GWZO", "help_en": "Google Sheets: Buchreihen im GWZO", "assignees": { "roles": ["reihenkoordination"] } }
+            ]
+        },
+        {
+            "id": "vorlesung", "label": "Halecki-Vorlesung", "label_en": "Halecki Lecture",
+            "responsible": "GWZO, Autor*in", "responsible_en": "GWZO, author",
+            "due": { "field": "hl_vl_datum" },
+            "due_text": "Termin im Vorjahr", "due_text_en": "date in the previous year",
+            "help": "Durchführung der Vorlesung am GWZO.",
+            "help_en": "The lecture takes place at GWZO."
+        },
+        {
+            "id": "erinnerung", "label": "Erinnerung und Absprachen", "label_en": "Reminder and arrangements",
+            "responsible": "Hg., Autor*in", "responsible_en": "Editor, author",
+            "due_text": "kurz nach der Halecki-VL", "due_text_en": "shortly after the lecture",
+            "help": "Die/der Hg. erinnert die/den Autor*in an Publikation, Zeitschiene, Klappentext und Kurzbiogramm.",
+            "help_en": "The editor reminds the author of the publication, the schedule, the blurb and the short biography.",
+            "fields": [
+                { "id": "hl_erinnert", "type": "date", "label": "Autor*in erinnert", "label_en": "Author reminded", "width": 4 },
+                { "id": "hl_klappentext", "type": "check", "label": "Klappentext liegt vor", "label_en": "Blurb received", "width": 4 },
+                { "id": "hl_biogramm", "type": "check", "label": "Kurzbiogramm liegt vor", "label_en": "Short biography received", "width": 4 }
+            ]
+        },
+        {
+            "id": "budget", "label": "Budgetmeldung", "label_en": "Budget report",
+            "responsible": "Publ.-Koordination, Admin", "responsible_en": "Publication coordination, administration",
+            "due": { "field": "hl_vl_datum", "date": "10-15" },
+            "due_text": "Mitte Oktober des Jahres der Halecki-VL", "due_text_en": "mid-October of the year of the lecture",
+            "help": "Meldung für den Budgetplan durch die Publ.-Koordination.",
+            "help_en": "Report for the budget plan by the publication coordination.",
+            "fields": [
+                { "id": "hl_budget_betrag", "type": "money", "label": "Gemeldeter Betrag", "label_en": "Reported amount", "width": 6 },
+                { "id": "hl_budget_datum", "type": "date", "label": "Gemeldet am", "label_en": "Reported on", "width": 6 }
+            ],
+            "tasks": [
+                { "id": "budgetmeldung", "label": "Budgetmeldung an die Admin", "label_en": "Budget report to the administration", "assignees": { "roles": ["reihenkoordination"] } }
+            ]
+        },
+        {
+            "id": "manuskript", "label": "Manuskripteingang", "label_en": "Manuscript received",
+            "responsible": "Autor*in, Hg.", "responsible_en": "Author, editor",
+            "due": { "field": "hl_jahr", "date": "03-31" },
+            "due_text": "bis Ende März des Erscheinungsjahres", "due_text_en": "by the end of March of the year of publication",
+            "help": "Die/der Autor*in gibt das vollständige Manuskript an die/den Hg. ab. Zeichenzahl und Abbildungen unter „Umfang“ in den Stammdaten eintragen.",
+            "help_en": "The author submits the complete manuscript to the editor. Enter the number of characters and figures under \"Scope\" in the base data.",
+            "fields": [
+                { "id": "hl_manuskript_eingang", "type": "date", "label": "Manuskript eingegangen", "label_en": "Manuscript received", "width": 6 }
+            ],
+            "tasks": [
+                {
+                    "id": "abweichung_admin", "label": "Admin über abweichenden Umfang informieren", "label_en": "Inform the administration about the deviating scope",
+                    "help": "Textkorpus weicht um mehr als 10 % ab oder es sind mehr als ca. 5 Abbildungen.", "help_en": "The main text deviates by more than 10 % or there are more than approx. 5 figures.",
+                    "assignees": { "roles": ["reihenkoordination"] },
+                    "condition": { "any": [
+                        { "field": "hl_zeichen_text", "op": "gt", "value": 55000 },
+                        { "all": [ { "field": "hl_zeichen_text", "op": "filled" }, { "field": "hl_zeichen_text", "op": "lt", "value": 45000 } ] },
+                        { "field": "hl_abbildungen", "op": "gt", "value": 5 }
+                    ] }
+                }
+            ]
+        },
+        {
+            "id": "kalkulation", "label": "Kostenkalkulation und Angebot", "label_en": "Cost calculation and offer",
+            "responsible": "Publ.-Koordination, Verlag, Admin", "responsible_en": "Publication coordination, publisher, administration",
+            "due": { "field": "hl_jahr", "date": "04-30" },
+            "due_text": "Ende März/April, direkt nach Manuskripteingang", "due_text_en": "end of March/April, right after the manuscript is received",
+            "help": "Die Publ.-Koordination fordert mit Blick auf die nun vorliegende Seitenzahl die Standard-Kalkulation beim Verlag an; diese geht direkt an die Admin.",
+            "help_en": "Based on the page count now known, the publication coordination requests the standard calculation from the publisher; it goes directly to the administration.",
+            "fields": [
+                { "id": "hl_seiten", "type": "int", "label": "Seitenzahl", "label_en": "Pages", "width": 4 },
+                { "id": "hl_kosten", "type": "money", "label": "Kosten laut Kalkulation", "label_en": "Costs according to the calculation", "width": 4 },
+                { "id": "hl_kalkulation_admin", "type": "check", "label": "Kalkulation liegt der Admin vor", "label_en": "Calculation received by the administration", "width": 4 }
+            ],
+            "tasks": [
+                { "id": "kalkulation_anfordern", "label": "Standard-Kalkulation beim Verlag anfordern (geht an die Admin)", "label_en": "Request the standard calculation from the publisher (goes to the administration)", "assignees": { "roles": ["reihenkoordination"] } }
+            ]
+        },
+        {
+            "id": "erstpruefung", "label": "Inhaltliche und formale Erstprüfung", "label_en": "First check of content and form",
+            "responsible": "Hg.", "responsible_en": "Editor",
+            "due": { "field": "hl_jahr", "date": "06-15" },
+            "due_text": "bis Mitte Juni", "due_text_en": "by mid-June",
+            "help": "Prüfung der redaktionellen Richtlinien, der Bildnachweise und des Lektoratsbedarfs. Bei starken Mängeln Rückgabe an die/den Autor*in.",
+            "help_en": "Check of the editorial guidelines, image credits and need for copy-editing. If there are serious shortcomings, return to the author.",
+            "fields": [
+                {
+                    "id": "hl_erstpruefung", "type": "select", "label": "Ergebnis", "label_en": "Result", "width": 6,
+                    "options": [
+                        { "value": "ok", "label": "in Ordnung", "label_en": "fine" },
+                        { "value": "ueberarbeiten", "label": "Überarbeitung nötig", "label_en": "revision needed" },
+                        { "value": "rueckgabe", "label": "Rückgabe an Autor*in (starke Mängel)", "label_en": "returned to the author (serious shortcomings)" }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "redaktion", "label": "Redaktionsgespräch und Vorprüfung", "label_en": "Editorial meeting and pre-check",
+            "responsible": "Hg., Publ.-Koordination", "responsible_en": "Editor, publication coordination",
+            "due": { "field": "hl_jahr", "date": "06-15" },
+            "due_text": "bis Mitte Juni (vor der Sommerpause)", "due_text_en": "by mid-June (before the summer break)",
+            "help": "Übersendung an die Publ.-Koordination eine Woche vor dem Termin. Zu klären: externes Lektorat nötig? Bildrechte? Biogramm? Publikationsliste?",
+            "help_en": "Send to the publication coordination one week before the meeting. To clarify: external copy-editing needed? Image rights? Biography? List of publications?",
+            "fields": [
+                { "id": "hl_gespraech", "type": "date", "label": "Termin Redaktionsgespräch", "label_en": "Date of the editorial meeting", "width": 6 },
+                { "id": "hl_an_koordination", "type": "date", "label": "An Publ.-Koordination übersandt", "label_en": "Sent to the publication coordination", "width": 6 },
+                {
+                    "id": "hl_ext_lektorat", "type": "select", "label": "Externes Lektorat nötig?", "label_en": "External copy-editing needed?", "width": 6,
+                    "options": [
+                        { "value": "ja", "label": "ja", "label_en": "yes" },
+                        { "value": "nein", "label": "nein", "label_en": "no" },
+                        { "value": "offen", "label": "noch offen", "label_en": "open" }
+                    ]
+                },
+                {
+                    "id": "hl_bildrechte", "type": "select", "label": "Bildrechte", "label_en": "Image rights", "width": 6,
+                    "options": [
+                        { "value": "geklaert", "label": "geklärt", "label_en": "cleared" },
+                        { "value": "offen", "label": "offen", "label_en": "open" },
+                        { "value": "keine", "label": "keine Abbildungen", "label_en": "no figures" }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "ueberarbeitung", "label": "Inhaltliche und sprachliche Überarbeitung", "label_en": "Revision of content and language",
+            "responsible": "Autor*in, Hg., SHK Forschungseinheit", "responsible_en": "Author, editor, student assistant",
+            "due": { "field": "hl_jahr", "date": "09-05" },
+            "due_text": "bis Ende August/Anfang September", "due_text_en": "by the end of August/early September",
+            "help": "Überarbeitung durch die/den Autor*in oder durch Hg./SHK.",
+            "help_en": "Revision by the author or by the editor/student assistant.",
+            "fields": [
+                {
+                    "id": "hl_ueberarbeitung_durch", "type": "multiselect", "label": "Überarbeitung durch", "label_en": "Revised by",
+                    "options": [
+                        { "value": "autorin", "label": "Autor*in", "label_en": "author" },
+                        { "value": "hg", "label": "Hg.", "label_en": "editor" },
+                        { "value": "shk", "label": "SHK", "label_en": "student assistant" },
+                        { "value": "extern", "label": "externes Lektorat", "label_en": "external copy-editing" }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "freigabe", "label": "Manuskriptfreigabe", "label_en": "Manuscript approval",
+            "responsible": "Autor*in, Hg., Publ.-Koordination", "responsible_en": "Author, editor, publication coordination",
+            "due": { "field": "hl_jahr", "date": "09-30" },
+            "due_text": "bis Ende September", "due_text_en": "by the end of September",
+            "help": "Finale Freigabe des Manuskripts durch Autor*in und Hg.",
+            "help_en": "Final approval of the manuscript by the author and the editor.",
+            "fields": [
+                { "id": "hl_freigabe_autorin", "type": "check", "label": "Freigabe Autor*in", "label_en": "Approved by the author", "width": 4 },
+                { "id": "hl_freigabe_hg", "type": "check", "label": "Freigabe Hg.", "label_en": "Approved by the editor", "width": 4 },
+                { "id": "hl_freigabe_datum", "type": "date", "label": "Freigegeben am", "label_en": "Approved on", "width": 4 }
+            ]
+        },
+        {
+            "id": "upload", "label": "Upload zur Druckfahnenerstellung", "label_en": "Upload for the proofs",
+            "responsible": "Publ.-Koordination, Verlag (Sandstein)", "responsible_en": "Publication coordination, publisher (Sandstein)",
+            "due": { "field": "hl_jahr", "date": "10-05" },
+            "due_text": "Ende September/Anfang Oktober", "due_text_en": "end of September/early October",
+            "help": "Upload auf die Sandstein-Dateiaustauschplattform und Infomail an den Verlag.",
+            "help_en": "Upload to the Sandstein file exchange platform and information e-mail to the publisher.",
+            "fields": [
+                { "id": "hl_upload_datum", "type": "date", "label": "Hochgeladen am", "label_en": "Uploaded on", "width": 6 },
+                { "id": "hl_infomail", "type": "check", "label": "Infomail an den Verlag", "label_en": "Information e-mail to the publisher", "width": 6 }
+            ]
+        },
+        {
+            "id": "fahnen", "label": "Fahnenerhalt und erste Korrekturrunde", "label_en": "Proofs and first round of corrections",
+            "responsible": "Publ.-Koordination, Hg., Autor*in", "responsible_en": "Publication coordination, editor, author",
+            "due": { "field": "hl_jahr", "date": "10-15" },
+            "due_text": "Mitte Oktober", "due_text_en": "mid-October",
+            "help": "Erhalt der Druckfahne, Übersendung an die/den Hg., Prüfung und Weitergabe an die/den Autor*in mit fester Rückgabefrist.",
+            "help_en": "Proofs received, sent to the editor, checked and passed on to the author with a fixed return deadline.",
+            "fields": [
+                { "id": "hl_fahne_erhalten", "type": "date", "label": "Druckfahne erhalten", "label_en": "Proofs received", "width": 6 },
+                { "id": "hl_rueckgabefrist", "type": "date", "label": "Rückgabefrist Autor*in", "label_en": "Return deadline for the author", "width": 6 }
+            ]
+        },
+        {
+            "id": "imprimatur", "label": "Parallele Fahnenkorrekturen und Imprimatur", "label_en": "Parallel proof corrections and imprimatur",
+            "responsible": "Hg., Publ.-Koordination, Autor*in, Verlag", "responsible_en": "Editor, publication coordination, author, publisher",
+            "due": { "field": "hl_jahr", "date": "11-07" },
+            "due_text": "Ende Oktober/Anfang November", "due_text_en": "end of October/early November",
+            "help": "Parallelprüfung von Titelei, Impressum und Fördervermerk (GWZO). Einarbeitung der Autorenkorrekturen in die PDF (ca. 2 Runden). Finale Druckfreigabe.",
+            "help_en": "Parallel check of the front matter, imprint and funding note (GWZO). Author's corrections entered into the PDF (approx. 2 rounds). Final approval for printing.",
+            "fields": [
+                { "id": "hl_titelei", "type": "check", "label": "Titelei, Impressum und Fördervermerk geprüft", "label_en": "Front matter, imprint and funding note checked", "width": 6 },
+                { "id": "hl_imprimatur", "type": "date", "label": "Imprimatur erteilt", "label_en": "Imprimatur given", "width": 6 }
+            ]
+        },
+        {
+            "id": "druck", "label": "Druck und Auslieferung", "label_en": "Printing and delivery",
+            "responsible": "Verlag, Publ.-Koordination, Bibliothek", "responsible_en": "Publisher, publication coordination, library",
+            "due": { "field": "hl_jahr", "date": "12-05" },
+            "due_text": "Ende November/Anfang Dezember", "due_text_en": "end of November/early December",
+            "help": "Verteilerschlüssel an den Verlag (externe Empfänger und GWZO-Exemplare). Verteilung im Haus: Direktion, Bibliothek, Kolleg*innen nur bei Interesse, das Gros an die Wisskomm.",
+            "help_en": "Distribution key to the publisher (external recipients and GWZO copies). In-house distribution: directorate, library, colleagues only if interested, most copies to science communication.",
+            "fields": [
+                { "id": "hl_auflage", "type": "int", "label": "Auflage", "label_en": "Print run", "width": 4 },
+                { "id": "hl_verteiler", "type": "check", "label": "Verteilerschlüssel an Verlag mitgeteilt", "label_en": "Distribution key sent to the publisher", "width": 4 },
+                { "id": "hl_inhouse", "type": "check", "label": "Verteilung im Haus erledigt", "label_en": "In-house distribution done", "width": 4 }
+            ]
+        },
+        {
+            "id": "bewerbung", "label": "Bewerbung und Open Access", "label_en": "Promotion and open access",
+            "responsible": "Publ.-Koordination, PR/Social Media", "responsible_en": "Publication coordination, PR/social media",
+            "due": { "field": "hl_jahr", "date": "12-15" },
+            "due_text": "Mitte Dezember", "due_text_en": "mid-December",
+            "help": "Beginn der Social-Media-Bewerbung, Top-Thema auf der Homepage, FIS-Eintrag sowie Upload und Freischaltung der OA-Version.",
+            "help_en": "Start of social media promotion, top story on the website, entry in the research information system, upload and release of the open access version.",
+            "fields": [
+                { "id": "hl_erscheinungsdatum", "type": "date", "label": "Erscheinungsdatum", "label_en": "Publication date", "width": 4 },
+                { "id": "hl_isbn", "type": "string", "label": "ISBN", "width": 4 },
+                { "id": "hl_doi", "type": "string", "label": "DOI", "width": 4 },
+                { "id": "hl_social_media", "type": "check", "label": "Social Media", "label_en": "Social media", "width": 4 },
+                { "id": "hl_homepage", "type": "check", "label": "Top-Thema Homepage", "label_en": "Top story on the website", "width": 4 },
+                { "id": "hl_oa", "type": "check", "label": "OA-Version freigeschaltet", "label_en": "Open access version released", "width": 4 },
+                { "id": "hl_aktivitaet", "type": "activity", "label": "FIS-Eintrag (Aktivität in OSIRIS)", "label_en": "Entry in the research information system (OSIRIS activity)" }
+            ]
+        }
+    ]
+}

@@ -54,7 +54,7 @@ $fmt = function ($d) {
                     <select class="form-control" name="target" id="phase-target">
                         <?php foreach ($type['phases'] as $i => $ph) { ?>
                             <option value="<?= e($ph['id']) ?>" <?= $i === $currentIndex + 1 ? 'selected' : '' ?> <?= $i === $currentIndex ? 'disabled' : '' ?>>
-                                <?= $i + 0 ?>. <?= e(Processes::t($ph)) ?><?= $i === $currentIndex ? ' (' . lang('current', 'aktuell') . ')' : '' ?>
+                                <?= ProcessPhases::number($type, $i) ?>. <?= e(Processes::t($ph)) ?><?= $i === $currentIndex ? ' (' . lang('current', 'aktuell') . ')' : '' ?>
                             </option>
                         <?php } ?>
                     </select>
@@ -93,14 +93,25 @@ $fmt = function ($d) {
     </div>
 <?php } ?>
 
-<?php if (ProcessPhases::overdue($type, $case)) { ?>
+<?php if (ProcessPhases::overdue($type, $case)) {
+    $due = ProcessPhases::dueDate($current, $values); ?>
     <div class="alert signal mb-10">
         <i class="ph ph-clock-countdown"></i>
-        <?= lang('The project has been in the phase', 'Das Projekt ist seit') ?>
-        <?= round(ProcessPhases::weeksInPhase($case)) ?> <?= lang('weeks in the phase', 'Wochen in der Phase') ?>
-        „<?= e(Processes::t($current)) ?>“.
-        <?= lang('Target', 'Soll') ?>: <?= e(ProcessPhases::durationLabel($current)) ?>.
+        <?php if ($due && $due < date('Y-m-d')) { ?>
+            <?= lang('The deadline of the phase', 'Die Frist der Phase') ?>
+            „<?= e(Processes::t($current)) ?>“
+            <?= lang('has passed', 'ist abgelaufen') ?>: <?= e(ProcessPhases::dueLabel($current, $values)) ?>.
+        <?php } else { ?>
+            <?= lang('The project has been in the phase', 'Das Projekt ist seit') ?>
+            <?= round(ProcessPhases::weeksInPhase($case)) ?> <?= lang('weeks in the phase', 'Wochen in der Phase') ?>
+            „<?= e(Processes::t($current)) ?>“.
+            <?= lang('Target', 'Soll') ?>: <?= e(ProcessPhases::durationLabel($current)) ?>.
+        <?php } ?>
     </div>
+<?php } ?>
+
+<?php foreach ($isOpen ? $P->hints($type, $values) : [] as $hint) { ?>
+    <div class="alert signal mb-10"><i class="ph ph-warning"></i> <?= e($hint) ?></div>
 <?php } ?>
 
 <?php if (!empty($myTasks)) { ?>
@@ -143,7 +154,7 @@ $fmt = function ($d) {
                 <div class="d-flex align-items-center">
                     <h5 class="title my-0">
                         <i class="ph ph-<?= $icon ?>"></i>
-                        <?= $i ?>. <?= e(Processes::t($ph)) ?>
+                        <?= ProcessPhases::number($type, $i) ?>. <?= e(Processes::t($ph)) ?>
                     </h5>
                     <small class="text-muted ml-10">
                         <?php if (!empty($pl['start'])) { ?>
@@ -151,6 +162,9 @@ $fmt = function ($d) {
                         <?php } ?>
                         <?php if (ProcessPhases::durationLabel($ph)) { ?>
                             · <?= lang('target', 'Soll') ?> <?= e(ProcessPhases::durationLabel($ph)) ?>
+                        <?php } ?>
+                        <?php if (ProcessPhases::dueLabel($ph, $values)) { ?>
+                            · <?= lang('deadline', 'Frist') ?>: <?= e(ProcessPhases::dueLabel($ph, $values)) ?>
                         <?php } ?>
                         <?php if (!empty($ph['responsible'])) { ?>
                             · <?= e(Processes::t($ph, 'responsible')) ?>

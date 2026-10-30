@@ -70,9 +70,10 @@ foreach ($osiris->proc_cases->find(['status' => ['$in' => ['submitted', 'returne
                     </tr>
                     <?php foreach ($t['phases'] as $i => $ph) { ?>
                         <tr>
-                            <th><?= lang('Phase', 'Phase') ?> <?= $i ?>: <?= e(Processes::t($ph)) ?></th>
+                            <th><?= lang('Phase', 'Phase') ?> <?= ProcessPhases::number($t, $i) ?>: <?= e(Processes::t($ph)) ?></th>
                             <td>
                                 <?= e(ProcessPhases::durationLabel($ph)) ?>
+                                <?php if (ProcessPhases::dueLabel($ph)) { ?><?= lang('Deadline', 'Frist') ?>: <?= e(ProcessPhases::dueLabel($ph)) ?><?php } ?>
                                 <?php foreach ($ph['tasks'] ?? [] as $task) { ?>
                                     <br><small><?= lang('Task', 'Aufgabe') ?>: <?= e(Processes::t($task)) ?> → <?= proc_audience($task['assignees'] ?? [], $roles) ?></small>
                                 <?php } ?>

@@ -1,0 +1,196 @@
+{
+    "id": "gwzo-vgk",
+    "area": "publikation",
+    "group": "buchreihen",
+    "flow": "phases",
+    "order": 30,
+    "number_from": 1,
+    "prefix": "VGK",
+    "icon": "image",
+    "name": "Hausreihe Visuelle Geschichtskultur",
+    "name_en": "In-house series Visuelle Geschichtskultur",
+    "new_label": "Neuer Band Visuelle Geschichtskultur",
+    "new_label_en": "New volume Visuelle Geschichtskultur",
+    "description": "Bände der Reihe Visuelle Geschichtskultur, von der Meldung durch die Reihenherausgeber*innen bis zur Auslieferung. Zwei Zyklen pro Jahr mit Erscheinen Ende des 2. oder 4. Quartals. Schritte nach der Ablaufplanung Hausreihen 2026 (Entwurf).",
+    "description_en": "Volumes of the series Visuelle Geschichtskultur, from the notice by the series editors to the delivery. Two cycles per year with publication at the end of the 2nd or 4th quarter. Steps according to the in-house series workflow 2026 (draft).",
+    "title": "{vg_autorinnen}: {vg_titel}",
+    "authors_field": "vg_autorinnen",
+    "funding_field": "vg_finanzierung",
+    "unit_field": "vg_abteilung",
+    "email": true,
+    "attachments": true,
+    "create": { "roles": ["reihenkoordination"] },
+    "manage": { "roles": ["reihenkoordination"] },
+    "view_all": { "roles": ["reihenkoordination"] },
+    "hints": [
+        {
+            "condition": { "any": [
+                { "field": "vg_zeichen_avisiert", "op": "gt", "value": 1100000 },
+                { "field": "vg_zeichen", "op": "gt", "value": 1100000 },
+                { "field": "vg_abbildungen", "op": "gt", "value": 100 }
+            ] },
+            "message": "Der Umfang liegt deutlich über dem Rahmen der Reihe (ca. 1.000.000 Zeichen, ca. 100 Abbildungen). Prüfen, ob eine Zusatzfinanzierung nötig ist.",
+            "message_en": "The scope is clearly above the series framework (approx. 1,000,000 characters, approx. 100 figures). Check whether additional funding is needed."
+        }
+    ],
+    "fields": [
+        { "id": "vg_h_band", "type": "heading", "label": "Band", "label_en": "Volume" },
+        { "id": "vg_autorinnen", "type": "string", "label": "Autor*innen / Bandherausgeber*innen", "label_en": "Authors / volume editors", "required": true, "width": 6 },
+        {
+            "id": "vg_art", "type": "select", "label": "Art", "label_en": "Kind", "width": 6,
+            "options": [
+                { "value": "monografie", "label": "Monografie", "label_en": "Monograph" },
+                { "value": "sammelband", "label": "Sammelband", "label_en": "Edited volume" },
+                { "value": "katalog", "label": "Katalog", "label_en": "Catalogue" }
+            ]
+        },
+        { "id": "vg_titel", "type": "string", "label": "Titel (Arbeitstitel)", "label_en": "Title (working title)", "required": true },
+        { "id": "vg_gemeldet_von", "type": "string", "label": "Gemeldet von (Reihenherausgeber*in)", "label_en": "Reported by (series editor)", "width": 6 },
+        { "id": "vg_ansprechperson", "type": "person", "label": "Ansprechperson im GWZO", "label_en": "Contact person at GWZO", "width": 6, "participant": true, "help": "Falls Autor*in oder Bandherausgeber*in am Haus ist. Sieht diesen Vorgang.", "help_en": "If the author or volume editor works at GWZO. Can see this case." },
+        { "id": "vg_abteilung", "type": "unit", "label": "Abteilung", "label_en": "Department", "width": 6 },
+        { "id": "vg_kontakte", "type": "contacts", "label": "Kontakte", "label_en": "Contacts", "help": "Autor*innen, Bandherausgeber*innen und weitere Ansprechpersonen, z. B. beim Verlag", "help_en": "Authors, volume editors and other contacts, e.g. at the publisher" },
+
+        { "id": "vg_h_zeitplan", "type": "heading", "label": "Zyklus und Finanzierung", "label_en": "Cycle and funding", "help": "Werden zeitliche Absprachen nicht eingehalten, kann sich das Erscheinen deutlich verschieben, etwa wenn mehrere Publikationen gleichzeitig bearbeitet werden.", "help_en": "If agreed dates are not kept, publication may be delayed considerably, e.g. when several publications are processed at the same time." },
+        {
+            "id": "vg_zyklus", "type": "select", "label": "Erscheinen", "label_en": "Publication", "required": true, "width": 4,
+            "options": [
+                { "value": "q2", "label": "Ende 2. Quartal", "label_en": "end of 2nd quarter" },
+                { "value": "q4", "label": "Ende 4. Quartal", "label_en": "end of 4th quarter" }
+            ]
+        },
+        { "id": "vg_jahr", "type": "int", "label": "Erscheinungsjahr", "label_en": "Year of publication", "required": true, "width": 4, "help": "Mit dem Zyklus ergeben sich daraus die Fristen.", "help_en": "Together with the cycle this sets the deadlines." },
+        {
+            "id": "vg_finanzierung", "type": "select", "label": "Finanzierung", "label_en": "Funding", "width": 4,
+            "options": [
+                { "value": "db1", "label": "DB I", "label_en": "DB I" },
+                { "value": "drittmittel", "label": "Drittmittel", "label_en": "Third-party funds" },
+                { "value": "gemischt", "label": "gemischt", "label_en": "mixed" },
+                { "value": "unklar", "label": "noch unklar", "label_en": "not yet clear" }
+            ]
+        },
+
+        { "id": "vg_h_umfang", "type": "heading", "label": "Umfang", "label_en": "Scope", "help": "Rahmen der Reihe: insgesamt ca. 1.000.000 Zeichen inkl. Leerzeichen, ca. 100 Abbildungen. Formale Vorgaben laut Stylesheet. Weicht der Umfang stark vom Besprochenen ab, kann eine Drittfinanzierung nötig werden.", "help_en": "Series framework: approx. 1,000,000 characters incl. spaces in total, approx. 100 figures. Formatting according to the style sheet. If the scope deviates strongly from what was agreed, third-party funding may be needed." },
+        { "id": "vg_zeichen_avisiert", "type": "int", "label": "Avisierte Zeichenzahl (Rückmeldung Autor*in)", "label_en": "Expected characters (author's notice)", "width": 4 },
+        { "id": "vg_zeichen", "type": "int", "label": "Zeichen laut Manuskript", "label_en": "Characters in the manuscript", "width": 4 },
+        { "id": "vg_abbildungen", "type": "int", "label": "Abbildungen", "label_en": "Figures", "width": 4 }
+    ],
+    "phases": [
+        {
+            "id": "meldung", "label": "Meldung des Publikationsvorhabens", "label_en": "Notice of the publication project",
+            "responsible": "Reihenherausgeber*innen", "responsible_en": "Series editors",
+            "due_text": "Publikationstreffen im 1. und 3. Quartal", "due_text_en": "publication meetings in the 1st and 3rd quarter",
+            "help": "Die Reihenherausgeber*innen melden das Vorhaben und klären den avisierten Erscheinungstermin. Zwei Zyklen pro Jahr mit Erscheinen im 2. oder 4. Quartal; die Bücher werden in den Publikationstreffen besprochen.",
+            "help_en": "The series editors report the project and clarify the planned publication date. Two cycles per year with publication in the 2nd or 4th quarter; the books are discussed at the publication meetings.",
+            "fields": [
+                { "id": "vg_meldung_datum", "type": "date", "label": "Gemeldet am", "label_en": "Reported on", "width": 6 },
+                { "id": "vg_publikationstreffen", "type": "date", "label": "Besprochen im Publikationstreffen", "label_en": "Discussed at the publication meeting", "width": 6 }
+            ]
+        },
+        {
+            "id": "eintragung", "label": "Eintragung in die Gesamtpublikationsplanung", "label_en": "Entry in the overall publication planning",
+            "responsible": "Publ.-Koordination", "responsible_en": "Publication coordination",
+            "due_text": "unmittelbar nach der Meldung", "due_text_en": "right after the notice",
+            "help": "Eintragung in die Liste der Gesamtpublikationsplanung des Instituts und Info an den Verlag (Google Sheets: Buchreihen im GWZO).",
+            "help_en": "Entry in the institute's overall publication planning and notice to the publisher (Google Sheets: Buchreihen im GWZO).",
+            "tasks": [
+                { "id": "gesamtplanung", "label": "In GWZO-Gesamtplanung eintragen und Verlag informieren", "label_en": "Enter in the GWZO overall planning and inform the publisher", "help": "Google Sheets: Buchreihen im GWZO", "help_en": "Google Sheets: Buchreihen im GWZO", "assignees": { "roles": ["reihenkoordination"] } }
+            ]
+        },
+        {
+            "id": "kontakt", "label": "Kontaktaufnahme mit Autor*in/Bandherausgeber*in", "label_en": "Contacting the author/volume editor",
+            "responsible": "Publ.-Koordination", "responsible_en": "Publication coordination",
+            "due_text": "unmittelbar nach der Eintragung", "due_text_en": "right after the entry",
+            "help": "Stylesheet übergeben, um Rückmeldung zur avisierten Zeichenzahl bitten (bei starker Abweichung Zusatzfinanzierung prüfen), Anforderungen an die Bebilderung (Qualität der Druckvorlagen, Rechteklärung) und Zeitschiene klären. Zwischen Manuskriptabgabe und Druck liegt ein halbes Jahr. Hinweis, dass kein vollumfängliches Lektorat erfolgt, sondern nur ein Kapitel probegelesen wird.",
+            "help_en": "Hand over the style sheet, ask for the expected number of characters (check additional funding if it deviates strongly), clarify image requirements (print quality, rights clearance) and the schedule. Half a year lies between manuscript delivery and printing. Note that there is no full copy-editing, only one chapter is proofread as a sample.",
+            "fields": [
+                { "id": "vg_kontakt_datum", "type": "date", "label": "Kontakt aufgenommen", "label_en": "Contacted on", "width": 6 },
+                { "id": "vg_stylesheet", "type": "check", "label": "Stylesheet und Bildanforderungen übergeben", "label_en": "Style sheet and image requirements handed over", "width": 6 },
+                { "id": "vg_zeitschiene", "type": "check", "label": "Zeitschiene und Abgabetermin vereinbart", "label_en": "Schedule and delivery date agreed", "width": 6 },
+                { "id": "vg_hinweis_lektorat", "type": "check", "label": "Hinweis: nur ein Kapitel wird probegelesen", "label_en": "Note given: only one chapter is proofread", "width": 6 }
+            ],
+            "tasks": [
+                {
+                    "id": "zusatzfinanzierung", "label": "Zusatzfinanzierung prüfen (Umfang über dem Rahmen)", "label_en": "Check additional funding (scope above the framework)",
+                    "help": "Mehr als ca. 1.100.000 Zeichen oder mehr als ca. 100 Abbildungen.", "help_en": "More than approx. 1,100,000 characters or more than approx. 100 figures.",
+                    "assignees": { "roles": ["reihenkoordination"] },
+                    "condition": { "any": [
+                        { "field": "vg_zeichen_avisiert", "op": "gt", "value": 1100000 },
+                        { "field": "vg_zeichen", "op": "gt", "value": 1100000 },
+                        { "field": "vg_abbildungen", "op": "gt", "value": 100 }
+                    ] }
+                }
+            ]
+        },
+        {
+            "id": "manuskript", "label": "Manuskriptabgabe", "label_en": "Manuscript delivery",
+            "responsible": "Autor*in/Bandherausgeber*in", "responsible_en": "Author/volume editor",
+            "due": [
+                { "condition": { "field": "vg_zyklus", "op": "eq", "value": "q2" }, "field": "vg_jahr", "date": "12-31", "year_offset": -1 },
+                { "condition": { "field": "vg_zyklus", "op": "eq", "value": "q4" }, "field": "vg_jahr", "date": "06-30" }
+            ],
+            "due_text": "Erscheinen Q2: Ende Q4 des Vorjahres, Erscheinen Q4: Ende Q2", "due_text_en": "publication Q2: end of Q4 of the previous year, publication Q4: end of Q2",
+            "help": "Das vollständige Manuskript geht an die Publ.-Koordination. Zeichenzahl und Abbildungen unter „Umfang“ in den Stammdaten eintragen.",
+            "help_en": "The complete manuscript goes to the publication coordination. Enter the number of characters and figures under \"Scope\" in the base data.",
+            "fields": [
+                { "id": "vg_manuskript_eingang", "type": "date", "label": "Manuskript eingegangen", "label_en": "Manuscript received", "width": 6 }
+            ]
+        },
+        {
+            "id": "pruefung", "label": "Prüfung, Kalkulation und Upload", "label_en": "Check, calculation and upload",
+            "responsible": "Publ.-Koordination, Verlag (Sandstein)", "responsible_en": "Publication coordination, publisher (Sandstein)",
+            "due": { "field": "vg_manuskript_eingang", "days": 14 },
+            "due_text": "innerhalb von 2 Wochen nach Manuskripteingang", "due_text_en": "within 2 weeks after the manuscript is received",
+            "help": "Prüfen, ob die Zeichenzahl im avisierten Rahmen liegt, die redaktionellen Richtlinien eingehalten sind und ein (Sprach-)Lektorat nötig ist (bei zu vielen Schwächen zurück an Autor*in/Bandherausgeber*in, in Ausnahmefällen externes Lektorat). Ggf. Bildvorlagen und Bildnachweise prüfen, um den Klappentext bitten. Eckdaten (Zeichenzahl, Abbildungen) an den Verlag (Fr. Hoyer) für die Kalkulation; das Verlagsangebot geht an Anja Fritzsche. Nach Durchsicht Upload auf die Sandstein-Dateiaustauschplattform und Infomail an Fr. Hoyer.",
+            "help_en": "Check whether the number of characters is within the expected range, the editorial guidelines are met and copy-editing is needed (return to the author/volume editor if there are too many weaknesses, external copy-editing in exceptional cases). If needed, check images and image credits, ask for the blurb. Key data (characters, figures) to the publisher (Ms Hoyer) for the calculation; the offer goes to Anja Fritzsche. After review, upload to the Sandstein file exchange platform and information e-mail to Ms Hoyer.",
+            "fields": [
+                {
+                    "id": "vg_lektorat", "type": "select", "label": "Lektorat", "label_en": "Copy-editing", "width": 6,
+                    "options": [
+                        { "value": "nicht_noetig", "label": "nicht nötig", "label_en": "not needed" },
+                        { "value": "rueckgabe", "label": "zurück an Autor*in/Bandhg.", "label_en": "returned to the author/volume editor" },
+                        { "value": "extern", "label": "externes Lektorat", "label_en": "external copy-editing" }
+                    ]
+                },
+                { "id": "vg_klappentext", "type": "check", "label": "Klappentext liegt vor", "label_en": "Blurb received", "width": 6 },
+                { "id": "vg_bildnachweise", "type": "check", "label": "Bildvorlagen und Bildnachweise geprüft", "label_en": "Images and image credits checked", "width": 6 },
+                { "id": "vg_kosten", "type": "money", "label": "Kosten laut Verlagsangebot", "label_en": "Costs according to the publisher's offer", "width": 6 },
+                { "id": "vg_upload_datum", "type": "date", "label": "Hochgeladen und Infomail an Verlag", "label_en": "Uploaded and publisher informed", "width": 6 }
+            ],
+            "tasks": [
+                { "id": "kalkulation", "label": "Eckdaten an den Verlag für die Kalkulation (Angebot an Anja Fritzsche)", "label_en": "Key data to the publisher for the calculation (offer to Anja Fritzsche)", "assignees": { "roles": ["reihenkoordination"] } }
+            ]
+        },
+        {
+            "id": "fahnen", "label": "Fahnen und Imprimatur", "label_en": "Proofs and imprimatur",
+            "responsible": "Publ.-Koordination, Autor*in/Bandherausgeber*in, Verlag", "responsible_en": "Publication coordination, author/volume editor, publisher",
+            "help": "Fahnen mit Frist an Autor*in/Bandherausgeber*in weiterleiten, zeitgleich eigene Korrekturen inkl. Titelei, Impressum und Fördervermerk. Nach Rücklauf die Korrekturen in die PDF einarbeiten (ggf. zusammenführen) und an den Verlag zurück. Nach Freigabe durch Autor*in/Bandherausgeber*in Imprimatur. Wie lange der Verlag für die Fahnen braucht, ist noch zu klären.",
+            "help_en": "Forward the proofs with a deadline to the author/volume editor, at the same time own corrections incl. front matter, imprint and funding note. After return, enter the corrections into the PDF (merge if needed) and send back to the publisher. Imprimatur after approval by the author/volume editor. How long the publisher needs for the proofs is still to be clarified.",
+            "fields": [
+                { "id": "vg_fahne_erhalten", "type": "date", "label": "Fahnen erhalten", "label_en": "Proofs received", "width": 4 },
+                { "id": "vg_rueckgabefrist", "type": "date", "label": "Rückgabefrist Autor*in", "label_en": "Return deadline for the author", "width": 4 },
+                { "id": "vg_imprimatur", "type": "date", "label": "Imprimatur erteilt", "label_en": "Imprimatur given", "width": 4 },
+                { "id": "vg_titelei", "type": "check", "label": "Titelei, Impressum und Fördervermerk geprüft", "label_en": "Front matter, imprint and funding note checked" }
+            ]
+        },
+        {
+            "id": "auslieferung", "label": "Auslieferung", "label_en": "Delivery",
+            "responsible": "Publ.-Koordination, Verlag, Bibliothek", "responsible_en": "Publication coordination, publisher, library",
+            "due": [
+                { "condition": { "field": "vg_zyklus", "op": "eq", "value": "q2" }, "field": "vg_jahr", "date": "06-30" },
+                { "condition": { "field": "vg_zyklus", "op": "eq", "value": "q4" }, "field": "vg_jahr", "date": "12-31" }
+            ],
+            "due_text": "Ende des 2. bzw. 4. Quartals", "due_text_en": "end of the 2nd or 4th quarter",
+            "help": "Dem Verlag die Zahl der externen Empfänger (Autor*innen, ggf. Bildgeber, Rezensent*innen) und der GWZO-Exemplare mitteilen. Verteilung im Haus (Direktion, Bibliothek). Newsletter und FIS-Eintrag (wenn aus DB I).",
+            "help_en": "Tell the publisher the number of external recipients (authors, image providers if any, reviewers) and of GWZO copies. In-house distribution (directorate, library). Newsletter and entry in the research information system (if funded from DB I).",
+            "fields": [
+                { "id": "vg_erscheinungsdatum", "type": "date", "label": "Erscheinungsdatum", "label_en": "Publication date", "width": 4 },
+                { "id": "vg_isbn", "type": "string", "label": "ISBN", "width": 4 },
+                { "id": "vg_auflage", "type": "int", "label": "Auflage", "label_en": "Print run", "width": 4 },
+                { "id": "vg_verteiler", "type": "check", "label": "Empfängerzahlen an Verlag mitgeteilt", "label_en": "Numbers of recipients sent to the publisher", "width": 4 },
+                { "id": "vg_inhouse", "type": "check", "label": "Verteilung im Haus erledigt", "label_en": "In-house distribution done", "width": 4 },
+                { "id": "vg_newsletter", "type": "check", "label": "Newsletter", "width": 4 },
+                { "id": "vg_aktivitaet", "type": "activity", "label": "FIS-Eintrag (Aktivität in OSIRIS)", "label_en": "Entry in the research information system (OSIRIS activity)" }
+            ]
+        }
+    ]
+}

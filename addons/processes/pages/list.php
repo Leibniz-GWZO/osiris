@@ -10,6 +10,23 @@
  */
 
 $base = ROOTPATH . '/processes/' . e($area['id']);
+
+// filter by type: offered are the types of the listed cases
+$typeFilter = (string) ($_GET['type'] ?? '');
+$typeOptions = [];
+foreach ($cases as $case) {
+    $typeOptions[$case['type']] = Processes::t($P->type($case['type']), 'name', $case['type']);
+}
+if ($typeFilter !== '' && !isset($typeOptions[$typeFilter])) {
+    $t = $P->type($typeFilter);
+    if ($t && ($t['area'] ?? null) == $area['id']) $typeOptions[$typeFilter] = Processes::t($t, 'name');
+    else $typeFilter = '';
+}
+asort($typeOptions);
+if ($typeFilter !== '') {
+    $cases = array_values(array_filter($cases, fn($c) => $c['type'] == $typeFilter));
+}
+$typeQuery = $typeFilter !== '' ? '&type=' . urlencode($typeFilter) : '';
 $tabs = [
     'mine' => [lang('My cases', 'Meine Vorgänge'), $access['mine'] || $access['create']],
     'todo' => [lang('To approve', 'Zur Freigabe'), $access['todo']],
@@ -26,7 +43,7 @@ $tabs = [
     <div class="btn-group">
         <?php foreach ($tabs as $key => [$label, $show]) {
             if (!$show) continue; ?>
-            <a class="btn <?= $view == $key ? 'primary' : '' ?>" href="<?= $base ?>?view=<?= $key ?>">
+            <a class="btn <?= $view == $key ? 'primary' : '' ?>" href="<?= $base ?>?view=<?= $key ?><?= e($typeQuery) ?>">
                 <?= $label ?>
                 <?php if ($key == 'todo' && $P->todoCount($area['id']) > 0) { ?>
                     <span class="badge danger ml-5"><?= $P->todoCount($area['id']) ?></span>
@@ -34,7 +51,24 @@ $tabs = [
             </a>
         <?php } ?>
     </div>
-    <?php if ($access['create']) { ?>
+    <?php if (count($typeOptions) > 1 || $typeFilter !== '') { ?>
+        <form method="get" action="<?= $base ?>" class="ml-10">
+            <input type="hidden" name="view" value="<?= e($view) ?>">
+            <select class="form-control w-auto" name="type" aria-label="<?= lang('Filter by type', 'Nach Vorgangsart filtern') ?>" onchange="this.form.submit()">
+                <option value=""><?= lang('All types of cases', 'Alle Vorgangsarten') ?></option>
+                <?php foreach ($typeOptions as $tid => $tname) { ?>
+                    <option value="<?= e($tid) ?>" <?= $tid === $typeFilter ? 'selected' : '' ?>><?= e($tname) ?></option>
+                <?php } ?>
+            </select>
+        </form>
+    <?php } ?>
+    <?php $filtered = $typeFilter !== '' ? $P->type($typeFilter) : null;
+    if ($filtered && $P->canCreate($filtered) && empty($filtered['disabled'])) { ?>
+        <a class="btn success ml-auto" href="<?= $base ?>/new/<?= e($typeFilter) ?>">
+            <i class="ph ph-plus-circle"></i>
+            <?= e(Processes::t($filtered, 'new_label', lang('New case', 'Neuer Vorgang'))) ?>
+        </a>
+    <?php } elseif ($access['create']) { ?>
         <a class="btn success ml-auto" href="<?= $base ?>/new">
             <i class="ph ph-plus-circle"></i>
             <?= lang('New case', 'Neuer Vorgang') ?>
@@ -53,7 +87,7 @@ $tabs = [
         <tr>
             <th><?= lang('No.', 'Nr.') ?></th>
             <th><?= lang('Title', 'Titel') ?></th>
-            <th><?= lang('Type', 'Art') ?></th>
+            <th><?= lang('Type of case', 'Vorgangsart') ?></th>
             <th>Status</th>
             <th><?= lang('Current step', 'Aktueller Schritt') ?></th>
             <th><?= lang('Created by', 'Erstellt von') ?></th>

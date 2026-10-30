@@ -118,6 +118,17 @@ Für lange laufende Projekte ohne Freigabe, z. B. Bücher einer Reihe
 ]
 ```
 
+- `number_from` (Vorgangsart): Nummer der ersten Phase, Standard 0. Die
+  Halecki-Vorlesung (`gwzo-halecki.json`) zählt ab 1 wie ihr Ablaufplan.
+- Fristen je Phase: `due_text` (Regel als Text) und `due` (Datum aus einem
+  Feld). `{"field": "vl_datum", "months": -3}` rechnet ab einem Datumsfeld
+  (auch `days`), `{"field": "jahr", "date": "03-31", "year_offset": 0}` nimmt
+  das Jahr aus einem Jahres- oder Datumsfeld. Ist die Frist der aktuellen Phase
+  verstrichen, gilt das Projekt als überfällig wie bei `duration_weeks`.
+  Hängt die Frist von einem Feld ab, ist `due` eine Liste von Regeln mit je
+  einer `condition`; es gilt die erste passende (Beispiel: Zyklus Q2/Q4 in
+  `gwzo-vgk.json`).
+- `hints` (wie bei Freigaben) erscheinen auch hier, solange das Projekt offen ist.
 - Jede Phase bekommt automatisch ein Notizfeld `note_<phase>`. Es ist der
   Zelleninhalt der Übersicht.
 - Status: läuft, ruht, erschienen, abgelehnt, zurückgezogen. Phasen lassen

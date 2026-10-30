@@ -50,6 +50,12 @@ class ProcessPhases
                 return "$file: phase without valid id or id used twice";
             }
             $ids[] = $phase['id'];
+            $rules = empty($phase['due']) ? [] : (isset($phase['due'][0]) ? $phase['due'] : [$phase['due']]);
+            foreach ($rules as $rule) {
+                if (!in_array($rule['field'] ?? null, array_column(self::expandFields($type), 'id'))) {
+                    return "$file: deadline of phase '{$phase['id']}' refers to an unknown field";
+                }
+            }
             $tasks = [];
             foreach ($phase['tasks'] ?? [] as $task) {
                 if (empty($task['id']) || in_array($task['id'], $tasks)) return "$file: task without id or id used twice in phase '{$phase['id']}'";
@@ -289,6 +295,55 @@ class ProcessPhases
         $phase = self::phase($type, $case['phase'] ?? null);
         $max = $phase['duration_weeks'][1] ?? $phase['duration_weeks'][0] ?? null;
         $weeks = self::weeksInPhase($case);
-        return $max !== null && $weeks !== null && $weeks > $max;
+        if ($max !== null && $weeks !== null && $weeks > $max) return true;
+        $due = self::dueDate($phase, DB::doc2Arr($case['values'] ?? []));
+        return $due !== null && $due < date('Y-m-d');
+    }
+
+    /** Number shown for a phase, counted from `number_from` (default 0). */
+    public static function number($type, $i): int
+    {
+        return $i + (int) ($type['number_from'] ?? 0);
+    }
+
+    /* ------------------------------------
+       DEADLINES
+    ------------------------------------ */
+
+    /**
+     * Deadline of a phase from a field of the case (Y-m-d or null):
+     * {"field": "vl_datum", "months": -3, "days": 0} counts from a date field,
+     * {"field": "jahr", "date": "03-31", "year_offset": 0} takes the year
+     * of a date field or a year field. A list of such rules with a
+     * `condition` each uses the first rule that applies.
+     */
+    public static function dueDate($phase, $values): ?string
+    {
+        $due = $phase['due'] ?? null;
+        if (isset($due[0])) {
+            $due = current(array_filter($due, function ($rule) use ($values) {
+                return empty($rule['condition']) || ProcessConditions::check($rule['condition'], $values);
+            })) ?: null;
+        }
+        if (empty($due['field'])) return null;
+        $value = trim((string) ($values[$due['field']] ?? ''));
+        $isYear = preg_match('/^\d{4}$/', $value);
+        if ($value === '' || (!$isYear && !strtotime($value))) return null;
+        if (isset($due['date'])) {
+            $year = $isYear ? (int) $value : (int) date('Y', strtotime($value));
+            $date = ($year + (int) ($due['year_offset'] ?? 0)) . '-' . $due['date'];
+        } else {
+            $date = date('Y-m-d', strtotime(sprintf('%s %+d months %+d days', $value, (int) ($due['months'] ?? 0), (int) ($due['days'] ?? 0))));
+        }
+        return strtotime($date) ? $date : null;
+    }
+
+    /** Deadline as text: the rule (`due_text`) and, if known, the date. */
+    public static function dueLabel($phase, $values = null): string
+    {
+        $text = Processes::t($phase, 'due_text');
+        $date = $values === null ? null : self::dueDate($phase, $values);
+        if ($date) $text .= ($text ? ' · ' : '') . date('d.m.Y', strtotime($date));
+        return $text;
     }
 }

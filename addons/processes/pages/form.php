@@ -87,8 +87,8 @@ if (!$isNew && $case['status'] == 'returned') {
         <div class="form-group">
             <label for="start-phase" class="required"><?= lang('Current phase', 'Aktuelle Phase') ?></label>
             <select class="form-control w-auto" name="start_phase" id="start-phase">
-                <?php foreach ($type['phases'] as $ph) { ?>
-                    <option value="<?= e($ph['id']) ?>"><?= e(Processes::t($ph)) ?></option>
+                <?php foreach ($type['phases'] as $i => $ph) { ?>
+                    <option value="<?= e($ph['id']) ?>"><?= ProcessPhases::number($type, $i) ?>. <?= e(Processes::t($ph)) ?></option>
                 <?php } ?>
             </select>
             <small class="text-muted"><?= lang('For projects that are already running, choose the phase they are in.', 'Bei Projekten, die schon laufen, die Phase wählen, in der sie gerade sind.') ?></small>
