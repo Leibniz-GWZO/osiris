@@ -612,11 +612,15 @@ class SidebarNav
 
     protected function renderGroup(array $group): string
     {
-        $html = '<div class="title collapse open" onclick="toggleSidebar(this);" id="' . $group['id'] . '">';
+        // groups are collapsed by default, except these and the one containing the current page
+        $open = in_array($group['id'], ['sidebar-activities', 'favorites'])
+            || !empty(array_filter($group['items'], fn($item) => !empty($item['is_active'])));
+
+        $html = '<div class="title collapse' . ($open ? ' open' : '') . '" onclick="toggleSidebar(this);" id="' . $group['id'] . '">';
         $html .= $group['label'];
         $html .= '</div>';
 
-        $html .= '<nav>';
+        $html .= '<nav' . ($open ? '' : ' style="display:none"') . '>';
         foreach ($group['items'] as $item) {
             $html .= $this->renderItem($item);
         }
