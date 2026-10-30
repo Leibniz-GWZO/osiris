@@ -444,7 +444,8 @@ if ($topicsEnabled) {
                         <tr>
                             <td>
                                 <?php
-                                echo "<span class='key'>" . $Project->printLabel($key) . "</span>";
+                                $label = $key == 'units_manual' ? lang('Participating unit(s)', 'Beteiligte Abteilung(en)') : $Project->printLabel($key);
+                                echo "<span class='key'>" . $label . "</span>";
                                 echo $Project->printField($key, $project[$key] ?? null);
 
                                 if ($key == 'image' && $edit_perm) { ?>

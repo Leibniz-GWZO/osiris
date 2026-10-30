@@ -499,6 +499,10 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
                 if (!empty($proposal['collaborators'] ?? []) && empty($values['collaborators'] ?? [])) {
                     $values['collaborators'] = $proposal['collaborators'];
                 }
+                // copy manual units unless the form already sent them (also when emptied on purpose)
+                if (!empty($proposal['units_manual'] ?? []) && !isset($_POST['units_manual_submitted'])) {
+                    $values['units_manual'] = DB::doc2Arr($proposal['units_manual']);
+                }
                 $values['_id'] = $values['proposal_id'];
 
                 $osiris->proposals->updateOne(

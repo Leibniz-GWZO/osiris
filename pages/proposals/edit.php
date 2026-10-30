@@ -661,7 +661,7 @@ if ($is_subproject) {
 
 
 
-            <?php if (array_intersect(['scholar', 'supervisor', 'applicants'], $field_keys)) { ?>
+            <?php if (array_intersect(['scholar', 'supervisor', 'applicants', 'units_manual'], $field_keys)) { ?>
                 <h5>
                     <?= lang('Persons', 'Personen') ?>
                 </h5>
@@ -785,7 +785,7 @@ if ($is_subproject) {
                 ?>
                     <div class="form-group col-12 mt-10">
                         <label for="units_manual" class="floating-title">
-                            <?= lang('Co-applicant unit(s)', 'Mitantragstellende Abteilung(en)') ?>
+                            <?= $phase == 'project' ? lang('Participating unit(s)', 'Beteiligte Abteilung(en)') : lang('Co-applicant unit(s)', 'Mitantragstellende Abteilung(en)') ?>
                         </label>
                         <input type="hidden" name="units_manual_submitted" value="1">
                         <select class="form-control" name="values[units_manual][]" id="units_manual" multiple size="8">
@@ -796,7 +796,10 @@ if ($is_subproject) {
                             <?php } ?>
                         </select>
                         <small class="text-muted">
-                            <?= lang(
+                            <?= $phase == 'project' ? lang(
+                                'Units involved in the project, in addition to those of the project members (Ctrl/Cmd+click for multiple). The members\' own units are added automatically.',
+                                'Abteilungen, die am Projekt beteiligt sind, zusätzlich zu denen der Projektbeteiligten (Strg/Cmd+Klick für mehrere). Deren eigene Abteilungen werden automatisch ergänzt.'
+                            ) : lang(
                                 'Units that apply jointly, in addition to those of the applicants (Ctrl/Cmd+click for multiple). The applicants\' own units are added automatically.',
                                 'Abteilungen, die gemeinsam beantragen, zusätzlich zu denen der Antragstellenden (Strg/Cmd+Klick für mehrere). Die Abteilungen der Antragstellenden werden automatisch ergänzt.'
                             ) ?>
