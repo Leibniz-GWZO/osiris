@@ -432,6 +432,9 @@
                                 <?php foreach ($author_keys as $role) : ?>
                                     <?php if (!empty($doc[$role] ?? null)) : ?>
                                         <ul class="authors">
+                                            <?php if ($role == 'editors'): ?>
+                                                <li class="role-label"><?= lang('(Eds.)', '(Hg.)') ?></li>
+                                            <?php endif; ?>
                                             <?php foreach ($doc[$role] as $i => $author):
                                                 if ($i > 9) break;
                                             ?>
