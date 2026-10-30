@@ -346,6 +346,9 @@ $pageactive = function ($p) use ($page) {
                     if (hide == 'true') {
                         $(el).removeClass('open')
                         $(el).next().hide()
+                    } else if (hide == 'false') {
+                        $(el).addClass('open')
+                        $(el).next().show()
                     }
                 })
             });
