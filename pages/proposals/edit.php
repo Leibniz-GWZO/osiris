@@ -671,28 +671,41 @@ if ($is_subproject) {
                         <label for="applicant" class="floating-title required">
                             <?= lang('Applicant(s)', 'Antragstellende Person(en)') ?>
                         </label>
+                        <?php
+                        // existing proposals without the field: take the applicants from "persons";
+                        // only a new proposal starts with the current user
+                        if (!empty($form['applicants'] ?? null)) {
+                            $applicant_list = Project::cleanApplicants($form['applicants']);
+                        } elseif (!empty($form['_id'] ?? null)) {
+                            $applicant_list = Project::applicantsFromPersons($form['persons'] ?? []);
+                        } else {
+                            $applicant_list = [$_SESSION['username']];
+                        }
+                        ?>
+                        <input type="hidden" name="applicants_submitted" value="1">
                         <div class="author-widget" id="author-widget">
                             <div class="author-list p-10" id="author-list">
-                                <?php foreach ($form['applicants'] ?? array($_SESSION['username']) as $a) { ?>
+                                <?php foreach ($applicant_list as $a) { ?>
                                     <div class='author'>
-                                        <?= $DB->getNameFromId($a) ?>
-                                        <input type='hidden' name='values[applicants][]' value='<?= $a ?>'>
-                                        <a onclick='$(this).closest(".author").remove()'>&times;</a>
+                                        <?= e($DB->getNameFromId($a)) ?>
+                                        <input type='hidden' name='values[applicants][]' value='<?= e($a) ?>'>
+                                        <a onclick='$(this).closest(".author").remove()' title="<?= lang('Remove', 'Entfernen') ?>">&times;</a>
                                     </div>
                                 <?php } ?>
 
                             </div>
                             <div class="footer">
                                 <div class="input-group small d-inline-flex w-auto">
-                                    <select class="form-control" id="add-author" autocomplete="off">
+                                    <select class="form-control" id="add-author" autocomplete="off" onchange="addAuthorDiv(event);">
+                                        <option value="" selected>– <?= lang('Add person …', 'Person hinzufügen …') ?> –</option>
                                         <?php
-                                        $userlist = $osiris->persons->find(['username' => ['$ne' => null]], ['sort' => ['is_active' => -1, 'last' => 1]]);
+                                        $userlist = $osiris->persons->find(['username' => ['$ne' => null], 'last' => ['$ne' => null]], ['sort' => ['is_active' => -1, 'last' => 1, 'first' => 1]]);
                                         foreach ($userlist as $j) { ?>
-                                            <option value="<?= $j['username'] ?>" <?= $j['username'] == ($user) ? 'selected' : '' ?>><?= $j['last'] ?>, <?= $j['first'] ?></option>
+                                            <option value="<?= e($j['username']) ?>"><?= e($j['last']) ?>, <?= e($j['first'] ?? '') ?></option>
                                         <?php } ?>
                                     </select>
                                     <div class="input-group-append">
-                                        <button class="btn secondary h-full" type="button" onclick="addAuthorDiv(event);">
+                                        <button class="btn secondary h-full" type="button" onclick="addAuthorDiv(event);" title="<?= lang('Add', 'Hinzufügen') ?>">
                                             <i class="ph ph-plus"></i>
                                         </button>
                                     </div>
@@ -701,20 +714,28 @@ if ($is_subproject) {
                         </div>
 
                         <small class="text-muted">
-                            <?= lang('More persons may be added later', 'Weitere Personen können später hinzugefügt werden') ?>
+                            <?= lang(
+                                'Enter the persons who actually apply &ndash; not necessarily yourself. Remove a person with &times;. This list is kept in sync with the applicants under "Proposal members"; further persons with other roles can be added there after saving.',
+                                'Bitte die tatsächlich antragstellenden Personen angeben &ndash; das muss nicht die Person sein, die den Eintrag anlegt. Mit &times; entfernen. Die Liste wird mit den Antragstellenden unter „Beteiligte Personen“ abgeglichen; weitere Personen mit anderen Rollen können dort nach dem Speichern ergänzt werden.'
+                            ) ?>
                         </small>
                     </div>
                     <script>
                         function addAuthorDiv(event) {
                             var input = $('#add-author')
                             var username = input.val()
-                            var name = input.find('option:selected').text()
+                            if (!username) return
                             var el = $('#author-list')
-                            var author = $('<div class="author">')
-                                .html(name);
-                            author.append('<input type="hidden" name="values[applicants][]" value="' + username + '">')
-                            author.append('<a onclick="$(this).closest(\'.author\').remove()">&times;</a>')
-                            author.appendTo(el)
+                            var exists = el.find('input[name="values[applicants][]"]').filter(function() {
+                                return this.value === username
+                            }).length > 0
+                            if (!exists) {
+                                var author = $('<div class="author">').text(input.find('option:selected').text())
+                                author.append($('<input type="hidden" name="values[applicants][]">').val(username))
+                                author.append('<a onclick="$(this).closest(\'.author\').remove()">&times;</a>')
+                                author.appendTo(el)
+                            }
+                            input.val('')
                         }
                     </script>
 
@@ -1888,6 +1909,11 @@ if ($is_subproject) {
                             }
                         })
                     });
+                    // at least one applicant (institute member or external person)
+                    if ($('#author-list').length && $('#author-list input[name="values[applicants][]"]').length == 0 &&
+                        $(form).find('input[name^="values[applicants_external]"][name$="[last]"]').length == 0) {
+                        errors.push(lang('Applicant(s)', 'Antragstellende Person(en)'))
+                    }
                     console.log(errors);
                     if (errors.length > 0) {
                         let error_msg = lang('Please fill in all required fields:<br>', 'Bitte fülle alle Pflichtfelder aus:<br>');

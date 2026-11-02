@@ -33,6 +33,15 @@ $user_in_project = false;
         <?= lang('Manage project staff', 'Projektmitglieder verwalten') ?>
     </h1>
 
+    <?php if ($collection == 'proposals') { ?>
+        <p class="text-muted">
+            <?= lang(
+                'Persons with the role "Applicant" are shown as the applicants of the proposal; the applicants field in the proposal form is updated accordingly.',
+                'Personen mit der Rolle „Antragstellende“ werden als antragstellende Personen des Antrags geführt; das Feld im Antragsformular wird entsprechend angepasst.'
+            ) ?>
+        </p>
+    <?php } ?>
+
     <form action="<?= ROOTPATH ?>/crud/<?= $collection ?>/update-persons/<?= $id ?>" method="post">
 
         <table class="table">
@@ -147,6 +156,7 @@ $user_in_project = false;
                         <div class="d-flex justify-content-between align-items-center">
                             <div class="input-group w-400 mw-full">
                                 <select id="person-select" class="form-control person">
+                                    <option value="" selected>– <?= lang('Select person …', 'Person auswählen …') ?> –</option>
                                     <?php
                                     foreach ($all_users as $s) { ?>
                                         <option value="<?= $s['username'] ?>">
@@ -244,6 +254,7 @@ $user_in_project = false;
             } else {
                 // remove the added user from the select options to prevent adding the same user multiple times
                 personSelect.find(`option[value="${username}"]`).remove();
+                personSelect.val('');
             }
         }).fail(function() {
             toastError('<?= lang('Failed to fetch user data', 'Fehler beim Abrufen der Nutzerdaten') ?>');

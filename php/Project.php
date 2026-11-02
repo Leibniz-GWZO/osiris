@@ -156,6 +156,66 @@ class Project extends Vocabulary
     }
 
     /**
+     * Usernames from the `applicants` field, without empty entries and duplicates.
+     */
+    public static function cleanApplicants($list): array
+    {
+        $clean = [];
+        foreach (DB::doc2Arr($list ?? []) as $u) {
+            $u = trim(strval($u));
+            if ($u !== '' && !in_array($u, $clean)) $clean[] = $u;
+        }
+        return $clean;
+    }
+
+    /**
+     * Usernames of all persons with the role "applicant", in list order.
+     */
+    public static function applicantsFromPersons($persons): array
+    {
+        $applicants = [];
+        foreach (DB::doc2Arr($persons ?? []) as $p) {
+            $p = DB::doc2Arr($p);
+            if (($p['role'] ?? '') == 'applicant' && !empty($p['user'])) $applicants[] = $p['user'];
+        }
+        return self::cleanApplicants($applicants);
+    }
+
+    /**
+     * Align `persons` with the `applicants` field of a proposal: applicants get the role
+     * "applicant" (an existing entry with another role is promoted), persons who are no
+     * longer applicants lose their applicant entry, all other persons stay untouched.
+     * Applicants come first, in the order of the field.
+     */
+    public static function syncApplicantPersons($persons, array $applicants, $DB, $Groups): array
+    {
+        $by_user = [];
+        $others = [];
+        foreach (DB::doc2Arr($persons ?? []) as $p) {
+            $p = DB::doc2Arr($p);
+            $user = $p['user'] ?? null;
+            if (empty($user)) continue;
+            if (in_array($user, $applicants)) {
+                // keep the first entry of an applicant (with its units)
+                if (!isset($by_user[$user])) $by_user[$user] = $p;
+            } elseif (($p['role'] ?? '') != 'applicant') {
+                $others[] = $p;
+            }
+        }
+        $result = [];
+        foreach ($applicants as $user) {
+            $p = $by_user[$user] ?? [
+                'user' => $user,
+                'name' => $DB->getNameFromId($user),
+                'units' => array_values(array_map(fn($u) => $u['unit'], $Groups->getPersonUnit($user))),
+            ];
+            $p['role'] = 'applicant';
+            $result[] = $p;
+        }
+        return array_merge($result, $others);
+    }
+
+    /**
      * Whether a phase (e.g. "review") is configured and not disabled for a project type.
      */
     public static function isPhaseEnabled($projectType, $phase): bool
@@ -1289,6 +1349,8 @@ class Project extends Vocabulary
                     $val = json_encode($val);
                 }
             }
+            // list items (e.g. applicants) would otherwise run together without a separator
+            $val = preg_replace('#</li>\s*<li[^>]*>#', ', ', strval($val));
             $val = strip_tags($val);
             $result[$key] = $val;
         }

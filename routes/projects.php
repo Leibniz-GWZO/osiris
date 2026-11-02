@@ -760,6 +760,11 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     }
 
     $values = validateValues($_POST['values'], $DB);
+    // applicants field and persons with role "applicant" describe the same thing, keep them aligned
+    if ($collection == 'proposals' && isset($_POST['applicants_submitted'])) {
+        $values['applicants'] = Project::cleanApplicants($values['applicants'] ?? []);
+        $values['persons'] = Project::syncApplicantPersons($project['persons'] ?? [], $values['applicants'], $DB, $Groups);
+    }
     // form sends a marker so that removing all external applicants clears the field
     if (isset($_POST['applicants_external_submitted'])) {
         $values['applicants_external'] = Project::cleanExternalApplicants($values['applicants_external'] ?? []);
@@ -1059,13 +1064,17 @@ Route::post('/crud/(projects|proposals)/update-persons/([A-Za-z0-9]*)', function
             abortwith(403, lang('You do not have permission to edit this proposal.', 'Du hast keine Berechtigung, diesen Antrag zu bearbeiten.'), "/proposals/view/$id");
         }
     }
-    $values = $_POST['persons'];
+    $values = $_POST['persons'] ?? [];
     foreach ($values as $i => $p) {
         $values[$i]['name'] =  $DB->getNameFromId($p['user']);
     }
     // avoid object transformation
     $values = array_values($values);
     $values = ['persons' => $values];
+    if ($collection == 'proposals') {
+        // the applicants field mirrors the persons with role "applicant"
+        $values['applicants'] = Project::applicantsFromPersons($values['persons']);
+    }
 
     $id = $DB->to_ObjectID($id);
     include_once BASEPATH . "/php/Render.php";
