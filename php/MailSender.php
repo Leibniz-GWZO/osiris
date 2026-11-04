@@ -90,7 +90,12 @@ function buildNotificationMail($title, $html, $linkText, $linkUrl)
     ';
 }
 
-function build_digest_email(array $user, array $n, string $frequency = "weekly"): array
+/**
+ * @param array $sections sections of local add-ons (hook `digest`): title,
+ *   items [{text (HTML), link, meta}], link, link_label, message_types
+ *   (inbox messages of these types are shown by the section, not counted again)
+ */
+function build_digest_email(array $user, array $n, string $frequency = "weekly", array $sections = []): array
 {
     global $Settings;
     $language = $user['lang'] ?? 'de';
@@ -102,7 +107,10 @@ function build_digest_email(array $user, array $n, string $frequency = "weekly")
     $issuesCount  = (int)($n['activity']['count'] ?? 0);
     $issuesList   = $n['activity']['values'] ?? [];
     $queueCount   = (int)($n['queue']['count'] ?? 0);
-    $messagesCount = !empty($n['messages']) ? count(DB::doc2Arr($n['messages'] ?? [])) : 0;
+    $sectionTypes = array_merge([], ...array_column($sections, 'message_types'));
+    $messagesCount = count(array_filter(DB::doc2Arr($n['messages'] ?? []), function ($m) use ($sectionTypes) {
+        return !in_array($m['type'] ?? null, $sectionTypes);
+    }));
     $approval = $n['approval'] ?? null;
     $quarter = $approval['key'] ?? null;
 
@@ -167,6 +175,28 @@ function build_digest_email(array $user, array $n, string $frequency = "weekly")
             <?php endif; ?>
 
 
+            <?php foreach ($sections as $sec):
+                if (empty($sec['items'])) continue; ?>
+                <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 14px 0">
+                    <tr>
+                        <td style="padding:12px;background:<?= $secondary ?>20;border-radius:.5rem">
+                            <div style="font-weight:bold;color:#333;margin-bottom:6px;"><?= e($sec['title']) ?> (<?= count($sec['items']) ?>)</div>
+                            <ul style="margin:0 0 8px 18px;padding:0">
+                                <?php foreach ($sec['items'] as $it): ?>
+                                    <li style="margin-bottom:4px">
+                                        <?php if (!empty($it['link'])): ?><a href="<?= $baseUrl . $it['link'] ?>" style="color:#333"><?= $it['text'] ?></a><?php else: ?><?= $it['text'] ?><?php endif; ?>
+                                        <?php if (!empty($it['meta'])): ?><br><span style="font-size:12px;color:#6b7280"><?= e($it['meta']) ?></span><?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                            <?php if (!empty($sec['link'])): ?>
+                                <a href="<?= $baseUrl . $sec['link'] ?>" style="display:inline-block;padding:8px 12px;background:<?= $secondary ?>;color:#fff;text-decoration:none;border-radius:.5rem;"><?= e($sec['link_label'] ?? $lang('Open', 'Öffnen')) ?></a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                </table>
+            <?php endforeach; ?>
+
             <?php if ($messagesCount > 0): ?>
                 <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 14px 0">
                     <tr>
@@ -201,6 +231,13 @@ function build_digest_email(array $user, array $n, string $frequency = "weekly")
         $lines[] = ($language === 'de' ? "Aktivitäts-Hinweise: $issuesCount" : "Activity issues: $issuesCount") . " → " . ROOTPATH . "/issues";
     if ($queueCount > 0)
         $lines[] = ($language === 'de' ? "Neue Aktivitäten zur Prüfung: $queueCount" : "New activities to review: $queueCount") . " → " . ROOTPATH . "/queue/user";
+    foreach ($sections as $sec) {
+        if (empty($sec['items'])) continue;
+        $lines[] = $sec['title'] . ': ' . count($sec['items']);
+        foreach ($sec['items'] as $it) {
+            $lines[] = '- ' . html_entity_decode(strip_tags($it['text'])) . (!empty($it['link']) ? ' → ' . $baseUrl . $it['link'] : '');
+        }
+    }
     if ($messagesCount > 0)
         $lines[] = ($language === 'de' ? "Ungelesene Nachrichten: $messagesCount" : "Unread messages: $messagesCount") . " → " . ROOTPATH . "/messages";
     $text = implode("\n", $lines);

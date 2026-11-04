@@ -46,6 +46,17 @@ $types = [
         'de' => 'Nagoya-Protokoll',
         'icon' => 'scales'
     ],
+    // local add-on "processes"
+    'process' => [
+        'en' => 'Case',
+        'de' => 'Vorgang',
+        'icon' => 'stamp'
+    ],
+    'process-task' => [
+        'en' => 'Task',
+        'de' => 'Aufgabe',
+        'icon' => 'list-checks'
+    ],
 ]
 ?>
 

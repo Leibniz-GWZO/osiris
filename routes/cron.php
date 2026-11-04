@@ -48,6 +48,11 @@ Route::get('/cron/digest', function () {
         'mail'   => ['$ne' => null]
     ], ['projection' => ['username' => 1, 'mail' => 1, 'lang' => 1, 'displayname' => 1, 'mail_digest' => 1, 'digest_last_sent' => 1]]);
 
+    // sections of local add-ons (addons/*/digest.php registers the hook `digest`)
+    foreach (glob(BASEPATH . '/addons/*/digest.php') as $addonDigest) {
+        include_once $addonDigest;
+    }
+
     $sent = 0;
     $skipped = 0;
     $errors = 0;
@@ -83,20 +88,30 @@ Route::get('/cron/digest', function () {
 
         // 4) Get Notifications
         $notifications = $DB->notifications(true, $u['username'] ?? null);
+        $sections = [];
+        $hadLang = array_key_exists('lang', $_GET);
+        $oldLang = $_GET['lang'] ?? null;
+        $_GET['lang'] = $u['lang'] ?? 'de';
+        foreach ($GLOBALS['OSIRIS_ADDON_HOOKS']['digest'] ?? [] as $hook) {
+            $sections = array_merge($sections, call_user_func($hook, $u['username'] ?? null, $osiris, $Settings));
+        }
+        if ($hadLang) $_GET['lang'] = $oldLang;
+        else unset($_GET['lang']);
 
         // 5) Check if there is anything relevant to send
         $hasAny =
             (!empty($notifications['activity']['count'])) ||
             (!empty($notifications['queue']['count']))    ||
             (!empty($notifications['approval'])) ||
-            (!empty($notifications['messages']));
+            (!empty($notifications['messages'])) ||
+            (!empty(array_filter(array_column($sections, 'items'))));
         if (!$hasAny) {
             $skipped++;
             continue;
         }
 
         // 6) Build + send mail
-        [$subject, $html, $text] = build_digest_email($u, $notifications, $freq);
+        [$subject, $html, $text] = build_digest_email($u, $notifications, $freq, $sections);
 
         if ($dry_run){
             echo "Dry run: would send mail in  to " . $u['mail'] . "\n";
