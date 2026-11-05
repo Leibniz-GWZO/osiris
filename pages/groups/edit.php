@@ -19,6 +19,7 @@
 $heads = $form['head'] ?? [];
 if (is_string($heads)) $heads = [$heads];
 else $heads = DB::doc2Arr($heads);
+$former_heads = DB::doc2Arr($form['former_heads'] ?? []);
 
 // $user_groups = $USER['units'] ?? [];
 
@@ -486,6 +487,73 @@ function sel($index, $value)
                     $("#head-select").selectize();
                 </script>
             </div>
+        </div>
+
+        <h5>
+            <?= lang('Former head(s)', 'Ehemalige Leitung') ?>
+        </h5>
+        <p class="text-muted small mt-0">
+            <?= lang('Shown on the unit page. Remove the person from the current heads above separately.', 'Wird auf der Seite der Einheit angezeigt. Die Person bitte oben separat aus der aktuellen Leitung entfernen.') ?>
+        </p>
+        <div class="form-group">
+            <input type="hidden" name="former_heads_submitted" value="1">
+            <table class="table simple small w-auto mb-10" id="former-heads">
+                <tbody>
+                    <?php foreach ($former_heads as $i => $fh) {
+                        $person = $osiris->persons->findOne(['username' => $fh['user'] ?? '']);
+                        if (empty($person)) continue;
+                    ?>
+                        <tr>
+                            <td>
+                                <?= e($person['last'] . ', ' . $person['first']) ?>
+                                <input type="hidden" name="values[former_heads][<?= $i ?>][user]" value="<?= e($fh['user']) ?>">
+                            </td>
+                            <td>
+                                <?= lang('until', 'bis') ?>
+                                <input type="date" class="form-control d-inline-block w-auto" name="values[former_heads][<?= $i ?>][end]" value="<?= e($fh['end'] ?? '') ?>">
+                            </td>
+                            <td><a onclick="$(this).closest('tr').remove()" title="<?= lang('Remove', 'Entfernen') ?>">&times;</a></td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <div class="input-group d-inline-flex w-auto">
+                <select class="form-control" id="former-head-select">
+                    <option value="" disabled selected><?= lang('Add former head ...', 'Ehemalige Leitung hinzufügen ...') ?></option>
+                    <?php
+                    $userlist = $osiris->persons->find(['username' => ['$ne' => null]], ['sort' => ['is_active' => -1, 'last' => 1]]);
+                    foreach ($userlist as $j) {
+                        if (empty($j['last'])) continue;
+                    ?>
+                        <option value="<?= e($j['username']) ?>"><?= e($j['last'] . ', ' . $j['first']) ?> <?= ($j['is_active'] ?? true) ? '' : '(inaktiv)' ?></option>
+                    <?php } ?>
+                </select>
+                <div class="input-group-append">
+                    <button class="btn secondary h-full" type="button" onclick="addFormerHead();">
+                        <i class="ph ph-plus"></i>
+                    </button>
+                </div>
+            </div>
+            <script>
+                $("#former-head-select").selectize();
+
+                function addFormerHead() {
+                    const sel = $('#former-head-select');
+                    const val = sel.val();
+                    if (!val) return;
+                    const i = 'n' + Date.now();
+                    const row = $('<tr>');
+                    const name = $('<td>').text(sel.find(`option[value='${val}']`).text().trim());
+                    name.append($('<input type="hidden">').attr('name', `values[former_heads][${i}][user]`).val(val));
+                    row.append(name);
+                    row.append($('<td>').text(lang('until', 'bis') + ' ').append(
+                        $('<input type="date" class="form-control d-inline-block w-auto">').attr('name', `values[former_heads][${i}][end]`)
+                    ));
+                    row.append('<td><a onclick="$(this).closest(\'tr\').remove()">&times;</a></td>');
+                    $('#former-heads tbody').append(row);
+                    sel[0].selectize.clear();
+                }
+            </script>
         </div>
         <button class="btn secondary" type="submit" id="submit-btn">
             <i class="ph ph-check"></i> <?= lang("Save", "Speichern") ?>

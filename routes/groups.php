@@ -312,6 +312,20 @@ Route::post('/crud/groups/update/([A-Za-z0-9]*)', function ($id) {
     }
 
 
+    // former heads: list of {user, end}, the marker allows saving an empty list
+    if (isset($_POST['former_heads_submitted'])) {
+        $former = [];
+        foreach ($_POST['values']['former_heads'] ?? [] as $fh) {
+            $user = trim($fh['user'] ?? '');
+            if ($user === '') continue;
+            $end = trim($fh['end'] ?? '');
+            $former[] = ['user' => $user, 'end' => preg_match('/^\d{4}-\d{2}-\d{2}$/', $end) ? $end : null];
+        }
+        // most recent first, open end last
+        usort($former, fn($a, $b) => strcmp($b['end'] ?? '', $a['end'] ?? ''));
+        $values['former_heads'] = $former;
+    }
+
     // check if head is connected 
     if (isset($values['head'])) {
         foreach ($values['head'] as $head) {

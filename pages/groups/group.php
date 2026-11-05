@@ -377,8 +377,10 @@ if ($Settings->featureEnabled('wordcloud')) {
                 usort($persons, function ($a, $b) use ($head) {
                     return in_array($a['username'], $head)  ? -1 : 1;
                 });
-                if (!empty($head)) { ?>
+                $former_heads = DB::doc2Arr($group['former_heads'] ?? []);
+                if (!empty($head) || !empty($former_heads)) { ?>
                     <div class="head">
+                        <?php if (!empty($head)) { ?>
                         <h5 class="mt-0"><?= $Groups->getUnit($group['unit'] ?? null, 'head') ?></h5>
                         <div>
                             <?php foreach ($head as $h) {
@@ -395,7 +397,28 @@ if ($Settings->featureEnabled('wordcloud')) {
                                 </a>
                             <?php } ?>
                         </div>
+                        <?php } ?>
 
+                        <?php if (!empty($former_heads)) { ?>
+                            <h5 class="<?= empty($head) ? 'mt-0' : 'mt-20 mb-0' ?>"><?= lang('Former head(s)', 'Ehemalige Leitung') ?></h5>
+                            <div>
+                                <?php foreach ($former_heads as $fh) {
+                                    $h = $fh['user'] ?? '';
+                                    $name = $DB->getNameFromId($h);
+                                    if (empty($name)) continue;
+                                ?>
+                                    <a href="<?= ROOTPATH ?>/profile/<?= $h ?>" class="colorless d-flex align-items-center border bg-white p-10 rounded mt-10">
+                                        <?= $Settings->printProfilePicture($h, 'profile-img small mr-20') ?>
+                                        <div class="">
+                                            <h5 class="my-0"><?= $name ?></h5>
+                                            <?php if (!empty($fh['end'])) { ?>
+                                                <small class="text-muted"><?= lang('until', 'bis') ?> <?= format_date($fh['end']) ?></small>
+                                            <?php } ?>
+                                        </div>
+                                    </a>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
                     </div>
                 <?php } ?>
 
