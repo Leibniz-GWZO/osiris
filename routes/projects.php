@@ -408,6 +408,10 @@ Route::post('/crud/(projects|proposals)/create', function ($collection) {
 
 
     $values = validateValues($_POST['values'], $DB);
+    // "save as draft" skips the required-field check in the form; a normal save clears the flag
+    if ($collection == 'proposals' && isset($_POST['draft'])) {
+        $values['draft'] = $_POST['draft'] === '1';
+    }
     if (isset($_POST['applicants_external_submitted'])) {
         $values['applicants_external'] = Project::cleanExternalApplicants($values['applicants_external'] ?? []);
     }
@@ -760,6 +764,10 @@ Route::post('/crud/(projects|proposals)/update/([A-Za-z0-9]*)', function ($colle
     }
 
     $values = validateValues($_POST['values'], $DB);
+    // "save as draft" skips the required-field check in the form; a normal save clears the flag
+    if ($collection == 'proposals' && isset($_POST['draft'])) {
+        $values['draft'] = $_POST['draft'] === '1';
+    }
     // applicants field and persons with role "applicant" describe the same thing, keep them aligned
     if ($collection == 'proposals' && isset($_POST['applicants_submitted'])) {
         $values['applicants'] = Project::cleanApplicants($values['applicants'] ?? []);

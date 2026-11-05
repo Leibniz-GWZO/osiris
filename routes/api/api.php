@@ -987,6 +987,7 @@ Route::get('/api/(projects|proposals)', function ($type) {
             'role' => '$role',
             'applicant' => '$applicant',
             'status' => '$status',
+            'draft' => '$draft',
             'units' => '$units',
             'topics' => '$topics',
             'funder' => '$funder',

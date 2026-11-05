@@ -653,7 +653,10 @@ if (array_sum($statusCounts) > 0) {
                         <hr />
                         <div class="d-flex justify-content-between">
                             ${renderType(row.type)}
+                            <span>
+                            ${row.draft ? `<span class='badge muted mr-5'><i class='ph ph-pencil-simple-line'></i> ${lang('draft', 'Entwurf')}</span>` : ''}
                             ${renderStatus(row.status ?? 'proposed')}
+                            </span>
                         </div>
                     </div>
                         `

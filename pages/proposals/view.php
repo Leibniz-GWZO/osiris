@@ -98,6 +98,9 @@ if ($nagoyaRelevant) {
     <div class="d-flex align-items-center justify-content-between">
         <div class="title">
             <b class="badge text-uppercase primary"><?= lang('Proposal', 'Antrag') ?></b>
+            <?php if (!empty($project['draft'])) { ?>
+                <b class="badge text-uppercase muted" title="<?= lang('Saved as draft, required fields may still be missing.', 'Als Entwurf gespeichert, Pflichtfelder können noch fehlen.') ?>"><i class="ph ph-pencil-simple-line"></i> <?= lang('Draft', 'Entwurf') ?></b>
+            <?php } ?>
             <h1 class="mt-0">
                 <?php if (isset($project['acronym'])) { ?>
                     <?= e($project['acronym']) ?> –

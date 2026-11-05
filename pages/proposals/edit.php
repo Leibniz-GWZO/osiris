@@ -364,6 +364,12 @@ if ($is_subproject) {
             <input type="hidden" class="hidden" name="redirect" value="<?= $url ?>">
             <input type="hidden" class="hidden" name="values[type]" value="<?= $type ?>">
             <input type="hidden" class="hidden" name="values[status]" value="<?= $phase ?>">
+            <?php
+            // drafts skip the required-field check; only offered for proposals without a status change
+            $draft_allowed = str_contains($formaction, '/crud/proposals/') && ($new_project || $status == $phase);
+            if (str_contains($formaction, '/crud/proposals/')) { ?>
+                <input type="hidden" name="draft" id="draft-flag" value="0">
+            <?php } ?>
 
             <?php if ($phase == 'withdrawn') { ?>
                 <div class="form-group">
@@ -1883,6 +1889,11 @@ if ($is_subproject) {
             <button class="btn secondary" type="button" id="submit-btn">
                 <i class="ph ph-check"></i> <?= lang("Save", "Speichern") ?>
             </button>
+            <?php if ($draft_allowed) { ?>
+                <button class="btn" type="button" id="draft-btn" title="<?= lang('Save without checking required fields. The proposal is marked as draft until it is saved normally.', 'Speichern ohne Prüfung der Pflichtfelder. Der Antrag bleibt als Entwurf markiert, bis er normal gespeichert wird.') ?>">
+                    <i class="ph ph-pencil-simple-line"></i> <?= lang("Save as draft", "Als Entwurf speichern") ?>
+                </button>
+            <?php } ?>
 
             <script>
                 let required_keys = <?= json_encode($required_fields) ?>;
@@ -1893,8 +1904,21 @@ if ($is_subproject) {
                     e.preventDefault();
                     if (validateForm()) {
                         // form.off('submit');
+                        $('#draft-flag').val('0');
                         form.submit();
                     }
+                });
+                $('#draft-btn').on('click', function(e) {
+                    e.preventDefault();
+                    // a draft needs at least a short title to be found again
+                    const name = $(form).find('[name="values[name]"]');
+                    if (name.length && name.val().trim() == '') {
+                        name.addClass('is-invalid');
+                        toastError(lang('Please enter at least a short title.', 'Bitte gib mindestens einen Kurztitel an.'));
+                        return;
+                    }
+                    $('#draft-flag').val('1');
+                    form.submit();
                 });
 
                 function validateForm() {
