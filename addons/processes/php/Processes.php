@@ -25,6 +25,8 @@ class Processes
 
     // statuses in which a case of the approval flow is still open
     public const OPEN = ['draft', 'submitted', 'returned'];
+    /** Days a deleted case stays in the trash before it is purged. */
+    public const TRASH_DAYS = 180;
 
     private static $instance = null;
 
@@ -660,7 +662,8 @@ class Processes
             $title = preg_replace_callback('/\{([a-z0-9_]+)\}/', function ($m) use ($values, $type) {
                 return ProcessForm::plainValue(ProcessForm::field($type, $m[1]), $values[$m[1]] ?? null, $this);
             }, $template);
-            $title = trim(preg_replace('/\s+/', ' ', $title), " -–,");
+            // multibyte-safe: trim() works on bytes and would cut quotes like “ apart
+            $title = preg_replace('/^[\s,–-]+|[\s,–-]+$/u', '', preg_replace('/\s+/u', ' ', $title));
             if ($title !== '') return $title;
         }
         return self::t($type, 'name');
@@ -754,6 +757,64 @@ class Processes
         $this->db->proc_cases->updateOne(['_id' => DB::to_ObjectID($case['_id'])], $update);
     }
 
+    /** Moves a case to the trash. Its files stay in the bucket until the trash entry is purged. */
+    public function trash($case)
+    {
+        $id = DB::to_ObjectID($case['_id']);
+        $case = $this->db->proc_cases->findOne(['_id' => $id]);
+        if (!$case) return;
+        $this->db->proc_trash->replaceOne(['_id' => $id], [
+            '_id' => $id,
+            'case' => $case,
+            'deleted_at' => date('Y-m-d H:i:s'),
+            'deleted_by' => $this->user,
+        ], ['upsert' => true]);
+        $this->db->proc_cases->deleteOne(['_id' => $id]);
+        $this->purgeTrash();
+    }
+
+    public function trashList(): array
+    {
+        $this->purgeTrash();
+        return DB::doc2Arr($this->db->proc_trash->find([], ['sort' => ['deleted_at' => -1]])->toArray());
+    }
+
+    /** Puts a case back. Returns an error message or null. */
+    public function restore($trashId)
+    {
+        $id = DB::to_ObjectID($trashId);
+        $entry = $this->db->proc_trash->findOne(['_id' => $id]);
+        if (!$entry) return lang('Entry not found in the trash.', 'Eintrag nicht im Papierkorb gefunden.');
+        if ($this->db->proc_cases->countDocuments(['_id' => $id]) > 0) {
+            return lang('A case with this ID already exists.', 'Ein Vorgang mit dieser ID existiert bereits.');
+        }
+        $case = DB::doc2Arr($entry['case']);
+        $history = DB::doc2Arr($case['history'] ?? []);
+        $history[] = ['at' => date('Y-m-d H:i:s'), 'by' => $this->user, 'action' => 'restored', 'comment' => '✕ ' . $entry['deleted_at'] . ', ' . $entry['deleted_by']];
+        $case['history'] = $history;
+        $this->db->proc_cases->insertOne($case);
+        $this->db->proc_trash->deleteOne(['_id' => $id]);
+        return null;
+    }
+
+    /** Deletes a trash entry with its files for good. */
+    public function purge($trashId)
+    {
+        $id = DB::to_ObjectID($trashId);
+        $entry = $this->db->proc_trash->findOne(['_id' => $id]);
+        if (!$entry) return;
+        ProcessFiles::deleteAll($this, DB::doc2Arr($entry['case']));
+        $this->db->proc_trash->deleteOne(['_id' => $id]);
+    }
+
+    private function purgeTrash()
+    {
+        $limit = date('Y-m-d H:i:s', strtotime('-' . self::TRASH_DAYS . ' days'));
+        foreach ($this->db->proc_trash->find(['deleted_at' => ['$lt' => $limit]], ['projection' => ['_id' => 1]]) as $t) {
+            $this->purge($t['_id']);
+        }
+    }
+
     /**
      * Status transitions. Returns an error message or null.
      * Actions: submit, approve, return, reject, withdraw, delete
@@ -764,8 +825,7 @@ class Processes
         if (ProcessPhases::isPhases($type)) {
             if ($action == 'delete') {
                 if (!$this->permissions($case)['delete']) return lang('You cannot delete this case.', 'Du kannst diesen Vorgang nicht löschen.');
-                ProcessFiles::deleteAll($this, $case);
-                $this->db->proc_cases->deleteOne(['_id' => DB::to_ObjectID($case['_id'])]);
+                $this->trash($case);
                 return null;
             }
             return ProcessPhases::act($this, $case, $action, $target, trim((string) $comment));
@@ -815,8 +875,7 @@ class Processes
                 break;
             case 'delete':
                 if (!$perm['delete']) return lang('You cannot delete this case.', 'Du kannst diesen Vorgang nicht löschen.');
-                ProcessFiles::deleteAll($this, $case);
-                $this->db->proc_cases->deleteOne(['_id' => $id]);
+                $this->trash($case);
                 return null;
             default:
                 return lang('Unknown action.', 'Unbekannte Aktion.');

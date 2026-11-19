@@ -83,7 +83,7 @@ $fmt = function ($d) {
 
             <div class="mb-10 ml-auto">
                 <a class="btn" href="<?= ROOTPATH ?>/processes/edit/<?= $id ?>?section=base"><i class="ph ph-pencil-simple"></i> <?= lang('Edit base data', 'Stammdaten bearbeiten') ?></a>
-                <form action="<?= ROOTPATH ?>/processes/action/<?= $id ?>" method="post" class="d-inline" onsubmit="return confirm('<?= lang('Delete this project with all data and files? This cannot be undone.', 'Dieses Projekt mit allen Daten und Dateien löschen? Das lässt sich nicht rückgängig machen.') ?>')">
+                <form action="<?= ROOTPATH ?>/processes/action/<?= $id ?>" method="post" class="d-inline" onsubmit="return confirm('<?= lang('Delete this project with all data and files? Only administrators can restore it.', 'Dieses Projekt mit allen Daten und Dateien löschen? Wiederherstellen kann es nur die Administration.') ?>')">
                     <?= Processes::csrfField() ?>
                     <input type="hidden" name="action" value="delete">
                     <button class="btn danger" title="<?= lang('Delete', 'Löschen') ?>"><i class="ph ph-trash"></i></button>
@@ -286,6 +286,9 @@ $fmt = function ($d) {
                                 break;
                             case 'file_deleted':
                                 echo lang('deleted a file', 'Datei gelöscht');
+                                break;
+                            case 'restored':
+                                echo lang('restored from the trash', 'aus dem Papierkorb wiederhergestellt');
                                 break;
                             default:
                                 echo e($h['action']);

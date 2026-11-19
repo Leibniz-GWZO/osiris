@@ -27,6 +27,9 @@ function proc_audience($a, $roles)
 <p class="text-muted">
     <?= lang('Definitions are JSON files in', 'Die Definitionen sind JSON-Dateien in') ?> <code><?= e(Processes::definitionsDir()) ?></code>.
 </p>
+<p>
+    <a class="btn" href="<?= ROOTPATH ?>/processes/trash"><i class="ph ph-trash"></i> <?= lang('Trash', 'Papierkorb') ?> (<?= $osiris->proc_trash->countDocuments() ?>)</a>
+</p>
 
 <?php foreach ($P->errors() as $err) { ?>
     <div class="alert danger mb-10"><?= e($err) ?></div>

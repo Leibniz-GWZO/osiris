@@ -29,6 +29,7 @@ $actions = [
     'edited' => lang('edited', 'bearbeitet'),
     'file_added' => lang('added a file', 'Datei hinzugefügt'),
     'file_deleted' => lang('deleted a file', 'Datei gelöscht'),
+    'restored' => lang('restored from the trash', 'aus dem Papierkorb wiederhergestellt'),
 ];
 $stepIcons = [
     'done' => ['check-circle', 'text-success', lang('approved', 'freigegeben')],

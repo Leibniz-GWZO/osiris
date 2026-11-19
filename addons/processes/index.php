@@ -61,6 +61,26 @@ Route::get('/processes/check', function () {
     proc_page('check', ['P' => $P], [['name' => lang('Processes', 'Vorgänge')], ['name' => lang('Definitions', 'Definitionen')]]);
 }, 'login');
 
+// trash of deleted cases, for admins
+Route::get('/processes/trash', function () {
+    $P = proc_init();
+    if (!$P->Settings->hasPermission('admin.see')) abortwith(403);
+    proc_page('trash', ['P' => $P, 'entries' => $P->trashList()], [['name' => lang('Processes', 'Vorgänge'), 'path' => '/processes/check'], ['name' => lang('Trash', 'Papierkorb')]]);
+}, 'login');
+
+Route::post('/processes/trash/([0-9a-f]{24})/(restore|purge)', function ($id, $action) {
+    $P = proc_init();
+    if (!$P->Settings->hasPermission('admin.see')) abortwith(403);
+    Processes::csrfCheck();
+    if ($action == 'restore') {
+        $error = $P->restore($id);
+        if ($error) proc_back('/processes/trash', $error, 'error');
+        proc_back("/processes/view/$id", lang('The case has been restored.', 'Der Vorgang wurde wiederhergestellt.'));
+    }
+    $P->purge($id);
+    proc_back('/processes/trash', lang('The case has been deleted permanently.', 'Der Vorgang wurde endgültig gelöscht.'));
+}, 'login');
+
 Route::get('/processes/view/([0-9a-f]{24})', function ($id) {
     $P = proc_init();
     [$case, $perm] = proc_case($P, $id);
@@ -220,7 +240,7 @@ Route::post('/processes/action/([0-9a-f]{24})', function ($id) {
         die;
     }
     if ($error) proc_back("/processes/view/$id", $error, 'error');
-    if ($action == 'delete') proc_back('/processes/' . $case['area'], lang('The draft has been deleted.', 'Der Entwurf wurde gelöscht.'));
+    if ($action == 'delete') proc_back('/processes/' . $case['area'], lang('The case has been deleted.', 'Der Vorgang wurde gelöscht.'));
     $done = [
         'submit' => lang('The case has been submitted.', 'Der Vorgang wurde eingereicht.'),
         'approve' => lang('Approved.', 'Freigegeben.'),
