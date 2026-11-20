@@ -176,6 +176,8 @@ Route::get('/user/oauth-callback', function () {
     }
 
     if (empty($USER)) {
+        // new accounts get the default staff role, otherwise they only have 'user'
+        $new_user['roles'] = ['scientist'];
         $osiris->persons->insertOne($new_user);
         $USER = $DB->getPerson($username);
     } else {

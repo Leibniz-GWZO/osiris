@@ -123,7 +123,15 @@ Route::post('/crud/organizations/create', function () {
     include_once BASEPATH . "/php/init.php";
 
     if (!$Settings->hasPermission('organizations.edit')) {
-        abortwith(403, lang('You do not have permission to create a new organization.', 'Du hast keine Berechtigung, eine neue Organisation zu erstellen.'), '/organizations', lang('Go back to organizations', 'Zurück zu Organisationen'));
+        $msg = lang('You do not have permission to create a new organization.', 'Du hast keine Berechtigung, eine neue Organisation zu erstellen.');
+        if (!isset($_POST['redirect'])) {
+            // AJAX call from the organization widget: plain text for the error toast
+            http_response_code(403);
+            header('Content-Type: text/plain; charset=utf-8');
+            echo $msg;
+            die();
+        }
+        abortwith(403, $msg, '/organizations', lang('Go back to organizations', 'Zurück zu Organisationen'));
     }
 
     if (!isset($_POST['values']) || empty($_POST['values'])) abortwith(500, lang('No values provided.', 'Keine Werte angegeben.'));
