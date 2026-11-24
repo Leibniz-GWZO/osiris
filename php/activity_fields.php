@@ -575,19 +575,6 @@ class ActivityFields extends Fields
                 'type' => 'integer'
             ],
             [
-                'id' => 'pubtype',
-                'module_of' => $typeModules['pubtype'] ?? [],
-                'usage' => [
-                    'aggregate',
-                    'filter',
-                    'columns'
-                ],
-                'label' => lang('Publication type', 'Publikationstyp'),
-                'type' => 'string',
-                'input' => 'select',
-                'values' => ['article', 'book', 'chapter', 'preprint', 'magazine', 'dissertation', 'others']
-            ],
-            [
                 'id' => 'gender',
                 'module_of' => $typeModules['gender'] ?? [],
                 'usage' => [

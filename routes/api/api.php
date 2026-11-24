@@ -385,7 +385,8 @@ Route::get('/api/all-activities', function () {
         'raw_subtype' => '$subtype',
         'affiliated' => ['$ifNull' => ['$affiliated', false]],
         'workflow' => ['$ifNull' => ['$workflow.status', 'verif']],
-        'tags' => '$tags'
+        'tags' => '$tags',
+        'peer_reviewed' => ['$ifNull' => ['$peer_reviewed', null]]
     ]];
 
     $cursor = $osiris->activities->aggregate($pipeline);

@@ -149,6 +149,10 @@ $cart = readCart();
                     font-weight: bold;
                 }
 
+                .filter tr td .submenu .subsubmenu a {
+                    padding-left: 4rem;
+                }
+
                 .topic-icons {
                     float: right;
                 }
@@ -182,6 +186,22 @@ $cart = readCart();
                                                     <?= lang($subtype['name'], $subtype['name_de']) ?>
                                                 </span>
                                             </a>
+                                            <?php
+                                            $subModules = array_map(fn($m) => str_replace('*', '', $m), (array) ($subtype['modules'] ?? []));
+                                            if (in_array('peer-reviewed', $subModules)) { ?>
+                                                <div class="subsubmenu" id="<?= $subid ?>-peer" data-subtype="<?= $subid ?>" style="display: none;">
+                                                    <?php foreach ([
+                                                        'yes' => ['check-circle', 'Peer-reviewed', 'Peer-reviewed'],
+                                                        'no' => ['x-circle', 'Not peer-reviewed', 'Nicht peer-reviewed'],
+                                                        'unknown' => ['question', 'Not specified', 'Ohne Angabe'],
+                                                    ] as $peerVal => $peerDef) { ?>
+                                                        <a data-type="<?= $peerVal ?>" onclick="filterPeer(this, '<?= $peerVal ?>')" class="item subsubitem">
+                                                            <span class="mr-5"><i class="ph ph-<?= $peerDef[0] ?>"></i></span>
+                                                            <?= lang($peerDef[1], $peerDef[2]) ?>
+                                                        </a>
+                                                    <?php } ?>
+                                                </div>
+                                            <?php } ?>
                                         <?php
                                         }
                                         ?>
@@ -439,6 +459,10 @@ $cart = readCart();
         {
             title: '<?= $Settings->tagLabel() ?>',
             'key': 'tags'
+        },
+        {
+            title: 'Peer-reviewed',
+            'key': 'peer'
         }
     ]
     let cart = JSON.parse('<?= json_encode($cart) ?>') || [];
@@ -756,6 +780,18 @@ $cart = readCart();
                         if (data === undefined || data.length == 0) return ''
                         return data.join(', ')
                     }
+                },
+                {
+                    targets: 18,
+                    data: 'peer_reviewed',
+                    searchable: true,
+                    visible: false,
+                    defaultContent: '',
+                    render: function(data) {
+                        if (data === true) return 'yes'
+                        if (data === false) return 'no'
+                        return 'unknown'
+                    }
                 }
             ],
             "order": [
@@ -812,6 +848,14 @@ $cart = readCart();
             console.log(hash);
             if (hash.type !== undefined) {
                 filterActivities(document.getElementById(hash.type + '-btn'), hash.type, 9)
+                const subBtn = hash.subtype ? document.getElementById(hash.subtype + '-sub-btn') : null
+                if (subBtn) {
+                    filterSubtype(subBtn, hash.subtype)
+                    const peerMenu = document.getElementById(hash.subtype + '-peer')
+                    if (peerMenu && ['yes', 'no', 'unknown'].includes(hash.peer)) {
+                        filterPeer(peerMenu.querySelector('a[data-type="' + hash.peer + '"]'), hash.peer)
+                    }
+                }
             }
             if (hash.unit !== undefined) {
                 filterActivities(document.getElementById(hash.unit + '-btn'), hash.unit, 7)
@@ -867,7 +911,7 @@ $cart = readCart();
             for (const key in all_filters) {
                 if (Object.prototype.hasOwnProperty.call(all_filters, key)) {
                     const element = all_filters[key];
-                    const filter = $(element).find('a:not(.subitem)');
+                    const filter = $(element).find('a:not(.subitem):not(.subsubitem)');
                     filter.each(function(i, el) {
                         let type = $(el).data('type')
                         // console.log(type);
@@ -887,6 +931,23 @@ $cart = readCart();
                     })
                 }
             }
+
+            // counts for the peer-review sub-filter (per subtype)
+            const peerCol = dataTable.column(18).data().toArray()
+            const subtypeCol = dataTable.column(10).data().toArray()
+            $('#filter-type .subsubmenu').each(function(i, menu) {
+                const subtype = $(menu).data('subtype')
+                $(menu).find('a').each(function(j, el) {
+                    const val = $(el).data('type')
+                    let count = 0
+                    for (let k = 0; k < subtypeCol.length; k++) {
+                        if (subtypeCol[k] != subtype) continue
+                        const p = peerCol[k] === true ? 'yes' : (peerCol[k] === false ? 'no' : 'unknown')
+                        if (p == val) count++
+                    }
+                    $(el).append(` <em>${count}</em>`)
+                })
+            })
         });
 
 
@@ -969,9 +1030,13 @@ $cart = readCart();
         }
         // if key was type, we need to reset subtype
         if (field.key == 'type') {
+            dataTable.columns(18).search("");
             dataTable.columns(10).search("", true, false, true).draw();
             table.find('.submenu > a').removeClass('active')
+            table.find('.subsubmenu a').removeClass('active')
+            table.find('.subsubmenu').slideUp()
             hash['subtype'] = null
+            hash['peer'] = null
         }
         writeHash(hash)
     }
@@ -981,14 +1046,47 @@ $cart = readCart();
         var active = $(btn).hasClass('active')
         var column = 10;
 
+        var table = $(btn).closest('table')
+        var peerMenu = $(btn).next('.subsubmenu')
+
+        // reset peer-review sub-filter
+        dataTable.columns(18).search("");
+        table.find('.subsubmenu a').removeClass('active')
+        table.find('.subsubmenu').not(active ? [] : peerMenu).slideUp()
+
         if (active) {
             dataTable.columns(column).search("", true, false, true).draw();
             $(btn).removeClass('active')
+            writeHash({
+                subtype: null,
+                peer: null
+            })
         } else {
-            subtype = '^' + subtype + '$';
-            dataTable.columns(column).search(subtype, true, false, true).draw();
-            $(btn).closest('table').find('.submenu > a').removeClass('active')
+            dataTable.columns(column).search('^' + subtype + '$', true, false, true).draw();
+            table.find('.submenu > a').removeClass('active')
             $(btn).addClass('active')
+            peerMenu.slideDown()
+            writeHash({
+                subtype: subtype,
+                peer: null
+            })
+        }
+    }
+
+    function filterPeer(btn, value) {
+        var active = $(btn).hasClass('active')
+        $(btn).closest('.subsubmenu').find('a').removeClass('active')
+        if (active) {
+            dataTable.columns(18).search("").draw();
+            writeHash({
+                peer: null
+            })
+        } else {
+            dataTable.columns(18).search('^' + value + '$', true, false, true).draw();
+            $(btn).addClass('active')
+            writeHash({
+                peer: value
+            })
         }
     }
 
