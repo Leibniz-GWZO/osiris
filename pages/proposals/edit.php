@@ -777,10 +777,20 @@ if ($is_subproject) {
                             </div>
                         </div>
                         <small class="text-muted">
-                            <?= lang('Persons outside the institute. Institute members should be added above.', 'Personen außerhalb des Instituts. Institutsangehörige bitte oben auswählen.') ?>
+                            <?= lang(
+                                'Persons outside the institute. Institute members should be added above. If only external persons apply, the list above can stay empty; the contact person at the institute can be added under "Proposal members" with the role "Contact person at the institute" after saving.',
+                                'Personen außerhalb des Instituts. Institutsangehörige bitte oben auswählen. Stellen nur externe Personen den Antrag, kann die Liste oben leer bleiben; die Ansprechperson im Haus kann nach dem Speichern unter „Beteiligte Personen“ mit der Rolle „Ansprechperson im GWZO“ eingetragen werden.'
+                            ) ?>
                         </small>
                     </div>
                     <script>
+                        $('#ext-applicant-last, #ext-applicant-first, #ext-applicant-affiliation').on('keydown', function(e) {
+                            if (e.key === 'Enter') {
+                                e.preventDefault()
+                                addExternalApplicant()
+                            }
+                        })
+
                         function addExternalApplicant() {
                             var last = $('#ext-applicant-last').val().trim()
                             var first = $('#ext-applicant-first').val().trim()
@@ -1517,7 +1527,7 @@ if ($is_subproject) {
                     <div class="footer">
                         <div class="input-group sm d-inline-flex w-auto">
                             <select id="add-country">
-                                <option value="" disabled checked><?= lang('Please select a country', 'Bitte wähle ein Land aus') ?></option>
+                                <option value="" disabled selected><?= lang('Please select a country', 'Bitte wähle ein Land aus') ?></option>
                                 <?php foreach ($DB->getCountries(lang('name', 'name_de')) as $iso => $name) { ?>
                                     <option value="<?= $iso ?>"><?= $name ?></option>
                                 <?php } ?>
@@ -1585,13 +1595,13 @@ if ($is_subproject) {
                             <td colspan="3">
                                 <div class="input-group small d-inline-flex w-auto">
                                     <select id="add-research-country" class="form-control">
-                                        <option value="" disabled checked><?= lang('Please select a country', 'Bitte wähle ein Land aus') ?></option>
+                                        <option value="" disabled selected><?= lang('Please select a country', 'Bitte wähle ein Land aus') ?></option>
                                         <?php foreach ($DB->getCountries(lang('name', 'name_de')) as $iso => $name) { ?>
                                             <option value="<?= $iso ?>"><?= $name ?></option>
                                         <?php } ?>
                                     </select>
                                     <select id="add-research-country-role" class="form-control">
-                                        <option value="" disabled checked><?= lang('Please select a role', 'Bitte wähle einen Typ aus') ?></option>
+                                        <option value="" disabled selected><?= lang('Please select a role', 'Bitte wähle einen Typ aus') ?></option>
                                         <option value="in"><?= lang('Research in this country', 'Forschung in diesem Land') ?></option>
                                         <option value="about"><?= lang('Research about this country', 'Forschung über dieses Land') ?></option>
                                         <option value="both"><?= lang('both', 'beides') ?></option>
@@ -1713,7 +1723,7 @@ if ($is_subproject) {
                                 <div class="footer">
                                     <div class="input-group sm d-inline-flex w-auto">
                                         <select id="add-nagoya-country">
-                                            <option value="" disabled checked><?= lang('Please select a country', 'Bitte wähle ein Land aus') ?></option>
+                                            <option value="" disabled selected><?= lang('Please select a country', 'Bitte wähle ein Land aus') ?></option>
                                             <?php foreach ($DB->getCountries(lang('name', 'name_de')) as $iso => $name) { ?>
                                                 <option value="<?= $iso ?>"><?= $name ?></option>
                                             <?php } ?>
@@ -1900,8 +1910,39 @@ if ($is_subproject) {
                 console.log(required_keys);
 
                 let form = $('#proposal-form')
+                // entries typed or selected next to a "+" button but not added yet
+                // are added on save instead of being silently dropped
+                function addPendingEntries() {
+                    const ext = ['#ext-applicant-last', '#ext-applicant-first', '#ext-applicant-affiliation'];
+                    if (ext.some(sel => ($(sel).val() || '').trim() !== '')) {
+                        if (($('#ext-applicant-last').val() || '').trim() === '') {
+                            $('#ext-applicant-last').addClass('is-invalid');
+                            toastError(lang('External applicant: please enter a last name or clear the fields.', 'Externe antragstellende Person: Bitte Nachnamen angeben oder die Felder leeren.'));
+                            return false;
+                        }
+                        $('#ext-applicant-last').removeClass('is-invalid');
+                        addExternalApplicant();
+                    }
+                    const click = {type: 'click', preventDefault: function() {}};
+                    if ($('#add-author').length && $('#add-author').val()) addAuthorDiv(click);
+                    if ($('#add-country').length && $('#add-country').val()) addCountry(click);
+                    if ($('#add-nagoya-country').length && $('#add-nagoya-country').val()) addNagoyaCountry(click);
+                    if ($('#add-research-country').length && $('#add-research-country').val()) {
+                        if (!$('#add-research-country-role').val()) {
+                            $('#add-research-country-role').addClass('is-invalid');
+                            toastError(lang('Research country: please select a type or reset the country.', 'Forschungsland: Bitte einen Typ wählen oder die Länderauswahl zurücksetzen.'));
+                            return false;
+                        }
+                        $('#add-research-country-role').removeClass('is-invalid');
+                        addResearchCountry(click);
+                        $('#add-research-country-role').val('');
+                    }
+                    return true;
+                }
+
                 $('#submit-btn').on('click', function(e) {
                     e.preventDefault();
+                    if (!addPendingEntries()) return;
                     if (validateForm()) {
                         // form.off('submit');
                         $('#draft-flag').val('0');
@@ -1910,6 +1951,7 @@ if ($is_subproject) {
                 });
                 $('#draft-btn').on('click', function(e) {
                     e.preventDefault();
+                    if (!addPendingEntries()) return;
                     // a draft needs at least a short title to be found again
                     const name = $(form).find('[name="values[name]"]');
                     if (name.length && name.val().trim() == '') {
