@@ -1430,10 +1430,12 @@ class Document extends Settings
                 if ($this->usecase == 'list')
                     return bool_icon($val);
                 if ($val != $default)
-                    return "Invited lecture";
+                    return $this->lang('Invited lecture', 'Eingeladener Vortrag');
                 else return '';
             case "lecture-type": // ["lecture_type"],
-                return $this->getVal('lecture_type');
+                $val = $this->getVal('lecture_type');
+                $labels = ['short' => ['short', 'kurz'], 'medium' => ['medium', 'mittel'], 'long' => ['long', 'lang']];
+                return isset($labels[$val]) ? $this->lang(...$labels[$val]) : $val;
             case "link": // ["link"],
             case "link-full":
             case "link-short":
@@ -1638,7 +1640,9 @@ class Document extends Settings
             case "software-venue": // ["software_venue"],
                 return $this->getVal('software_venue');
             case "status": // ["status"],
-                return $this->getVal('status');
+                $val = $this->getVal('status');
+                $labels = ['completed' => ['completed', 'abgeschlossen'], 'in progress' => ['in progress', 'laufend'], 'aborted' => ['aborted', 'abgebrochen']];
+                return isset($labels[$val]) ? $this->lang(...$labels[$val]) : $val;
             case "student-category": // ["category"],
                 return $this->translateCategory($this->getVal('category'));
             case "thesis": // ["category"],
